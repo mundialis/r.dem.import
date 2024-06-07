@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [ manual_page ]
+    branches: [ main ]
 
 jobs:
   grass-manual:
