@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>r.dem.import - GRASS GIS manual</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="content-language" content="en-us">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="grassdocs.css" type="text/css">
+</head>
+<body bgcolor="white">
+<div id="container">
+
+<a href="index.html"><img src="grass_logo.png" alt="GRASS logo"></a>
+<hr class="header">
+
+<h2>NAME</h2>
+
+<em><b>r.dem.import</b></em> - Toolset for the import of digital elevation
+models (DEMs). It includes import addons for the open geodata elevation
+models for Germany e.g. for the digital terrain models (DTMs), the digital
+surface models (DSMs) and the normalised DSMs (nDSMs).
+
+<h2>KEYWORDS</h2>
+<a href="raster.html">raster</a>,
+<a href="import.html">import</a>
+
+<h2>DESCRIPTION</h2>
+
+The <em>r.dem.import</em> toolset consists of the following modules:
+
+<dl>
+  <dt><a href="r.ndsm.import/r.ndsm.import.html">r.ndsm.import</a></dt>
+  <dd> downloads digital surface models (DSM) and digital terrain models (DTM)
+    for specified federal state and area of interest, and creates a single
+    file of a normalised DSM (nDSM).</dd>
+  <dt><a href="r.dsm.import/r.dsm.import.html">r.dsm.import</a></dt>
+  <dd> downloads digital surface models (DSM) for specified federal state
+    and aoi</dd>
+  <dt><a href="r.dtm.import/r.dtm.import.html">r.dtm.import</a></dt>
+  <dd> downloads digital terrain models (DTM) for specified federal state
+    and aoi</dd>
+</dl>
+
+Overview of the available elevation models:
+<table>
+  <thead>
+  <tr>
+  <th>Federal state</th>
+  <th>nDSM</th>
+  <th>DSM</th>
+  <th>DTM</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+  <td>Baden-Württemberg (BW)</td>
+  <td>Not available</td>
+  <td>Not available</td>
+  <td>Not available</td>
+  </tr>
+  <tr>
+  <td>Bayern (BY)</td>
+  <td>Not available</td>
+  <td>Not available</td>
+  <td>TODO</td>
+  </tr>
+  <tr>
+  <td>Berlin (BE)</td>
+  <td>DSM-DTM</td>
+  <td>r.dsm.import fs=BE</td>
+  <td>r.dtm.import fs=BE</td>
+  </tr>
+  <tr>
+  <td>Brandenburg (BB)</td>
+  <td>DSM-DTM</td>
+  <td>r.dsm.import fs=BB</td>
+  <td>r.dtm.import fs=BB</td>
+  </tr>
+  <tr>
+  <td>Bremen (HB)</td>
+  <td>Not available</td>
+  <td>Not available</td>
+  <td>Not available</td>
+  </tr>
+  <tr>
+  <td>Hamburg (HH)</td>
+  <td>DSM-DTM</td>
+  <td>r.dsm.import fs=HH</td>
+  <td>r.dtm.import fs=HH</td>
+  </tr>
+  <tr>
+  <td>Hessen (HE)</td>
+  <td>DSM-DTM</td>
+  <td>r.dsm.import fs=HE</td>
+  <td>r.dtm.import fs=HE</td>
+  </tr>
+  <tr>
+  <td>Mecklenburg-Vorpommern (MV)</td>
+  <td>Not available</td>
+  <td>Not available</td>
+  <td>Not available</td>
+  </tr>
+  <tr>
+  <td>Niedersachsen (NI)</td>
+  <td>TODO</td>
+  <td>TODO</td>
+  <td>TODO</td>
+  </tr>
+  <tr>
+  <td>Nordrhein-Westfalen (NW)</td>
+  <td>r.ndsm.import fs=NW</td>
+  <td>TODO</td>
+  <td>TODO</td>
+  </tr>
+  <tr>
+  <td>Rheinland-Pfalz (RP)</td>
+  <td>Not available</td>
+  <td>Not available</td>
+  <td>TODO</td>
+  </tr>
+  <tr>
+  <td>Saarland (SL)</td>
+  <td>Not available</td>
+  <td>Not available</td>
+  <td>Not available</td>
+  </tr>
+  <tr>
+  <td>Sachsen (SN)</td>
+  <td>DSM-DTM</td>
+  <td>r.dsm.import fs=SN</td>
+  <td>r.dtm.import fs=SN</td>
+  </tr>
+  <tr>
+  <td>Sachsen-Anhalt (ST)</td>
+  <td>TODO</td>
+  <td>TODO</td>
+  <td>TODO</td>
+  </tr>
+  <tr>
+  <td>Schleswig-Holstein (SH)</td>
+  <td>TODO</td>
+  <td>TODO</td>
+  <td>TODO</td>
+  </tr>
+  <tr>
+  <td>Thüringen (TH)</td>
+  <td>DSM-DTM</td>
+  <td>r.dsm.import fs=TH</td>
+  <td>r.dtm.import fs=TH</td>
+  </tr>
+  </tbody>
+</table>
+
+
+<h2>REQUIREMENTS</h2>
+
+<ul>
+  <li><a href="https://pypi.org/project/grass-gis-helpers/">grass-gis-helpers>=0.4.0</a></li>
+</ul>
+
+
+<h2>AUTHOR</h2>
+
+Anika Weinmann, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a>

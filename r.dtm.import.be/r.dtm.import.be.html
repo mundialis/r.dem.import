@@ -1,0 +1,26 @@
+<h2>DESCRIPTION</h2>
+
+<em>r.dtm.import.be</em> downloads and imports digital terrain models (DTM, in German DGM)
+for Berlin (BE) and area of interest.
+
+The data "ATKIS® DGM (1m-Rasterweite)" is downloaded from
+<a href="https://fbinter.stadt-berlin.de/fb/">FIS-Broker Berlin</a>
+and can be used under the specification of the licence: Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen Berlin,
+<a href="https://www.govdata.de/dl-de/by-2-0">Datenlizenz Deutschland – Namensnennung – Version 2.0</a>,
+<a href="https://daten.berlin.de/datensaetze/atkis%C2%AE-dgm-1m-rasterweite-atom">DGM</a>.
+
+
+<h2>EXAMPLE</h2>
+
+<h3>Berlin example</h3>
+
+Download and import DTM with native resolution:
+<div class="code"><pre>
+r.dtm.import.be aoi=aoi output=dtm -r
+</pre></div>
+
+
+<h2>AUTHORS</h2>
+
+Veronica Koess, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a><br>
+Anika Weinmann, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a>

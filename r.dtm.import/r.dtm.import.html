@@ -1,0 +1,45 @@
+<h2>DESCRIPTION</h2>
+
+<em>r.dtm.import</em> downloads and imports digital terrain models (DTM, in German DGM) for
+specified federal state and area of interest.
+Alternatively, local data can be imported.
+
+Implemented federal state options are:
+<ul>
+    <li>Baden-Württemberg (BW): only local data import</li>
+    <li>Bayern (BY): only local data import</li>
+    <li><a href="r.dtm.import.bb.html">Brandenburg (BB)</a></li>
+    <li><a href="r.dtm.import.be.html">Berlin (BE)</a></li>
+    <li><a href="r.dtm.import.hh.html">Hamburg (HH)</a></li>
+    <li><a href="r.dtm.import.he.html">Hessen (HE)</a></li>
+    <li><a href="r.dtm.import.sn.html">Sachsen (SN)</a></li>
+    <li><a href="r.dtm.import.th.html">Thüringen (TH)</a></li>
+</ul>
+
+
+For local data import the parameter <b>local_data_dir</b> has to be given and
+the folder structure has to be as follows:
+<div class="code"><pre>
+/path/to/DTMs/
+├── BW/*.xyz
+└── NW/*.xyz
+└── ...
+</pre></div>
+In the federal state folders the addons searches for <tt>xyz</tt> files.
+If local data does not overlap with aoi, data will be downloaded from Open Data
+portals if federal state supports Open Data.
+
+
+<h2>EXAMPLE</h2>
+
+<h3>Use local DTM</h3>
+
+Import local DTM with native resolution:
+<div class="code"><pre>
+r.dtm.import fs=BW aoi=aoi_BW output=dtm_BW local_data_dir=/path/to/DTMs/ -r
+</pre></div>
+
+<h2>AUTHORS</h2>
+
+Veronica Koess, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a><br>
+Anika Weinmann, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a>

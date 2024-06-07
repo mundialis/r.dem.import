@@ -1,0 +1,26 @@
+<h2>DESCRIPTION</h2>
+
+<em>r.dtm.import.he</em> downloads digital terrain models (DTM, in German DGM)
+for Hessen and area of interest.
+
+The data "Digitales Geländemodell" is downloaded from
+<a href="https://hvbg.hessen.de/">Hessische Verwaltung für Bodenmanagement und Geoinformation</a>
+and can be used under the specification of the licence: HVBG,
+<a href="https://www.govdata.de/dl-de/zero-2-0">Datenlizenz Deutschland – Zero – Version 2.0</a>,
+<a href="https://www.geoportal.hessen.de/mapbender/php/mod_showMetadata.php?languageCode=de&resource=layer&layout=tabs&id=36995">he_dgm</a>.
+
+
+<h2>EXAMPLE</h2>
+
+<h3>Hessen example</h3>
+
+Download and import DTM with native resolution:
+<div class="code"><pre>
+r.dtm.import.he aoi=aoi output=dtm -r
+</pre></div>
+
+
+<h2>AUTHORS</h2>
+
+Veronica Koess, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a><br>
+Anika Weinmann, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a>

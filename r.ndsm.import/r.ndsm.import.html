@@ -1,0 +1,40 @@
+<h2>DESCRIPTION</h2>
+
+<em>r.ndsm.import</em> downloads digital surface models (DSM, in German DOM) for
+specified federal state and area of interest, stores it in a local directory,
+normalizes the DSM files with corresponding digital terrain model files
+(DTM, in german DGM),
+and creates a single file of a normalised DSM (nDSM, in German nDOM) in GRASS.
+
+
+Implemented federal state options are:
+<ul>
+    <li>Berlin</li>
+    <li>Brandenburg (in progress)</li>
+    <li>Hessen</li>
+    <li><a href="r.ndsm.import.nw.html">Nordrhein-Westfalen (NW)</a></li>
+    <li>Sachsen</li>
+    <li>Thüringen</li>
+</ul>
+
+<!-- Data of the respective federal states is downloaded from:
+<ul>
+    <li><a href="https://www.opengeodata.nrw.de/produkte/geobasis/hm/ndom50_tiff/ndom50_tiff/">open geodata NRW</a></li>
+    <li><a href="https://fbinter.stadt-berlin.de/fb/">FIS-Broker Berlin</a></li>
+    <li><a href="https://data.geobasis-bb.de/geobasis/daten/">Geobasis Brandenburg</a></li>
+    <li><a href="https://daten-hamburg.de/geographie_geologie_geobasisdaten/">daten Hamburg</a></li>
+    <li><a href="https://gds.hessen.de/INTERSHOP/web/WFS/HLBG-Geodaten-Site/de_DE/-/EUR/ViewDownloadcenter-Start">Hessen Downloadcenter</a></li>
+    <li><a href="https://geocloud.landesvermessung.sachsen.de/">Landesvermessung Sachsen</a></li>
+    <li><a href="https://geoportal.geoportal-th.de/hoehendaten/">Geoportal Thüringen</a></li>
+</ul> -->
+
+<h2>EXAMPLE</h2>
+
+<div class="code"><pre>
+r.ndsm.import fs=Nordrhein-Westfalen aoi=Polygon_BonnBeuel output=NRW_nDSM_output
+</pre></div>
+
+<h2>AUTHORS</h2>
+
+Veronica Koess, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a><br>
+Anika Weinmann, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a>

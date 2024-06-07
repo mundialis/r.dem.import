@@ -1,0 +1,2 @@
+grass-gis-helpers>=1.3.0
+remotezip

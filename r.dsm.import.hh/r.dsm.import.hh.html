@@ -1,0 +1,26 @@
+<h2>DESCRIPTION</h2>
+
+<em>r.dsm.import.th</em> downloads digital surface models (DSM, in German DOM)
+for Hamburg (HH) and area of interest.
+
+The data "Digitales Höhenmodell Hamburg" is downloaded from
+<a href="https://daten-hamburg.de/geographie_geologie_geobasisdaten/digitales_hoehenmodell_bdom/">daten-hamburg</a>
+and can be used under the specification of the licence: Freie und Hansestadt Hamburg, Landesbetrieb Geoinformation und Vermessung (LGV),
+<a href="https://www.govdata.de/dl-de/by-2-0">Datenlizenz Deutschland – Namensnennung – Version 2.0</a>,
+<a href="https://metaver.de/trefferanzeige?docuuid=2AB332A1-B1B6-4706-9546">bDOM</a>.
+
+
+<h2>EXAMPLE</h2>
+
+<h3>Hamburg example</h3>
+
+Download and import DSM with native resolution:
+<div class="code"><pre>
+r.dsm.import.hh aoi=aoi output=dsm -r
+</pre></div>
+
+
+<h2>AUTHORS</h2>
+
+Veronica Koess, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a><br>
+Anika Weinmann, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a>

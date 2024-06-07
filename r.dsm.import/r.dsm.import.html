@@ -1,0 +1,45 @@
+<h2>DESCRIPTION</h2>
+
+<em>r.dsm.import</em> downloads and imports digital surface models (DSM, in German DOM) for
+specified federal state and area of interest.
+Alternatively, local data can be imported.
+
+Implemented federal state options are:
+<ul>
+    <li>Baden-Württemberg (BW): only local data import</li>
+    <li>Bayern (BY): only local data import</li>
+    <li><a href="r.dsm.import.bb.html">Brandenburg (BB)</a></li>
+    <li><a href="r.dsm.import.be.html">Berlin (BE)</a></li>
+    <li><a href="r.dsm.import.hh.html">Hamburg (HH)</a></li>
+    <li><a href="r.dsm.import.he.html">Hessen (HE)</a></li>
+    <li><a href="r.dsm.import.sn.html">Sachsen (SN)</a></li>
+    <li><a href="r.dsm.import.th.html">Thüringen (TH)</a></li>
+</ul>
+
+For local data import the parameter <b>local_data_dir</b> has to be given and
+the folder structure has to be as follows:
+<div class="code"><pre>
+/path/to/DSMs/
+├── BW/*.vrt
+└── NW/*.tif
+└── ...
+</pre></div>
+In the federal state folders the addons searches for a <tt>vrt</tt> file or
+if none is given all <tt>tif</tt>s will be imported.
+If local data does not overlap with aoi, data will be downloaded from Open Data
+portals if federal state supports Open Data.
+
+
+<h2>EXAMPLE</h2>
+
+<h3>Use local DSM</h3>
+
+Import local DSM with native resolution:
+<div class="code"><pre>
+r.dsm.import fs=BW aoi=aoi_BW output=dsm_BW local_data_dir=/path/to/DSMs/ -r
+</pre></div>
+
+<h2>AUTHORS</h2>
+
+Veronica Koess, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a><br>
+Anika Weinmann, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a>

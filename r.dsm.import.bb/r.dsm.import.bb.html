@@ -1,0 +1,27 @@
+<h2>DESCRIPTION</h2>
+
+<em>r.dsm.import.bb</em> downloads digital surface model
+(DSM, in German DOM) for Brandenburg (BB) and area of interest.
+
+The data "bildbasiertes Digitales Oberflächenmodell" is downloaded from
+<a href="https://data.geobasis-bb.de/geobasis/daten/bdom/tif/">OpenGeodata.Brandenburg</a>
+and can be used under the specification of the licence:
+<a href="https://geobasis-bb.de/lgb/de/geodaten/">&copy; GeoBasis-DE/LGB</a>,
+<a href="https://www.govdata.de/dl-de/by-2-0">Datenlizenz Deutschland - Namensnennung - Version 2.0</a>,
+<a href="https://data.geobasis-bb.de/geobasis/daten/bdom/tif/">&copy; GeoBasis Brandenburg/Bildbasiertes Digitales Oberflächenmodell (bDOM)</a>.
+
+
+<h2>EXAMPLE</h2>
+
+<h3>Import DSM</h3>
+
+Import DSM with native resolution:
+<div class="code"><pre>
+r.dsm.import.bb aoi=aoi_BB output=dsm_BB -r
+</pre></div>
+
+
+<h2>AUTHORS</h2>
+
+Veronica Koess, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a><br>
+Anika Weinmann, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a>

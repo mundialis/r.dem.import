@@ -1,0 +1,27 @@
+<h2>DESCRIPTION</h2>
+
+<em>r.dtm.import.bb</em> downloads and imports digital terrain models (DTM, in German DGM)
+for Brandenburg (BB) and area of interest.
+
+The data "Digitales Geländemodell" is downloaded from
+<a href="https://data.geobasis-bb.de/geobasis/daten/dgm/xyz/">OpenGeodata.Brandenburg</a>
+and can be used under the specification of the licence:
+<a href="https://geobasis-bb.de/lgb/de/geodaten/">&copy; GeoBasis-DE/LGB</a>,
+<a href="https://www.govdata.de/dl-de/by-2-0">Datenlizenz Deutschland - Namensnennung - Version 2.0</a>,
+<a href="https://data.geobasis-bb.de/geobasis/daten/dgm/xyz/">&copy; GeoBasis Brandenburg/Digitales Geländemodell (DGM)</a>.
+
+
+<h2>EXAMPLE</h2>
+
+<h3>Brandenburg example</h3>
+
+Download and import DTM with native resolution:
+<div class="code"><pre>
+r.dtm.import.bb aoi=aoi output=dtm -r
+</pre></div>
+
+
+<h2>AUTHORS</h2>
+
+Veronica Koess, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a><br>
+Anika Weinmann, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a>

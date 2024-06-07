@@ -1,0 +1,26 @@
+<h2>DESCRIPTION</h2>
+
+<em>r.dtm.import.sn</em> downloads digital terrain models (DTM, in German DGM)
+for Sachsen and area of interest.
+
+The data "Digitales Geländemodell" is downloaded from
+<a href="https://geocloud.landesvermessung.sachsen.de/">Landesvermessung Sachsen</a>
+and can be used under the specification of the licence: GeoSN,
+<a href="https://www.govdata.de/dl-de/by-2-0">Datenlizenz Deutschland – Namensnennung – Version 2.0</a>,
+<a href="https://geomis.sachsen.de/geomis-client/?lang=de#/datasets/iso/a3dba5b2-0118-4d76-ab78-ba656a1b489e">DGM</a>.
+
+
+<h2>EXAMPLE</h2>
+
+<h3>Sachsen example</h3>
+
+Download and import DTM with native resolution:
+<div class="code"><pre>
+r.dtm.import.sn aoi=aoi output=dtm -r
+</pre></div>
+
+
+<h2>AUTHORS</h2>
+
+Veronica Koess, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a><br>
+Anika Weinmann, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a>
