@@ -8,7 +8,7 @@ on:
 
 jobs:
   tests:
-    uses: mundialis/github-workflows/.github/workflows/grass-tests.yml@1.2.0
+    uses: mundialis/github-workflows/.github/workflows/grass-tests.yml@grass_test_improvements
     # set NC_TEST_DATA to 'NC' for using NC GRASS GIS sample location
     # with:
     #   NC_TEST_DATA: 'NC'
