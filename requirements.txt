@@ -3,3 +3,4 @@ gdal==3.8.5
 remotezip
 wget
 psutil
+numpy
