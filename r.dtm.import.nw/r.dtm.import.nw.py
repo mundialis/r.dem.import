@@ -2,10 +2,10 @@
 #
 ############################################################################
 #
-# MODULE:      r.ndsm.import.nw
-# AUTHOR(S):   Anika Weinmann
+# MODULE:      r.dtm.import.nw
+# AUTHOR(S):   Victoria-Leandra Brunn
 #
-# PURPOSE:     Downloads nDSM for Nordrhein-Westfalen and aoi
+# PURPOSE:     Downloads DTM for Nordrhein-Westfalen and aoi
 # COPYRIGHT:   (C) 2024 by mundialis GmbH & Co. KG and the GRASS
 #              Development Team
 #
@@ -22,11 +22,11 @@
 ############################################################################
 
 # %module
-# % description: Downloads DSM for Nordrhein-Westfalen and aoi.
+# % description: Downloads DTM for Nordrhein-Westfalen and aoi.
 # % keyword: raster
 # % keyword: import
-# % keyword: nDOM
-# % keyword: nDSM
+# % keyword: DTM
+# % keyword: DGM
 # % keyword: open-geodata-germany
 # %end
 
@@ -78,12 +78,12 @@ from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
 
 # set constant variables
 TINDEX = (
-    "https://github.com/mundialis/tile-indices/raw/main/nDSM/NRW/"
-    "nrw_ndom_tindex_proj.gpkg.gz"
+    "https://github.com/vbrunn/tile-indices/raw/NW_DTM_tileidx/DTM/NW/"
+    "nw_dtm_tindex_proj.gpkg.gz"
 )
 DATA_BASE_URL = (
-    "https://www.opengeodata.nrw.de/produkte/geobasis/hm/ndom50_tiff/"
-    "ndom50_tiff/"
+    "https://www.opengeodata.nrw.de/produkte/geobasis/hm/dgm1_tiff/"
+    "dgm1_tiff/"
 )
 
 ID = grass.tempname(12)
@@ -111,7 +111,7 @@ def cleanup():
 
 
 def main():
-    """Main function of r.ndsm.import.nw"""
+    """Main function of r.dtm.import.nw"""
     global rm_rasters, rm_vectors, keep_data, download_dir
 
     aoi = options["aoi"]
@@ -129,29 +129,30 @@ def main():
         grass.run_command("g.region", vector=aoi, flags="a")
 
     # get tile index
-    tindex_vect = f"dsm_tindex_{ID}"
+    tindex_vect = f"dtm_tindex_{ID}"
     rm_vectors.append(tindex_vect)
     download_and_import_tindex(TINDEX, tindex_vect, download_dir)
 
     # get download urls which overlap with aoi
     url_tiles = get_list_of_tindex_locations(tindex_vect, aoi)
+    #import pdb; pdb.set_trace()
 
-    # import nDSMS directly
-    grass.message(_("Importing nDSMs..."))
-    all_ndsms = []
+    # import DTM directly
+    grass.message(_("Importing DTM..."))
+    all_dtm = []
     for url in url_tiles:
-        ndsm_name = os.path.splitext(os.path.basename(url))[0].replace("-", "")
+        dtm_name = os.path.splitext(os.path.basename(url))[0].replace("-", "")
         if "/vsicurl/" not in url:
             url = f"/vsicurl/{url}"
         grass.run_command(
             "r.import",
             input=url,
-            output=ndsm_name,
+            output=dtm_name,
             extent="region",
             overwrite=True,
             quiet=True,
         )
-        all_ndsms.append(ndsm_name)
+        all_dtm.append(dtm_name)
 
     # resample / interpolate whole VRT (because interpolating single files leads
     # to empty rows and columns)
@@ -170,7 +171,7 @@ def main():
         # create VRT
         create_vrt(all_dtm, output)
 
-    grass.message(_(f"nDSM raster map <{output}> is created."))
+    grass.message(_(f"DTM raster map <{output}> is created."))
 
 
 if __name__ == "__main__":

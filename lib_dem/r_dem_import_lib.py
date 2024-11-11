@@ -26,7 +26,6 @@ OPEN_DATA_AVAILABILITY = {
         "NO_OPEN_DATA": ["BW", "BY"],
         "NOT_YET_SUPPORTED": [
             # available data
-            "NW",
             "RP",
             "ST",
             # no data available
@@ -40,6 +39,7 @@ OPEN_DATA_AVAILABILITY = {
             "BE",
             "HE",
             "HH",
+            "NW",
             "SN",
             "TH",
         ],
