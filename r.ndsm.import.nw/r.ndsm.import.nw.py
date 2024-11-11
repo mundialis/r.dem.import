@@ -160,15 +160,15 @@ def main():
         # create VRT
         vrt = f"vrt_dtm_{ID}"
         rm_rasters.append(vrt)
-        create_vrt(all_dtm, vrt)
+        create_vrt(all_ndsms, vrt)
 
         grass.message(_("Resampling / interpolating data..."))
         grass.run_command("g.region", raster=vrt, res=ns_res, flags="a")
         adjust_raster_resolution(vrt, output, ns_res)
-        rm_rasters.extend(all_dtm)
+        rm_rasters.extend(all_ndsms)
     else:
         # create VRT
-        create_vrt(all_dtm, output)
+        create_vrt(all_ndsms, output)
 
     grass.message(_(f"nDSM raster map <{output}> is created."))
 

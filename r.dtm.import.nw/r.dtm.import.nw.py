@@ -78,7 +78,7 @@ from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
 
 # set constant variables
 TINDEX = (
-    "https://github.com/vbrunn/tile-indices/raw/NW_DTM_tileidx/DTM/NW/"
+    "https://github.com/mundialis/tile-indices/raw/NW_DTM_tileidx/DTM/NW/"
     "nw_dtm_tindex_proj.gpkg.gz"
 )
 DATA_BASE_URL = (
@@ -135,7 +135,6 @@ def main():
 
     # get download urls which overlap with aoi
     url_tiles = get_list_of_tindex_locations(tindex_vect, aoi)
-    #import pdb; pdb.set_trace()
 
     # import DTM directly
     grass.message(_("Importing DTM..."))
