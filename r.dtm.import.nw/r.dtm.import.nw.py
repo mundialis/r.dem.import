@@ -78,7 +78,7 @@ from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
 
 # set constant variables
 TINDEX = (
-    "https://github.com/mundialis/tile-indices/raw/NW_DTM_tileidx/DTM/NW/"
+    "https://github.com/mundialis/tile-indices/raw/main/DTM/NW/"
     "nw_dtm_tindex_proj.gpkg.gz"
 )
 DATA_BASE_URL = (
