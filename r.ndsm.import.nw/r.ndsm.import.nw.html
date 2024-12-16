@@ -13,8 +13,12 @@ and can be used under the specification of the licence:
 
 <h3>Import nDSM</h3>
 
-Import nDSMs with native resolution:
+Import nDSMs with native nDSM resolution:
+
 <div class="code"><pre>
+# create BBOX as a vector map
+v.in.region output=aoi_NW type=area
+# download and import nDSM data
 r.ndsm.import.nw aoi=aoi_NW output=ndsm_NW -r
 </pre></div>
 
