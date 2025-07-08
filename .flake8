@@ -10,6 +10,7 @@ per-file-ignores =
     ./r.dsm.import.be/r.dsm.import.be.py:F821
     ./r.dsm.import.he/r.dsm.import.he.py:F821
     ./r.dsm.import.hh/r.dsm.import.hh.py:F821
+    ./r.dsm.import.ni/r.dsm.import.ni.py:F821
     ./r.dsm.import.sn/r.dsm.import.sn.py:F821
     ./r.dsm.import.th/r.dsm.import.th.py:F821
     ./r.dsm.import/r.dsm.import.py:E501,F821
@@ -18,6 +19,7 @@ per-file-ignores =
     ./r.dtm.import.he/r.dtm.import.he.py:F821
     ./r.dtm.import.hh/r.dtm.import.hh.py:F821
     ./r.dtm.import.nw/r.dtm.import.nw.py:F821
+    ./r.dtm.import.ni/r.dtm.import.ni.py:F821
     ./r.dtm.import.sn/r.dtm.import.sn.py:F821
     ./r.dtm.import.th/r.dtm.import.th.py:F821
     ./r.dtm.import/r.dtm.import.py:E501,F821
