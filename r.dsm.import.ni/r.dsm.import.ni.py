@@ -5,7 +5,7 @@
 # MODULE:      r.dsm.import.ni
 # AUTHOR(S):   Anika Weinmann, Johannes Halbauer
 #
-# PURPOSE:     Downloads DSM for NIedersachsen and aoi
+# PURPOSE:     Downloads DSM for Niedersachsen and aoi
 # COPYRIGHT:   (C) 2025 by mundialis GmbH & Co. KG and the GRASS
 #              Development Team
 #
@@ -157,7 +157,24 @@ def main():
         all_dsms.append(dsm_name)
 
     # create VRT
-    create_vrt(all_dsms, output)
+    tmp_out = f"tmp_{output}_{ID}"
+    rm_rasters.append(tmp_out)
+    rm_rasters.extend(all_dsms)
+    create_vrt(all_dsms, tmp_out)
+
+    # clip to region / aoi
+    if aoi:
+        grass.run_command("g.region", vector=aoi, align=tmp_out)
+    else:
+        grass.run_command("g.region", region=ORIG_REGION, align=tmp_out)
+    grass.run_command(
+        "r.mapcalc", expression="MASK = 1", overwrite=True, quiet=True
+    )
+    grass.run_command(
+        "r.mapcalc",
+        expression=f"{output} = {tmp_out}",
+        quiet=True,
+    )
 
     # resample / interpolate whole VRT (because interpolating single files leads
     # to empty rows and columns)
