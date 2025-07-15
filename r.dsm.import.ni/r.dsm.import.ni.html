@@ -1,0 +1,27 @@
+<h2>DESCRIPTION</h2>
+
+<em>r.dsm.import.ni</em> downloads digital surface models (DSM, in German DOM)
+for Niedersachsen (NI) and area of interest.
+
+The data "Digitales Oberflächenmodell Niedersachsen" is downloaded from
+<a href="https://ni-lgln-opengeodata.hub.arcgis.com/apps/lgln-opengeodata::digitales-oberfl%C3%A4chenmodell-dom1/about">OpenGeoData.NI</a>
+and can be used under the specification of the licence: © GeoBasis-DE/LGLN YEAR, Data modified (IF DATA MODIFIED),
+<a href="https://creativecommons.org/licenses/by/4.0/deed.en">Creative Commons (CC-BY 4.0)</a>, for detailed information see
+<a href="https://www.lgln.niedersachsen.de/startseite/wir_uber_uns_amp_organisation/allgemeine_geschafts_und_nutzungsbedingungen_agnb/allgemeine-geschafts-und-nutzungsbedingungen-agnb-97401.html">terms of service</a>.
+
+
+<h2>EXAMPLE</h2>
+
+<h3>Niedersachsen example</h3>
+
+Download and import DSM with native resolution:
+<div class="code"><pre>
+r.dsm.import.ni aoi=aoi output=dsm -r
+</pre></div>
+
+
+<h2>AUTHORS</h2>
+
+Veronica Koess, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a><br>
+Anika Weinmann, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a><br>
+Johannes Halbauer, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a>
