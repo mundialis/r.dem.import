@@ -87,9 +87,8 @@ OPEN_DATA_AVAILABILITY = {
         ],
         "SUPPORTED": [
             "NW",
-        ]
-    }
-    ,
+        ],
+    },
     "nDSM": {
         "NO_OPEN_DATA": ["BW", "BY"],
         "NOT_YET_SUPPORTED": [

@@ -82,7 +82,7 @@ TINDEX = (
     "https://github.com/mundialis/tile-indices/raw/main/iDSM/NW/"
     "nw_idsm_tindex_proj.gpkg.gz"
 )
-RESOLUTION=0.5
+RESOLUTION = 0.5
 
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
@@ -110,7 +110,7 @@ def cleanup():
 
 def main():
     """Main function of r.idsm.import.nw"""
-    global rm_rasters, rm_vectors, keep_data, download_dir
+    global keep_data, download_dir
 
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])

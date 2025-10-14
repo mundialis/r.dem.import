@@ -121,7 +121,6 @@ def cleanup():
 
 def main():
     """Main function of r.idsm.import"""
-    global rm_rasters
 
     aoi = options["aoi"]
     federal_states = get_federal_states(
