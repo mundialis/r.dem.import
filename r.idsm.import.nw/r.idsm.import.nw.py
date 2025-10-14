@@ -172,8 +172,6 @@ def main():
             "g.region",
             res=RESOLUTION,
         )
-        # # for no missing values at the border of the whole area we grow it
-        # grass.run_command("g.region", grow=5)
         r_in_pdal_kwargs["flags"] = "o"
         grass.run_command("r.in.pdal", **r_in_pdal_kwargs)
         all_idsms.append(idsm_name)
