@@ -66,6 +66,29 @@ OPEN_DATA_AVAILABILITY = {
             "TH",
         ],
     },
+    "iDSM": {
+        "NOT_YET_SUPPORTED": [
+            # either not avaible, or not supported yet
+            "BB",
+            "BE",
+            "BW",
+            "BY",
+            "HB",
+            "HE",
+            "HH",
+            "MV",
+            "NI",
+            "RP",
+            "SH",
+            "SL",
+            "ST",
+            "SN",
+            "TH",
+        ],
+        "SUPPORTED": [
+            "NW",
+        ],
+    },
     "nDSM": {
         "NO_OPEN_DATA": ["BW", "BY"],
         "NOT_YET_SUPPORTED": [

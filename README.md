@@ -1,8 +1,8 @@
 ## r.dem.import - Toolset for the import of digital elevation models (DEMs)
 
 It includes import addons for the open geodata elevation models for Germany,
-e.g. for the digital terrain models (DTMs), the digital surface models (DSMs)
-and the normalised DSMs (nDSMs).
+e.g. for the digital terrain models (DTMs), the digital surface models (DSMs),
+the image based digital surface models (iDSM) and the normalised DSMs (nDSMs).
 
 The r.dem.import toolset consists of the following modules:
 
@@ -11,5 +11,7 @@ The r.dem.import toolset consists of the following modules:
   and creates a single file of a normalised DSM (nDSM).
 - r.dsm.import: downloads digital surface models (DSM) for specified
   federal state and AOI
+- r.idsm.import: downloads image based digital surface models (iDSM) for
+  specified federal state and AOI
 - r.dtm.import: downloads digital terrain models (DTM) for specified
   federal state and AOI
