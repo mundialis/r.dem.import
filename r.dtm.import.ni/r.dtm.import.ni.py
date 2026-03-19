@@ -182,7 +182,9 @@ def main():
     if not native_res:
         grass.run_command("g.region", raster=output, res=ns_res)
         grass.message(_("Resampling / interpolating data..."))
-        adjust_raster_resolution(output, output, ns_res)
+        grass.run_command("g.rename", raster=f"{output},{output}_tmp")
+        adjust_raster_resolution(f"{output}_tmp", output, ns_res)
+        rm_rasters.append(f"{output}_tmp")
 
     grass.message(_(f"DTM raster map <{output}> is created."))
 
