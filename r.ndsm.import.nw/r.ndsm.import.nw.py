@@ -166,6 +166,7 @@ def main():
         grass.run_command("g.region", raster=vrt, res=ns_res, flags="a")
         adjust_raster_resolution(vrt, output, ns_res)
         rm_rasters.extend(all_ndsms)
+        rm_rasters.append(f"{output}_tmp")
     else:
         # create VRT
         create_vrt(all_ndsms, output)
