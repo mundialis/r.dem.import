@@ -30,7 +30,6 @@ OPEN_DATA_AVAILABILITY = {
             "ST",
             # no data available
             "MV",
-            "NI",
             "SL",
             "SH",
         ],
@@ -39,6 +38,7 @@ OPEN_DATA_AVAILABILITY = {
             "BE",
             "HE",
             "HH",
+            "NI",
             "NW",
             "SN",
             "TH",
@@ -52,7 +52,6 @@ OPEN_DATA_AVAILABILITY = {
             "ST",
             # no data available
             "MV",
-            "NI",
             "RP",
             "SH",
             "SL",
@@ -62,6 +61,7 @@ OPEN_DATA_AVAILABILITY = {
             "BE",
             "HE",
             "HH",
+            "NI",
             "SN",
             "TH",
         ],
