@@ -64,6 +64,7 @@
 
 import atexit
 import os
+from time import sleep
 import grass.script as grass
 
 from grass_gis_helpers.cleanup import general_cleanup
@@ -88,6 +89,7 @@ DATA_BASE_URL = (
 
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
+RETRIES = 10
 
 # set global variables
 keep_data = False
@@ -143,14 +145,23 @@ def main():
         ndsm_name = os.path.splitext(os.path.basename(url))[0].replace("-", "")
         if "/vsicurl/" not in url:
             url = f"/vsicurl/{url}"
-        grass.run_command(
-            "r.import",
-            input=url,
-            output=ndsm_name,
-            extent="region",
-            overwrite=True,
-            quiet=True,
-        )
+
+        count = 0
+        imported = False
+        while not imported and count < RETRIES:
+            count += 1
+            try:
+                grass.run_command(
+                    "r.import",
+                    input=url,
+                    output=ndsm_name,
+                    extent="region",
+                    overwrite=True,
+                    quiet=True,
+                )
+                imported = True
+            except Exception:
+                sleep(10)
         all_ndsms.append(ndsm_name)
 
     # resample / interpolate whole VRT (because interpolating single files leads
