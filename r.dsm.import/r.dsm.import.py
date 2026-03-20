@@ -41,7 +41,7 @@
 # % type: string
 # % multiple: yes
 # % required: no
-# % options: Berlin,BE,Baden-Württemberg,BW,Bayern,BY,Brandenburg,BB,Hamburg,HH,Hessen,HE,Sachsen,SN,Thüringen,TH
+# % options: Berlin,BE,Baden-Württemberg,BW,Bayern,BY,Brandenburg,BB,Hamburg,HH,Hessen,HE,NI,Niedersachsen,Sachsen,SN,Thüringen,TH
 # % description: Federal state(s) related to the area of interest e.g.:"Nordrhein-Westfalen"
 # %end
 
