@@ -169,7 +169,7 @@ def main():
     # check resolution and resample / interpolate data if needed
     if not native_res:
         # create VRT
-        vrt = f"vrt_dtm_{ID}"
+        vrt = f"vrt_ndsm_{ID}"
         rm_rasters.append(vrt)
         create_vrt(all_ndsms, vrt)
 
