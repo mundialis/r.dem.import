@@ -15,3 +15,27 @@ The r.dem.import toolset consists of the following modules:
   specified federal state and AOI
 - r.dtm.import: downloads digital terrain models (DTM) for specified
   federal state and AOI
+
+
+## Addon health
+
+| federal state | DSM | DTM | nDSM | iDSM | testsuit nDSM | data download | resolution |
+|---------------|-----|-----|------|------|----------|---------------|------------|
+| BB | &#9745; | &#9745; | | | existiert, läuft nicht | | |
+| BE | &#9745; | &#9745; | | | läuft | | |
+| BW | | | | | | | |
+| BY | | | | | | | |
+| HB | | | | | | | |
+| HE | &#9745; | &#9745; | | | existiert, läuft nicht | | |
+| HH | &#9745; | &#9745; | | | läuft | | |
+| MV | | | | | | | |
+| NI | &#9745; | &#9745; | | | fehlt | | |
+| NW | | &#9745; | &#9745; | &#9745; | läuft | | |
+| RP | | | | | | | |
+| SH | | | | | | | |
+| SL | | | | | | | |
+| SN | &#9745; | &#9745; | | | existiert, läuft nicht | | |
+| ST | | | | | | | |
+| TH | &#9745; | &#9745; | | | läuft | | |
+
+&#9745; = Skripte existieren
