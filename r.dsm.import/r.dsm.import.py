@@ -225,7 +225,7 @@ def main():
                 r_dsm_import_fs_flags += "k"
             if native_res:
                 r_dsm_import_fs_flags += "r"
-            out_fs = f"dsm_{fs}"
+            out_fs = f"dsm_{fs}_{ID}"
             grass.run_command(
                 f"r.dsm.import.{fs.lower()}",
                 aoi=aoi,
