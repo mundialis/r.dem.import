@@ -212,7 +212,7 @@ def main():
         data_file = os.path.join(download_dir, data_file_name)
         fix_corrupted_data(data_file)
         rm_files.append(f"{data_file}.bak")
-        import_single_local_xyz_file(data_file, dtm_name, separator="comma")
+        import_single_local_xyz_file(data_file, dtm_name)
         all_dtms.append(dtm_name)
 
     # create VRT
