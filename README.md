@@ -17,25 +17,23 @@ The r.dem.import toolset consists of the following modules:
   federal state and AOI
 
 
-## Addon health
+## Addon coverage for federal states
 
-| federal state | DSM | DTM | nDSM | iDSM | testsuit nDSM | data download | resolution |
-|---------------|-----|-----|------|------|----------|---------------|------------|
-| BB | &#9745; | &#9745; | | | existiert, läuft nicht | | |
-| BE | &#9745; | &#9745; | | | läuft | | |
-| BW | | | | | | | |
-| BY | | | | | | | |
-| HB | | | | | | | |
-| HE | &#9745; | &#9745; | | | existiert, läuft nicht | | |
-| HH | &#9745; | &#9745; | | | läuft | | |
-| MV | | | | | | | |
-| NI | &#9745; | &#9745; | | | fehlt | | |
-| NW | | &#9745; | &#9745; | &#9745; | läuft | | |
-| RP | | | | | | | |
-| SH | | | | | | | |
-| SL | | | | | | | |
-| SN | &#9745; | &#9745; | | | existiert, läuft nicht | | |
-| ST | | | | | | | |
-| TH | &#9745; | &#9745; | | | läuft | | |
-
-&#9745; = Skripte existieren
+| Federal state | DSM | DTM | nDSM | iDSM | Tile-Index | Data Download | Resolution | Data Source |
+| - | - | - | - | - | - | - | - | - |
+| BB | - | &#9745; | via iDSM & DTM | &#9745; (TODO: rename r.dsm.bb to r.idsm.bb) | DTM <br> iDSM(DSM)| | DTM: 1m <br> iDSM: 0.2m | |
+| BE | &#9745; | &#9745; | via DSM & DTM | - |DSM <br> DTM | | DSM: 1m <br> DTM: 1m  | |
+| BW | | | | | | | | [Open GeoData Portal](https://opengeodata.lgl-bw.de/#/) |
+| BY | | | | | | | |[Open GeoData](https://geodaten.bayern.de/opengeodata/) |
+| HB | | | | | | | | [Geoportal](https://geoportal.bremen.de/geoportal/#) |
+| HE | | | | | | | | [Geoportal](/https://www.geoportal.hessen.de/search/) |
+| HH | | | | | | | | [Geoportal](https://geoportal-hamburg.de/) |
+| MV | | | | | | | | [Downloadportal](https://laiv.geodaten-mv.de/afgvk/) |
+| NI | | | | | | | | [Open GeoData](https://ni-lgln-opengeodata.hub.arcgis.com/) |
+| NW | - | &#9745; | &#9745; | &#9745; | DTM <br> nDSM <br> iDSM | | DTM: 1m <br> nDSM: 0.5m <br> iDSM: 0.5m |
+| RP | | | | | | | | [Geoportal](https://www.geoportal.rlp.de/) |
+| SH | | | | | | | | [Downloadportal](https://geodaten.schleswig-holstein.de/gaialight-sh/_apps/dladownload/) |
+| SL | | | | | | | | [Geoportal](https://geoportal.saarland.de/) |
+| SN | &#9745; | &#9745; | via DSM & DTM | - |DSM <br> DTM | | DSM: 1m <br> DTM: 1m  | |
+| ST | | | | | | | | [Geodatenportal](https://www.lvermgeo.sachsen-anhalt.de/de/gdp-open-data.html) |
+| TH | &#9745; | &#9745; |via DSM & DTM | - |DSM <br> DTM | | DSM: 1m <br> DTM: 1m  | |
