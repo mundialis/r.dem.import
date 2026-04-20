@@ -73,6 +73,11 @@ from grass_gis_helpers.data_import import (
     download_and_import_tindex,
     get_list_of_tindex_locations,
 )
+from grass_gis_helpers.location import (
+    create_tmp_location,
+    get_current_location,
+    switch_back_original_location,
+)
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
 )
@@ -83,6 +88,7 @@ TINDEX = (
     "https://raw.githubusercontent.com/mundialis/tile-indices/main/DSM/BB/"
     "BB_tileindex_dom_tif_proj.gpkg.gz"
 )
+EPSGCODE = 25833
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
 
@@ -110,6 +116,8 @@ def cleanup():
 def main():
     """Main function of r.dsm.import.bb"""
     global rm_rasters, rm_vectors, keep_data, download_dir
+    # global vars for temporary location
+    global gisdbase, tgtgisrc, tmploc, srcgisrc
 
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])
@@ -121,9 +129,38 @@ def main():
     grass.run_command("g.region", save=ORIG_REGION, quiet=True)
     ns_res = grass.region()["nsres"]
 
+    # create region vector if no aoi is given
+    if not aoi:
+        aoi = f"aoi_region_{ID}"
+        rm_vectors.append(aoi)
+        grass.run_command("v.in.region", output=aoi)
+
+    # get current resolution
+    cur_res = grass.region()["nsres"]
+
     # set region if aoi is given
     if aoi:
         grass.run_command("g.region", vector=aoi, flags="a")
+
+    # change location to tmp location for data import
+    tgtloc, tgtmapset, gisdbase, tgtgisrc = get_current_location()
+    tmploc, srcgisrc = create_tmp_location(EPSGCODE)
+
+    # reproject aoi
+    if "@" in aoi:
+        aoi_name, mapset = aoi.split("@")
+    else:
+        mapset = tgtmapset
+        aoi_name = aoi
+    grass.run_command(
+        "v.proj",
+        location=tgtloc,
+        mapset=mapset,
+        input=aoi_name,
+        output=aoi_name,
+        quiet=True,
+    )
+    grass.run_command("g.region", vector=aoi_name, res=cur_res, flags="a")
 
     # get tile index
     tindex_vect = f"dsm_tindex_{ID}"
@@ -133,7 +170,7 @@ def main():
     # get download urls which overlap with aoi
     url_tiles = get_list_of_tindex_locations(tindex_vect, aoi)
 
-    # import nDSMS directly
+    # import DSMs directly
     grass.message(_(f"Importing {len(url_tiles)} DSMs..."))
     all_dsms = []
     if native_res:
@@ -143,6 +180,12 @@ def main():
         dsm_name = os.path.splitext(os.path.basename(url))[0].replace("-", "")
         if "/vsicurl/" not in url:
             url = f"/vsicurl/{url}"
+        # TODO: remove -o flag:
+        # Currently tifs are given with COMPOUNDCRS
+        # with PROJCRS: 258322 and VERTCRS: 7837
+        # r.import check of projection yields error,
+        # even in 25833 projection.
+        # Until fixed in GRASS GIS: ignore projection check
         import_kwargs = {
             "input": url,
             "output": dsm_name,
@@ -150,6 +193,7 @@ def main():
             "overwrite": True,
             "quiet": True,
             "memory": 1000,
+            "flags": "o",
         }
         if native_res:
             import_kwargs["resolution"] = "value"
@@ -170,6 +214,30 @@ def main():
         adjust_raster_resolution(f"{output}_tmp", output, ns_res)
         rm_rasters.extend(all_dsms)
         rm_rasters.append(f"{output}_tmp")
+
+    # get native data resolution
+    if native_res:
+        res = float(
+            grass.parse_command("r.info", map=output, flags="g")["nsres"]
+        )
+    # switch back to origin location
+    switch_back_original_location(tgtgisrc)
+
+    if not native_res:
+        res = ns_res
+    grass.run_command("g.region", vector=aoi, res=res, flags="a")
+    grass.run_command(
+        "r.proj",
+        location=tmploc,
+        mapset="PERMANENT",
+        input=output,
+        output=output,
+        resolution=res,
+        method="bilinear",
+        flags="n",
+        quiet=True,
+        memory=1000,
+    )
 
     grass.message(_(f"DSM raster map <{output}> is created."))
 
