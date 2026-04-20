@@ -220,7 +220,7 @@ def main():
                 r_dtm_import_fs_flags += "k"
             if native_res:
                 r_dtm_import_fs_flags += "r"
-            out_fs = f"dtm_{fs}"
+            out_fs = f"dtm_{fs}_{ID}"
             grass.run_command(
                 f"r.dtm.import.{fs.lower()}",
                 aoi=aoi,
