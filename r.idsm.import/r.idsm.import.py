@@ -152,7 +152,7 @@ def main():
             r_idsm_import_fs_flags += "k"
         if native_res:
             r_idsm_import_fs_flags += "r"
-        out_fs = f"idsm_{fs}"
+        out_fs = f"idsm_{fs}_{ID}"
         grass.run_command(
             f"r.idsm.import.{fs.lower()}",
             aoi=aoi,

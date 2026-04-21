@@ -79,6 +79,8 @@ from grass_gis_helpers.open_geodata_germany.download_data import (
 )
 from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
 
+os.environ["CPL_VSIL_CURL_USE_HEAD"] = "NO"
+
 # set constant variables
 TINDEX = (
     "https://github.com/mundialis/tile-indices/raw/main/DTM/SN/"
