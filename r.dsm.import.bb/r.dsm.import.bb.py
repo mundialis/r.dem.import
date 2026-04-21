@@ -180,12 +180,12 @@ def main():
         dsm_name = os.path.splitext(os.path.basename(url))[0].replace("-", "")
         if "/vsicurl/" not in url:
             url = f"/vsicurl/{url}"
-        # TODO: remove -o flag:
-        # Currently tifs are given with COMPOUNDCRS
-        # with PROJCRS: 258322 and VERTCRS: 7837
-        # r.import check of projection yields error,
-        # even in 25833 projection.
-        # Until fixed in GRASS GIS: ignore projection check
+        # Currently bDOM tifs are given with COMPOUNDCRS
+        # with PROJCRS: 25833 and VERTCRS: 7837 (for vertical data)
+        # r.import check of CRS yields error, even in 25833 projection.
+        # Thus for now ignore projection check and expect 25833
+        # TODO/NOTE: remove -o flag when handled from r.import or
+        # CRS of original bDOM data change
         import_kwargs = {
             "input": url,
             "output": dsm_name,
