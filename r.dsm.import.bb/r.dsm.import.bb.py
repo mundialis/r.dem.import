@@ -186,6 +186,7 @@ def main():
         # Thus for now ignore projection check and expect 25833
         # TODO/NOTE: remove -o flag when handled from r.import or
         # CRS of original bDOM data change
+        grass.warning(_("Importing data with -o flag, because of COMPOUNDCRS."))
         import_kwargs = {
             "input": url,
             "output": dsm_name,
