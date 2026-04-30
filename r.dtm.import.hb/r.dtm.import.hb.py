@@ -3,9 +3,11 @@
 ############################################################################
 #
 # MODULE:      r.dtm.import.hb
-# AUTHOR(S):   Kim Kaiser, Anika Weinmann
-#
-#
+# AUTHOR(S):   Anika Weinmann, Kim Kaiser
+# PURPOSE:     Downloads DTM for Bremen, Bremerhaven and aoi
+# SPDX-FileCopyrightText: (c) 2026 by mundialis GmbH & Co. KG and the
+#                             GRASS Development Team
+# SPDX-License-Identifier: GPL-3.0-or-later.
 ############################################################################
 
 # %module
@@ -67,8 +69,18 @@ from grass_gis_helpers.open_geodata_germany.download_data import (
 from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
 
 # set variables
-TINDEX=("https://github.com/kimariak/tile-indices/raw/hb_dtm_tindex/DTM/HB/hb_dgm1_tindex_proj.gpkg.gz")
-ZIP_URLS=["https://gdi2.geo.bremen.de/inspire/download/DGM/data/Gitternetz_DGM1_2017_HB_ASCII_XYZ.zip","https://gdi2.geo.bremen.de/inspire/download/DGM/data/Gitternetz_DGM1_2015_BHV_ASCII_XYZ.zip"]
+# TODO Tindex branch ändern
+TINDEX = (
+    "https://github.com/kimariak/tile-indices/raw/hb_dtm_tindex/DTM/HB/"
+    "hb_dgm1_tindex_proj.gpkg.gz"
+)
+ZIP_URLS = [
+    "https://gdi2.geo.bremen.de/inspire/download/DGM/data/"
+    "Gitternetz_DGM1_2017_HB_ASCII_XYZ.zip",
+    "https://gdi2.geo.bremen.de/inspire/download/DGM/data/"
+    "Gitternetz_DGM1_2015_BHV_ASCII_XYZ.zip",
+]
+CURRENT_WORKING_DIR = os.getcwd()
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
 
@@ -77,8 +89,10 @@ download_dir = None
 rm_rasters = []
 rm_vectors = []
 
+
 def cleanup():
     """Cleaning up function"""
+    os.chdir(CURRENT_WORKING_DIR)
     rm_dirs = []
     if not keep_data:
         if download_dir:
@@ -90,6 +104,7 @@ def cleanup():
         rm_dirs=rm_dirs,
     )
 
+
 def main():
     """Main function of r.dtm.import.hb"""
     global rm_rasters, rm_vectors, keep_data, download_dir
@@ -99,7 +114,7 @@ def main():
     output = options["output"]
     keep_data = flags["k"]
     native_res = flags["r"]
-    
+
     # save original region
     grass.run_command("g.region", save=ORIG_REGION, quiet=True)
     ns_res = grass.region()["nsres"]
@@ -112,26 +127,26 @@ def main():
     rm_vectors.append(tindex_vect)
     download_and_import_tindex(TINDEX, tindex_vect, download_dir)
 
-   # get data files which overlap with aoi
+    # get data files which overlap with aoi
     datafile_tiles = get_list_of_tindex_locations(tindex_vect, aoi)
-
-# ToDo: Herausfinden, ob Bremen und BHV in list_of_tindex gelistet sind, prüfen ob try except beide abfängt.
 
     # extract XYZ DTM files
     grass.message(_(f"Extracting {len(datafile_tiles)} DTM files..."))
     os.chdir(download_dir)
     for datafile in datafile_tiles:
-        zip_success=False
+        zip_success = False
         for DATA_ZIP_URL in ZIP_URLS:
-            try: 
-                with RemoteZip(DATA_ZIP_URL) as zip:    
+            try:
+                with RemoteZip(DATA_ZIP_URL) as zip:
                     zip.extract(datafile)
-                    zip_success=True
+                    zip_success = True
                     break
             except Exception:
                 continue
         if not zip_success:
-            grass.fatal(_(f"No valid tile {datafile} found within zip-urls {ZIP_URLS}"))
+            grass.fatal(
+                _(f"No valid tile {datafile} found within zip-urls {ZIP_URLS}")
+            )
 
     # import XYZ DTM files
     grass.message(_("Importing DTM..."))
@@ -146,7 +161,9 @@ def main():
             "-", ""
         )
         xyz_file = os.path.join(download_dir, xyz_file)
-        import_single_local_xyz_file(xyz_file, dtm_name, use_cur_reg=True)
+        import_single_local_xyz_file(
+            xyz_file, dtm_name, use_cur_reg=True, skip=1
+        )
         all_dtms.append(dtm_name)
 
     # create VRT
