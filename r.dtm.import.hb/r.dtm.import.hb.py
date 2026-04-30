@@ -120,18 +120,18 @@ def main():
     # extract XYZ DTM files
     grass.message(_(f"Extracting {len(datafile_tiles)} DTM files..."))
     os.chdir(download_dir)
-    zip_success=False
-    for DATA_ZIP_URL in ZIP_URLS:
-        try: 
-            with RemoteZip(DATA_ZIP_URL) as zip:
-                for datafile in datafile_tiles:
-                    # import pdb;pdb.set_trace()
+    for datafile in datafile_tiles:
+        zip_success=False
+        for DATA_ZIP_URL in ZIP_URLS:
+            try: 
+                with RemoteZip(DATA_ZIP_URL) as zip:    
                     zip.extract(datafile)
                     zip_success=True
-        except Exception:
-            continue
-    if not zip_success:
-        grass.fatal(_("No valid tile found withing zip"))
+                    break
+            except Exception:
+                continue
+        if not zip_success:
+            grass.fatal(_(f"No valid tile {datafile} found within zip-urls {ZIP_URLS}"))
 
     # import XYZ DTM files
     grass.message(_("Importing DTM..."))
