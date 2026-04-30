@@ -88,6 +88,7 @@ DATA_ZIP_URL = (
     "https://daten-hamburg.de/geographie_geologie_geobasisdaten/"
     "Digitales_Hoehenmodell/DGM1/dgm1_2x2km_XYZ_hh_2021_04_01.zip"
 )
+CURRENT_WORKING_DIR = os.getcwd()
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
 
@@ -100,6 +101,7 @@ rm_vectors = []
 
 def cleanup():
     """Cleaning up function"""
+    os.chdir(CURRENT_WORKING_DIR)
     rm_dirs = []
     if not keep_data:
         if download_dir:

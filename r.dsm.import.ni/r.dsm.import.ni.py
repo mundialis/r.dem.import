@@ -104,6 +104,7 @@ def cleanup():
         rm_rasters=rm_rasters,
         rm_vectors=rm_vectors,
         rm_dirs=rm_dirs,
+        rm_mask=True,
     )
 
 
