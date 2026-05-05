@@ -135,9 +135,9 @@ def main():
     os.chdir(download_dir)
     for datafile in datafile_tiles:
         zip_success = False
-        for DATA_ZIP_URL in ZIP_URLS:
+        for data_zip_url in ZIP_URLS:
             try:
-                with RemoteZip(DATA_ZIP_URL) as zip:
+                with RemoteZip(data_zip_url) as zip:
                     zip.extract(datafile)
                     zip_success = True
                     break
