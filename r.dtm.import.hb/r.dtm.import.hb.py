@@ -69,7 +69,6 @@ from grass_gis_helpers.open_geodata_germany.download_data import (
 from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
 
 # set variables
-# TODO Tindex branch ändern
 TINDEX = (
     "https://github.com/mundialis/tile-indices/raw/main/DTM/HB/"
     "hb_dgm1_tindex_proj.gpkg.gz"
@@ -186,7 +185,7 @@ def main():
         quiet=True,
     )
 
-    # resample / interpolate whole VRT (because interpolating single files leads
+    # resample/interpolate whole VRT (because interpolating single files leads
     # to empty rows and columns)
     # check resolution and resample / interpolate data if needed
     if not native_res:
