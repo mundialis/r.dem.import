@@ -71,7 +71,7 @@ from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
 # set variables
 # TODO Tindex branch ändern
 TINDEX = (
-    "https://github.com/kimariak/tile-indices/raw/hb_dtm_tindex/DTM/HB/"
+    "https://github.com/mundialis/tile-indices/raw/main/DTM/HB/"
     "hb_dgm1_tindex_proj.gpkg.gz"
 )
 ZIP_URLS = [
