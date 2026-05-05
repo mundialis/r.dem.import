@@ -36,6 +36,7 @@ OPEN_DATA_AVAILABILITY = {
         "SUPPORTED": [
             "BB",
             "BE",
+            "HB",
             "HE",
             "HH",
             "NI",
