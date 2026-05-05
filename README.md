@@ -21,14 +21,14 @@ The r.dem.import toolset consists of the following modules:
 | Federal state | DSM | DTM | nDSM | iDSM | Tile-Index | Data Download | Resolution | Data Source |
 | - | - | - | - | - | - | - | - | - |
 | BB | - | ☑ | via iDSM & DTM | ☑ (TODO: rename r.dsm.bb to r.idsm.bb) | DTM <br> iDSM(DSM)| | DTM: 1m <br> iDSM: 0.2m | |
-| BE | ☑ | ☑ | via DSM & DTM | - |DSM <br> DTM | | DSM: 1m <br> DTM: 1m  | |
+| BE | ☑ | ☑ | via DSM & DTM | - | DSM <br> DTM | | DSM: 1m <br> DTM: 1m  | |
 | BW | | | | | | | | [Open GeoData Portal](https://opengeodata.lgl-bw.de/#/) |
 | BY | | | | | | | |[Open GeoData](https://geodaten.bayern.de/opengeodata/) |
 | HB | | | | | | | | [Geoportal](https://geoportal.bremen.de/geoportal/#) |
-| HE | | | | | | | | [Geoportal](/https://www.geoportal.hessen.de/search/) |
-| HH | | | | | | | | [Geoportal](https://geoportal-hamburg.de/) |
+| HE | Bug | Bug | | | | | | [Geoportal](/https://www.geoportal.hessen.de/search/) |
+| HH | ☑ | ☑ | via DSM & DTM | - | DSM <br> DTM | | DSM: 1m <br> DTM: 1m | [Geoportal](https://geoportal-hamburg.de/) |
 | MV | | | | | | | | [Downloadportal](https://laiv.geodaten-mv.de/afgvk/) |
-| NI | | | | | | | | [Open GeoData](https://ni-lgln-opengeodata.hub.arcgis.com/) |
+| NI | ☑ | ☑ | via DSM & DTM | - | DSM <br> DTM | | DSM: 1m <br> DTM: 1m | [Open GeoData](https://ni-lgln-opengeodata.hub.arcgis.com/) |
 | NW | - | ☑ | ☑ | ☑ | DTM <br> nDSM <br> iDSM | | DTM: 1m <br> nDSM: 0.5m <br> iDSM: 0.5m |
 | RP | | | | | | | | [Geoportal](https://www.geoportal.rlp.de/) |
 | SH | | | | | | | | [Downloadportal](https://geodaten.schleswig-holstein.de/gaialight-sh/_apps/dladownload/) |
