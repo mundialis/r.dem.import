@@ -279,7 +279,6 @@ def main():
         ):
             grass.message(_(f"Importing nDSM data for {fs}..."))
             ndsm_out = f"ndsm_{fs}_{ID}"
-            rm_rasters.append(ndsm_out)
             grass.run_command(
                 f"r.ndsm.import.{fs.lower()}",
                 aoi=aoi,
@@ -399,8 +398,7 @@ def main():
         if ndsm_out is None:
             ndsm_out = f"ndsm_{fs}_{ID}"
             compute_ndsm(dtm_out, idsm_out, dsm_out, ndsm_out)
-        if ndsm_out:
-            ndsm_list.append(ndsm_out)
+        ndsm_list.append(ndsm_out)
 
     # create VRT
     if len(ndsm_list) > 0:
