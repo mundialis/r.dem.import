@@ -2,9 +2,9 @@
 #
 ############################################################################
 #
-# MODULE:      r.dsm.import.hh
-# AUTHOR(S):   Anika Weinmann
-# PURPOSE:     Downloads DSM for Hamburg and aoi
+# MODULE:      r.idsm.import.hh
+# AUTHOR(S):   Veronica Koess, Anika Weinmann
+# PURPOSE:     Downloads iDSM for Hamburg and aoi
 # SPDX-FileCopyrightText: (c) 2024-2026 by mundialis GmbH & Co. KG and the
 #                             GRASS Development Team
 # SPDX-License-Identifier: GPL-3.0-or-later.
@@ -12,11 +12,11 @@
 ############################################################################
 
 # %module
-# % description: Downloads DSM for Hamburg and aoi.
+# % description: Downloads iDSM for Hamburg and aoi.
 # % keyword: raster
 # % keyword: import
 # % keyword: DOM
-# % keyword: DSM
+# % keyword: iDSM
 # % keyword: open-geodata-germany
 # %end
 
@@ -77,7 +77,7 @@ from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
 
 # set constant variables
 TINDEX = (
-    "https://github.com/mundialis/tile-indices/raw/main/DSM/HH/"
+    "https://github.com/mundialis/tile-indices/raw/main/iDSM/HH/"
     "hh_dom_tindex_proj.gpkg.gz"
 )
 DATA_ZIP_URL = (
@@ -113,7 +113,7 @@ def cleanup():
 
 
 def main():
-    """Main function of r.dsm.import.hh"""
+    """Main function of r.idsm.import.hh"""
     global download_dir, keep_data, rm_rasters, rm_vectors
 
     aoi = options["aoi"]
@@ -139,15 +139,15 @@ def main():
     # get data files which overlap with aoi
     datafile_tiles = get_list_of_tindex_locations(tindex_vect, aoi)
 
-    # extract XYZ DSM files
-    grass.message(_("Extracting DSM files..."))
+    # extract XYZ iDSM files
+    grass.message(_("Extracting iDSM files..."))
     os.chdir(download_dir)
     with RemoteZip(DATA_ZIP_URL) as zip:
         for datafile in datafile_tiles:
             zip.extract(datafile)
 
-    # import XYZ DSM files
-    grass.message(_(f"Extracting {len(datafile_tiles)} DSM files..."))
+    # import XYZ iDSM files
+    grass.message(_(f"Extracting {len(datafile_tiles)} iDSM files..."))
     xyz_files = [os.path.basename(file) for file in datafile_tiles]
     all_dsms = []
     for xyz_file_name in xyz_files:
@@ -208,7 +208,7 @@ def main():
         adjust_raster_resolution(f"{output}_tmp", output, ns_res)
         rm_rasters.append(f"{output}_tmp")
 
-    grass.message(_(f"DSM raster map <{output}> is created."))
+    grass.message(_(f"iDSM raster map <{output}> is created."))
 
 
 if __name__ == "__main__":

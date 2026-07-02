@@ -3,11 +3,12 @@
 ############################################################################
 #
 # MODULE:      r.ndsm.import
-# AUTHOR(S):   Anika Weinmann
-# PURPOSE:     Downloads digital surface models (DSM) and digital terrain models (DTM)
-#              for specified federal state and area of interest,
-#              and creates a single file of a normalised DSM (nDSM) in GRASS.
-# SPDX-FileCopyrightText: (c) 2024 by mundialis GmbH & Co. KG and the
+# AUTHOR(S):   Anika Weinmann, Kim Kaiser, Veronica Koess
+# PURPOSE:     Downloads (image based) digital surface models (iDSM/DSM) and
+#              digital terrain models (DTM) for specified federal state and
+#              area of interest, and creates a single file of a normalised
+#              DSM (nDSM) in GRASS.
+# SPDX-FileCopyrightText: (c) 2026 by mundialis GmbH & Co. KG and the
 #                             GRASS Development Team
 # SPDX-License-Identifier: GPL-3.0-or-later.
 #
@@ -20,6 +21,7 @@
 # % keyword: nDSM
 # % keyword: nDOM
 # % keyword: DOM
+# % keyword: iDSM
 # % keyword: DSM
 # % keyword: DGM
 # % keyword: DTM
@@ -50,6 +52,12 @@
 # % key: local_data_dir_ndsm
 # % required: no
 # % description: Directory with raster map of nDSMs to import (e.g. VRT)
+# %end
+
+# %option G_OPT_M_DIR
+# % key: local_data_dir_idsm
+# % required: no
+# % description: Directory with raster map of iDSMs to import (e.g. VRT)
 # %end
 
 # %option G_OPT_M_DIR
@@ -140,20 +148,30 @@ def cleanup():
     )
 
 
-def compute_ndsm(dtm, dsm, ndsm):
+def compute_ndsm(dtm, idsm, dsm, ndsm):
     """Compute nDSM out of DTM and DSM
 
     Args:
         dtm (str): Name of DTM input raster map
+        idsm (str): Name of iDSM input raster map
         dsm (str): Name of DSM input raster map
         ndsm (str): Name for output nDSM raster map
     """
-    grass.run_command("g.region", raster=dsm)
-    grass.run_command(
-        "r.mapcalc",
-        expression=f"{ndsm} = {dsm} - {dtm}",
-        quiet=True,
-    )
+    # use iDSM if given, otherwise use DSM
+    if idsm:
+        grass.run_command("g.region", raster=idsm)
+        grass.run_command(
+            "r.mapcalc",
+            expression=f"{ndsm} = {idsm} - {dtm}",
+            quiet=True,
+        )
+    else:
+        grass.run_command("g.region", raster=dsm)
+        grass.run_command(
+            "r.mapcalc",
+            expression=f"{ndsm} = {dsm} - {dtm}",
+            quiet=True,
+        )
 
 
 def check_completeness_of_ndsm(aoi, ndsm):
@@ -194,6 +212,7 @@ def main():
         options["federal_state"], options["federal_state_file"]
     )
     local_data_dir_ndsm = options["local_data_dir_ndsm"]
+    local_data_dir_idsm = options["local_data_dir_idsm"]
     local_data_dir_dsm = options["local_data_dir_dsm"]
     local_data_dir_dtm = options["local_data_dir_dtm"]
     download_dir = check_download_dir(options["download_dir"])
@@ -211,6 +230,11 @@ def main():
         local_ndsm_fs_list = os.listdir(local_data_dir_ndsm)
         grass.fatal(_("Local nDSM data dir is not yet supported."))
 
+    # local iDSM files
+    local_idsm_fs_list = []
+    if local_data_dir_idsm and local_data_dir_idsm != "":
+        local_idsm_fs_list = os.listdir(local_data_dir_idsm)
+
     # local DSM files
     local_dsm_fs_list = []
     if local_data_dir_dsm and local_data_dir_dsm != "":
@@ -226,6 +250,7 @@ def main():
         grass.run_command("g.region", region=ORIG_REGION)
         ndsm_out = None
         dtm_out = None
+        idsm_out = None
         dsm_out = None
         # check if local data for federal state given
         imported_local_data = False
@@ -240,7 +265,7 @@ def main():
         #         _(f"No local data for {fs} available. Is the path correct?")
         #     )
 
-        # set flags for nDSM, DSM and DTM
+        # set flags for nDSM, iDSM, DSM and DTM
         import_flags = ""
         if nativ_res:
             import_flags += "r"
@@ -254,7 +279,6 @@ def main():
         ):
             grass.message(_(f"Importing nDSM data for {fs}..."))
             ndsm_out = f"ndsm_{fs}_{ID}"
-            rm_rasters.append(ndsm_out)
             grass.run_command(
                 f"r.ndsm.import.{fs.lower()}",
                 aoi=aoi,
@@ -266,31 +290,31 @@ def main():
                 overwrite=True,
             )
 
-        # import DSM data
+        # import iDSM data
         if (
             imported_local_data is False
             and (
-                fs in local_dsm_fs_list
-                or fs in OPEN_DATA_AVAILABILITY["DSM"]["SUPPORTED"]
+                fs in local_idsm_fs_list
+                or fs in OPEN_DATA_AVAILABILITY["iDSM"]["SUPPORTED"]
             )
         ) and ndsm_out is None:
-            grass.message(_(f"Importing DSM data for {fs}..."))
-            dsm_out = f"dsm_{fs}_{ID}"
-            rm_rasters.append(dsm_out)
+            grass.message(_(f"Importing iDSM data for {fs}..."))
+            idsm_out = f"idsm_{fs}_{ID}"
+            rm_rasters.append(idsm_out)
             grass.run_command(
-                "r.dsm.import",
+                "r.idsm.import",
                 aoi=aoi,
                 federal_state=fs,
-                local_data_dir=local_data_dir_dsm,
-                download_dir=os.path.join(download_dir, "DSM"),
+                local_data_dir=local_data_dir_idsm,
+                download_dir=os.path.join(download_dir, "iDSM"),
                 alignment_raster=alignment_raster,
-                output=dsm_out,
+                output=idsm_out,
                 flags=import_flags,
                 quiet=True,
             )
-            raster_info = grass.raster_info(dsm_out)["comments"].split()
+            raster_info = grass.raster_info(idsm_out)["comments"].split()
             if raster_info[0].replace('"', "") in ["r.buildvrt", "r.patch"]:
-                dsm_rasters = [
+                idsm_rasters = [
                     x.replace("input=", "")
                     .replace("\\", "")
                     .replace('"', "")
@@ -298,7 +322,44 @@ def main():
                     for x in raster_info
                     if x.startswith("input=")
                 ][0]
-                rm_rasters.extend(dsm_rasters)
+                rm_rasters.extend(idsm_rasters)
+        else:
+            # import DSM data
+            if (
+                imported_local_data is False
+                and (
+                    fs in local_dsm_fs_list
+                    or fs in OPEN_DATA_AVAILABILITY["DSM"]["SUPPORTED"]
+                )
+            ) and ndsm_out is None:
+                grass.message(_(f"Importing DSM data for {fs}..."))
+                dsm_out = f"dsm_{fs}_{ID}"
+                rm_rasters.append(dsm_out)
+                grass.run_command(
+                    "r.dsm.import",
+                    aoi=aoi,
+                    federal_state=fs,
+                    local_data_dir=local_data_dir_dsm,
+                    download_dir=os.path.join(download_dir, "DSM"),
+                    alignment_raster=alignment_raster,
+                    output=dsm_out,
+                    flags=import_flags,
+                    quiet=True,
+                )
+                raster_info = grass.raster_info(dsm_out)["comments"].split()
+                if raster_info[0].replace('"', "") in [
+                    "r.buildvrt",
+                    "r.patch",
+                ]:
+                    dsm_rasters = [
+                        x.replace("input=", "")
+                        .replace("\\", "")
+                        .replace('"', "")
+                        .split(",")
+                        for x in raster_info
+                        if x.startswith("input=")
+                    ][0]
+                    rm_rasters.extend(dsm_rasters)
 
         # import DTM data
         if (
@@ -334,11 +395,10 @@ def main():
                 ][0]
                 rm_rasters.extend(dtm_rasters)
         # check if nDSM has to be computed
-        if ndsm_out is None and dsm_out and dtm_out:
+        if ndsm_out is None:
             ndsm_out = f"ndsm_{fs}_{ID}"
-            compute_ndsm(dtm_out, dsm_out, ndsm_out)
-        if ndsm_out:
-            ndsm_list.append(ndsm_out)
+            compute_ndsm(dtm_out, idsm_out, dsm_out, ndsm_out)
+        ndsm_list.append(ndsm_out)
 
     # create VRT
     if len(ndsm_list) > 0:

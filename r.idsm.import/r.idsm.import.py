@@ -31,7 +31,7 @@
 # % type: string
 # % multiple: yes
 # % required: no
-# % options: Nordrhein-Westfalen,NW
+# % options: Brandenburg,BB,Hamburg,HH,Nordrhein-Westfalen,NW
 # % description: Federal state(s) related to the area of interest e.g.:"Nordrhein-Westfalen"
 # %end
 
