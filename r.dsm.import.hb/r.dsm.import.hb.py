@@ -3,7 +3,7 @@
 ############################################################################
 #
 # MODULE:      r.dsm.import.hb
-# AUTHOR(S):   Kim Kaiser, Anika Weinmann
+# AUTHOR(S):   Kim Kaiser, Veronica Koess, Anika Weinmann
 # PURPOSE:     Downloads DSM for Bremen/Bremerhaven
 # SPDX-FileCopyrightText: (c) 2026 by mundialis GmbH & Co. KG and the
 #                             GRASS Development Team
