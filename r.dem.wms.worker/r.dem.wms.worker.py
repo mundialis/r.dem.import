@@ -3,7 +3,7 @@
 ############################################################################
 #
 # MODULE:      r.dem.wms.worker
-# AUTHOR(S):   Johannes Halbauer, Lina Krisztian, Leon Louwarts, Kim Kaiser
+# AUTHOR(S):   Johannes Halbauer, Kim Kaiser, Lina Krisztian, Leon Louwarts
 # PURPOSE:     Imports Digital Elevation Models (DEMs) within a specified area via WMS
 # SPDX-FileCopyrightText: (c) 2026 by mundialis GmbH & Co. KG and the
 #                             GRASS Development Team

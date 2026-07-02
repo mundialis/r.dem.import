@@ -3,9 +3,9 @@
 ############################################################################
 #
 # MODULE:      r.idsm.import.bb
-# AUTHOR(S):   Anika Weinmann
+# AUTHOR(S):   Veronica Koess, Anika Weinmann
 # PURPOSE:     Downloads iDSM for Brandenburg and aoi
-# SPDX-FileCopyrightText: (c) 2024 by mundialis GmbH & Co. KG and the
+# SPDX-FileCopyrightText: (c) 2026 by mundialis GmbH & Co. KG and the
 #                             GRASS Development Team
 # SPDX-License-Identifier: GPL-3.0-or-later.
 #
