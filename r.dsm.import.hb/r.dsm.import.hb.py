@@ -279,7 +279,14 @@ def main():
             grass.run_command("g.region", res=ns_res, flags="a")
         grass.message(_("Resampling / interpolating data..."))
         grass.run_command("g.rename", raster=f"{output},{output}_tmp")
-        adjust_raster_resolution(f"{output}_tmp", output, ns_res)
+        import pdb; pdb.set_trace()
+        #### TODO:
+        # adjust_raster_resolution ist das Problem, durch r.resamp.interp wird
+        # u.a. die data range von 255 auf über 32k gesetzt. Die method von bilinear 
+        # auf nearest zu ändern hat bisher nicht funktioniert.
+        # außerdem wird data type von CELL auf DCELL gesetzt? Was ist das
+        ####
+        adjust_raster_resolution(f"{output}_tmp", output, ns_res, method="bilinear")
         rm_rasters.append(f"{output}_tmp")
 
     grass.message(_(f"Generated following raster map: {output}"))

@@ -214,7 +214,7 @@ def main():
             input=raster_name_list,
             output=raster_name,
         )
-
+        
     grass.message(_(f"Finishing raster import for {raster_name}..."))
 
     # switch back to original location
