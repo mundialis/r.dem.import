@@ -54,6 +54,13 @@
 # % answer: -2
 # %end
 
+# %option
+# % key: metadata_file
+# % type: string
+# % required: no
+# % description: Temporary file for metadata URLs
+# %end
+
 # %option G_OPT_MEMORYMB
 # %end
 
@@ -75,6 +82,7 @@
 import atexit
 import os
 import sys
+import pathlib
 
 import grass.script as grass
 from grass.pygrass.modules import Module, ParallelModuleQueue
@@ -128,6 +136,7 @@ def main():
     alignment_raster = options["alignment_raster"]
     nprocs = int(options["nprocs"])
     nprocs = setup_parallel_processing(nprocs)
+    metadata_file = options["metadata_file"]
     output = options["output"]
     fs = "HB"
 
@@ -283,6 +292,15 @@ def main():
         rm_rasters.append(f"{output}_tmp")
 
     grass.message(_(f"Generated following raster map: {output}"))
+
+    if metadata_file:
+        try:
+            with pathlib.Path(metadata_file).open("w", encoding="utf-8") as f:
+                for layer in LAYER:
+                    f.write(f"WMS_DSM: {WMS_URL}|LAYER: {layer}\n")
+            grass.debug("Wrote WMS metadata to tempfile")
+        except Exception as e:
+            grass.warning(f"Could not write tempfile metadata: {e}")
 
 
 if __name__ == "__main__":

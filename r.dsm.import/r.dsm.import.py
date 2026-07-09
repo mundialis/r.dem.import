@@ -3,9 +3,9 @@
 #############################################################################
 #
 # MODULE:      r.dsm.import
-# AUTHOR(S):   Anika Weinmann
+# AUTHOR(S):   Anika Weinmann, Leon Louwarts
 # PURPOSE:     Downloads DSM for specified federal state and aoi
-# SPDX-FileCopyrightText: (c) 2024 by mundialis GmbH & Co. KG and the
+# SPDX-FileCopyrightText: (c) 2024 - 2026 by mundialis GmbH & Co. KG and the
 #                             GRASS Development Team
 # SPDX-License-Identifier: GPL-3.0-or-later.
 #
@@ -66,6 +66,15 @@
 # % description: Name for output raster map
 # %end
 
+# %option
+# % key: metadata
+# % type: string
+# % required: no
+# % multiple: no
+# % description: Path to metadata output file (markdown format)
+# % answer:
+# %end
+
 # %flag
 # % key: k
 # % label: Keep downloaded data in the download directory
@@ -84,6 +93,7 @@
 import atexit
 import os
 import sys
+import pathlib
 
 from grass.pygrass.utils import get_lib_path
 import grass.script as grass
@@ -96,6 +106,11 @@ from grass_gis_helpers.open_geodata_germany.download_data import (
 from grass_gis_helpers.open_geodata_germany.federal_state import (
     get_federal_states,
 )
+from grass_gis_helpers.open_geodata_germany.metadata import (
+    collect_metadata,
+    get_license_and_url_from_addon,
+    write_metadata_markdown,
+)
 from grass_gis_helpers.raster import create_vrt
 
 # import module library
@@ -105,6 +120,7 @@ if path is None:
 sys.path.append(path)
 try:
     from r_dem_import_lib import OPEN_DATA_AVAILABILITY
+    from r_dem_import_metadata_lib import get_download_urls_and_names
 except Exception as imp_err:
     grass.fatal(f"r.dem.import library could not be imported: {imp_err}")
 
@@ -162,6 +178,11 @@ def import_local_data(aoi, out, local_data_dir, fs, all_dsms, native_res_flag):
     return imported_local_data
 
 
+def get_addon_name(fs):
+    """Function to get the addon name for the function to get license info"""
+    return f"r.dsm.import.{fs.lower()}"
+
+
 def main():
     """Main function of r.dsm.import"""
     global rm_rasters
@@ -172,8 +193,8 @@ def main():
     )
     local_data_dir = options["local_data_dir"]
     download_dir = check_download_dir(options["download_dir"])
-    alignment_raster = options["alignment_raster"]
     output = options["output"]
+    metadata_path = options["metadata"]
     keep_data = flags["k"]
     native_res = flags["r"]
 
@@ -187,13 +208,30 @@ def main():
 
     # loop over federal states and import data
     all_dsms = []
+    metadata_list = []
     for fs in set(federal_states):
+        fs_dem_list = []
+        dem_names = []
+        dem_urls = []
+
         # check if local data for federal state given
         imported_local_data = False
         if fs in local_fs_list:
             imported_local_data = import_local_data(
                 aoi, output, local_data_dir, fs, all_dsms, native_res
             )
+            if imported_local_data:
+                fs_dem_list = [f"{output}_{fs}"]
+                local_fs_dir = os.path.join(local_data_dir, fs)
+                if pathlib.Path(local_fs_dir).exists():
+                    for _root, _dirs, files in os.walk(local_fs_dir):
+                        dem_names.extend(
+                            file
+                            for file in files
+                            if file.lower().endswith(
+                                (".tif", ".tiff", ".jp2", ".jpeg"),
+                            )
+                        )
         elif fs in NO_OPEN_DATA:
             grass.fatal(
                 _(
@@ -225,19 +263,63 @@ def main():
             if native_res:
                 r_dsm_import_fs_flags += "r"
             out_fs = f"dsm_{fs}_{ID}"
-            grass.run_command(
-                f"r.dsm.import.{fs.lower()}",
-                aoi=aoi,
-                download_dir=download_dir,
-                alignment_raster=alignment_raster,
-                output=out_fs,
-                flags=r_dsm_import_fs_flags,
-                overwrite=True,
-            )
+            addon = f"r.dsm.import.{fs.lower()}"
+            params = {
+                "aoi": aoi,
+                "download_dir": download_dir,
+                "output": out_fs,
+                "flags": r_dsm_import_fs_flags,
+                "overwrite": True,
+            }
+
+            # Only create a tempfile for URL/metadata exchange with the
+            # state-specific addon if a metadata file was actually
+            # requested by the user
+            metadata_tmpfile = None
+            if metadata_path:
+                metadata_tmpfile = grass.tempfile()
+                params["metadata_file"] = metadata_tmpfile
+
+            grass.run_command(addon, **params)
             all_dsms.append(out_fs)
+            fs_dem_list = [out_fs]
+
+            if metadata_tmpfile:
+                # Reads URLs from the tempfile written by the addon, with
+                # fallbacks to the download directory and raster count
+                # if no URLs could be determined (see
+                # r_dem_import_metadata_lib.py)
+                dem_urls, dem_names = get_download_urls_and_names(
+                    metadata_tmpfile=metadata_tmpfile,
+                    keep_data=keep_data,
+                    download_dir=download_dir,
+                    out_fs=out_fs,
+                    fs=fs,
+                )
+
+        # Collect metadata for this federal state (license/source info comes from
+        # the addon's HTML documentation, file/URL info from above)
+        addon_name = get_addon_name(fs)
+        license_info, base_url = get_license_and_url_from_addon(addon_name)
+        fs_metadata = collect_metadata(
+            fs=fs,
+            raster_list=fs_dem_list,
+            license_info=license_info,
+            base_url=base_url,
+            original_names=dem_names,
+            download_urls=dem_urls,
+        )
+        metadata_list.append(fs_metadata)
 
     create_vrt(all_dsms, output)
     grass.message(_(f"DSM raster map <{output}> is created."))
+
+    # Write metadata file if metadata_path was set
+    write_metadata_markdown(
+        metadata_list=metadata_list,
+        metadata_path=metadata_path,
+        data_label="DOM",
+    )
 
 
 if __name__ == "__main__":
