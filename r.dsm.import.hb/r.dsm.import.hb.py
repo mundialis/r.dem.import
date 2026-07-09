@@ -12,7 +12,7 @@
 ############################################################################
 
 # %module
-# % description: Downloads DSM for Bremen/Bremerhaven
+# % description: Downloads DSM for Bremen, Bremerhaven and aoi.
 # % keyword: raster
 # % keyword: import
 # % keyword: DOM
@@ -44,19 +44,6 @@
 # % description: Name for output raster map
 # %end
 
-# %option
-# % key: nprocs
-# % type: integer
-# % required: no
-# % multiple: no
-# % label: Number of parallel processes
-# % description: Number of cores for multiprocessing, -2 is the number of available cores - 1
-# % answer: -2
-# %end
-
-# %option G_OPT_MEMORYMB
-# %end
-
 # %flag
 # % key: k
 # % label: Keep downloaded data in the download directory
@@ -74,193 +61,144 @@
 
 import atexit
 import os
-import sys
 
 import grass.script as grass
-from grass.pygrass.modules import Module, ParallelModuleQueue
-from grass.pygrass.utils import get_lib_path
+from remotezip import RemoteZip
 
 from grass_gis_helpers.cleanup import general_cleanup
+from grass_gis_helpers.data_import import (
+    download_and_import_tindex,
+    get_list_of_tindex_locations,
+    import_single_local_xyz_file,
+)
+from grass_gis_helpers.open_geodata_germany.download_data import (
+    check_download_dir,
+)
 from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
 
-# import module library
-path = get_lib_path(modname="r.dem.import")
-if path is None:
-    grass.fatal("Unable to find the dem library directory.")
-sys.path.append(path)
-try:
-    from r_dem_import_lib import (
-        setup_parallel_processing,
-        create_grid_and_tiles_list,
-    )
-except Exception as imp_err:
-    grass.fatal(f"r.dem.import library could not be imported: {imp_err}")
-
+# set variables
+TINDEX = (
+    "https://github.com/mundialis/tile-indices/raw/main/DSM/HB/"
+    "hb_dom1_tindex_proj.gpkg.gz"
+)
+ZIP_URLS = [
+    "https://gdi2.geo.bremen.de/inspire/download/DOM/data/"
+    "Gitternetz_DOM1_2017_HB_ASCII_XYZ.zip",
+    "https://gdi2.geo.bremen.de/inspire/download/DOM/data/"
+    "Gitternetz_DOM1_2015_BHV_ASCII_XYZ.zip",
+]
+CURRENT_WORKING_DIR = os.getcwd()
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
-rm_vectors = []
-rm_rasters = []
-download_dir = None
-rm_dirs = []
 
-WMS_URL = (
-    "https://geodienste.bremen.de/wms_dom1?REQUEST=GetCapabilities&SERVICE"
-    "=WMS&VERSION=1.3.0&"
-)
-LAYER = ["DOM1_HB", "DOM1_BHV"]
-NATIVE_DSM_RES = 1
+keep_data = False
+download_dir = None
+rm_rasters = []
+rm_vectors = []
 
 
 def cleanup():
-    """Remove all not needed files at the end"""
+    """Cleaning up function"""
+    os.chdir(CURRENT_WORKING_DIR)
+    rm_dirs = []
+    if not keep_data:
+        if download_dir:
+            rm_dirs.append(download_dir)
     general_cleanup(
         orig_region=ORIG_REGION,
-        rm_vectors=rm_vectors,
         rm_rasters=rm_rasters,
+        rm_vectors=rm_vectors,
         rm_dirs=rm_dirs,
+        rm_mask=True,
     )
 
 
 def main():
     """Main function of r.dsm.import.hb"""
-    global rm_vectors
+    global rm_rasters, rm_vectors, keep_data, download_dir
+
     aoi = options["aoi"]
+    download_dir = check_download_dir(options["download_dir"])
     alignment_raster = options["alignment_raster"]
-    nprocs = int(options["nprocs"])
-    nprocs = setup_parallel_processing(nprocs)
     output = options["output"]
-    fs = "HB"
-
-    # print warning that memory will be ignored
-    # (no memory parameter in worker module)
-    if options["memory"]:
-        grass.warning(
-            _(
-                "<memory> parameter will be ignored, because the worker "
-                "module for DEMs does not accept a <memory> parameter.",
-            ),
-        )
-
-    # if -k flag is set print warning that it will be ignored because
-    # the data will be directly imported into GRASS from WMS
-    if flags["k"]:
-        grass.warning(
-            _(
-                "-k flag will be ignored, beacuse HB DEMs will be imported "
-                "directly from WMS into GRASS. Use r.out.gdal module to "
-                "export DSMs into download directory!",
-            ),
-        )
+    keep_data = flags["k"]
+    native_res = flags["r"]
 
     # save original region
     grass.run_command("g.region", save=ORIG_REGION, quiet=True)
-
-    # get region resolution and check if resolution consistent
-    reg = grass.region()
-    if reg["nsres"] == reg["ewres"]:
-        ns_res = reg["nsres"]
-    else:
-        grass.fatal("N/S resolution is not the same as E/W resolution!")
+    ns_res = grass.region()["nsres"]
 
     # set region if aoi is given
     if aoi:
-        # pylint: disable=E0601
-        grass.run_command("g.region", vector=aoi, res=ns_res, flags="a")
-    # if no aoi save region as aoi
-    else:
-        aoi = f"region_aoi_{ID}"
-        grass.run_command(
-            "v.in.region",
-            output=aoi,
-            quiet=True,
+        grass.run_command("g.region", vector=aoi, flags="a")
+    # get tile index
+    tindex_vect = f"dsm_tindex_{ID}"
+    rm_vectors.append(tindex_vect)
+    download_and_import_tindex(TINDEX, tindex_vect, download_dir)
+
+    # get data files which overlap with aoi
+    datafile_tiles = get_list_of_tindex_locations(tindex_vect, aoi)
+
+    # extract XYZ DSM files
+    grass.message(_(f"Extracting {len(datafile_tiles)} DSM files..."))
+    os.chdir(download_dir)
+    for datafile in datafile_tiles:
+        zip_success = False
+        for data_zip_url in ZIP_URLS:
+            try:
+                with RemoteZip(data_zip_url) as zip:
+                    zip.extract(datafile)
+                    zip_success = True
+                    break
+            except Exception:
+                continue
+        if not zip_success:
+            grass.fatal(
+                _(f"No valid tile {datafile} found within zip-urls {ZIP_URLS}")
+            )
+
+    # import XYZ DSM files
+    grass.message(_("Importing DSM..."))
+    all_dsms = []
+    for xyz_file in datafile_tiles:
+        if aoi:
+            grass.run_command("g.region", vector=aoi)
+        else:
+            grass.run_command("g.region", region=ORIG_REGION)
+        grass.run_command("g.region", res=1, grow=1, quiet=True)
+        dsm_name = os.path.splitext(os.path.basename(xyz_file))[0].replace(
+            "-", ""
         )
+        xyz_file = os.path.join(download_dir, xyz_file)
+        import_single_local_xyz_file(
+            xyz_file, dsm_name, use_cur_reg=True, skip=1
+        )
+        all_dsms.append(dsm_name)
 
-    # create grid for downloading
-    grass.message(_("Creating DSM tiles for HB..."))
+    # create VRT
+    tmp_out = f"tmp_{output}_{ID}"
+    rm_rasters.append(tmp_out)
+    rm_rasters.extend(all_dsms)
+    create_vrt(all_dsms, tmp_out)
 
-    # set tile size in map units (meter)
-    tile_size = 1000
-
-    # set grid name
-    grid = f"tmp_grid_HB_{ID}"
-
-    # create grid with lib function
-    rm_vectors, number_tiles, tiles_list = create_grid_and_tiles_list(
-        ns_res,
-        ns_res,
-        tile_size,
-        grid,
-        rm_vectors,
-        aoi,
-        ID,
-        fs,
+    # clip to region / aoi
+    if aoi:
+        grass.run_command("g.region", vector=aoi, align=tmp_out)
+    else:
+        grass.run_command("g.region", region=ORIG_REGION, align=tmp_out)
+    grass.run_command(
+        "r.mapcalc", expression="MASK = 1", overwrite=True, quiet=True
+    )
+    grass.run_command(
+        "r.mapcalc",
+        expression=f"{output} = {tmp_out}",
+        quiet=True,
     )
 
-    # set number of parallel processes to number of tiles
-    if number_tiles < nprocs:
-        nprocs = number_tiles
-    queue = ParallelModuleQueue(nprocs=nprocs)
-
-    # get GISDBASE and Location
-    gisenv = grass.gisenv()
-    gisdbase = gisenv["GISDBASE"]
-    location = gisenv["LOCATION_NAME"]
-
-    # set queue and variables for worker addon
-    create_vrt_list = []
-    try:
-        grass.message(
-            _(f"Importing {number_tiles} DSMs for HB in parallel..."),
-        )
-        for tile in tiles_list:
-            key = tile
-            new_mapset = f"tmp_mapset_r_dem_import_tile_{key}_{os.getpid()}"
-            rm_dirs.append(os.path.join(gisdbase, location, new_mapset))
-            raster_name = tile
-            create_vrt_list.append(f"{raster_name}@{new_mapset}")
-            param = {
-                "tile_key": key,
-                "tile_url": WMS_URL,
-                "layer_names": ",".join(LAYER),
-                "raster_name": raster_name,
-                "orig_region": ORIG_REGION,
-                "new_mapset": new_mapset,
-                "flags": "",
-            }
-            grass.message(_(f"raster name: {raster_name}"))
-
-            # modify params
-            if aoi:
-                param["aoi"] = aoi
-            if flags["r"]:
-                param["resolution_to_import"] = NATIVE_DSM_RES
-            else:
-                param["resolution_to_import"] = ns_res
-
-            # run worker addon in parallel
-            r_dem_wms_worker = Module(
-                "r.dem.wms.worker",
-                **param,
-                run_=False,
-            )
-            # catch all GRASS output to stdout and stderr
-            r_dem_wms_worker.stdout = grass.PIPE
-            r_dem_wms_worker.stderr = grass.PIPE
-            queue.put(r_dem_wms_worker)
-        queue.wait()
-    except Exception:
-        for proc_num in range(queue.get_num_run_procs()):
-            proc = queue.get(proc_num)
-            if proc.returncode != 0:
-                # save all stderr to a variable and pass it to a GRASS
-                # exception
-                errmsg = proc.outputs["stderr"].value.strip()
-                grass.fatal(
-                    _(f"\nERROR by processing <{proc.get_bash()}>: {errmsg}"),
-                )
-
-    create_vrt(create_vrt_list, output)
-    if not flags["r"]:
+    # resample/interpolate whole VRT (because interpolating single files leads
+    # to empty rows and columns)
+    # check resolution and resample / interpolate data if needed
+    if not native_res:
         if alignment_raster:
             # set extent from imported data, and align with alignment raster
             grass.run_command(
@@ -279,17 +217,10 @@ def main():
             grass.run_command("g.region", res=ns_res, flags="a")
         grass.message(_("Resampling / interpolating data..."))
         grass.run_command("g.rename", raster=f"{output},{output}_tmp")
-        import pdb; pdb.set_trace()
-        #### TODO:
-        # adjust_raster_resolution ist das Problem, durch r.resamp.interp wird
-        # u.a. die data range von 255 auf über 32k gesetzt. Die method von bilinear 
-        # auf nearest zu ändern hat bisher nicht funktioniert.
-        # außerdem wird data type von CELL auf DCELL gesetzt? Was ist das
-        ####
-        adjust_raster_resolution(f"{output}_tmp", output, ns_res, method="bilinear")
+        adjust_raster_resolution(f"{output}_tmp", output, ns_res)
         rm_rasters.append(f"{output}_tmp")
 
-    grass.message(_(f"Generated following raster map: {output}"))
+    grass.message(_(f"DSM raster map <{output}> is created."))
 
 
 if __name__ == "__main__":

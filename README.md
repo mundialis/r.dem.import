@@ -24,7 +24,7 @@ The r.dem.import toolset consists of the following modules:
 | BE | ☑ | ☑ | via DSM & DTM | - | DSM <br> DTM | | DSM: 1m <br> DTM: 1m  | |
 | BW | | | | | | | | [Open GeoData Portal](https://opengeodata.lgl-bw.de/#/) |
 | BY | | | | | | | |[Open GeoData](https://geodaten.bayern.de/opengeodata/) |
-| HB | ☑ | ☑ | via DSM & DTM | - | DTM | | DTM: 1m | [Geoportal](https://geoportal.bremen.de/geoportal/#) |
+| HB | ☑ | ☑ | via DSM & DTM | - | DSM <br> DTM | | DSM: 1m <br> DTM: 1m | [Geoportal](https://geoportal.bremen.de/geoportal/#) |
 | HE | Bug | Bug | | | | | | [Geoportal](/https://www.geoportal.hessen.de/search/) |
 | HH | - | ☑ | via iDSM & DTM | ☑  | DSM <br> DTM | | DSM: 1m <br> DTM: 1m | [Geoportal](https://geoportal-hamburg.de/) |
 | MV | | | | | | | | [Downloadportal](https://laiv.geodaten-mv.de/afgvk/) |
