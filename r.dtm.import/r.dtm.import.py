@@ -74,6 +74,13 @@
 # % answer:
 # %end
 
+# %option
+# % key: metadata_file
+# % type: string
+# % required: no
+# % description: Temporary file for metadata URLs (used by r.ndsm.import)
+# %end
+
 # %flag
 # % key: k
 # % label: Keep downloaded data in the download directory
@@ -173,7 +180,7 @@ def import_local_data(aoi, out, local_data_dir, fs, all_dtms):
 
 def get_addon_name(fs):
     """Function to get the addon name for the function to get license info"""
-    return f"r.dsm.import.{fs.lower()}"
+    return f"r.dtm.import.{fs.lower()}"
 
 
 def main():
@@ -269,9 +276,10 @@ def main():
             # Only create a tempfile for URL/metadata exchange with the
             # state-specific addon if a metadata file was actually
             # requested by the user
-            metadata_tmpfile = None
-            if metadata_path:
+            metadata_tmpfile = options.get("metadata_file") or None
+            if not metadata_tmpfile and metadata_path:
                 metadata_tmpfile = grass.tempfile()
+            if metadata_tmpfile:
                 params["metadata_file"] = metadata_tmpfile
 
             grass.run_command(addon, **params)

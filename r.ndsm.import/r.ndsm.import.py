@@ -3,7 +3,7 @@
 ############################################################################
 #
 # MODULE:      r.ndsm.import
-# AUTHOR(S):   Anika Weinmann, Kim Kaiser, Veronica Koess
+# AUTHOR(S):   Anika Weinmann, Kim Kaiser, Veronica Koess, Leon Louwarts
 # PURPOSE:     Downloads (image based) digital surface models (iDSM/DSM) and
 #              digital terrain models (DTM) for specified federal state and
 #              area of interest, and creates a single file of a normalised
@@ -90,6 +90,15 @@
 # % description: Name for output raster map
 # %end
 
+# %option
+# % key: metadata
+# % type: string
+# % required: no
+# % multiple: no
+# % description: Path to metadata output file (markdown format)
+# % answer:
+# %end
+
 # %flag
 # % key: k
 # % label: keep downloaded data in the downloaddirectory
@@ -119,6 +128,11 @@ from grass_gis_helpers.open_geodata_germany.download_data import (
 from grass_gis_helpers.open_geodata_germany.federal_state import (
     get_federal_states,
 )
+from grass_gis_helpers.open_geodata_germany.metadata import (
+    collect_metadata,
+    get_license_and_url_from_addon,
+    write_metadata_markdown,
+)
 from grass_gis_helpers.raster import create_vrt
 
 # import module library
@@ -128,6 +142,7 @@ if path is None:
 sys.path.append(path)
 try:
     from r_dem_import_lib import OPEN_DATA_AVAILABILITY
+    from r_dem_import_metadata_lib import get_download_urls_and_names
 except Exception as imp_err:
     grass.fatal(f"r.dem.import library could not be imported: {imp_err}")
 
@@ -203,6 +218,11 @@ def check_completeness_of_ndsm(aoi, ndsm):
         )
 
 
+def get_addon_name(fs):
+    """Function to get the addon name for the function to get license info"""
+    return f"r.ndsm.import.{fs.lower()}"
+
+
 def main():
     """Main function of r.ndsm.import"""
     global rm_rasters
@@ -217,6 +237,7 @@ def main():
     local_data_dir_dtm = options["local_data_dir_dtm"]
     download_dir = check_download_dir(options["download_dir"])
     alignment_raster = options["alignment_raster"]
+    metadata_path = options["metadata"]
     output = options["output"]
     keep_data = flags["k"]
     nativ_res = flags["r"]
@@ -246,6 +267,7 @@ def main():
         local_dtm_fs_list = os.listdir(local_data_dir_dtm)
 
     ndsm_list = []
+    metadata_list = []
     for fs in federal_states:
         grass.run_command("g.region", region=ORIG_REGION)
         ndsm_out = None
@@ -279,6 +301,10 @@ def main():
         ):
             grass.message(_(f"Importing nDSM data for {fs}..."))
             ndsm_out = f"ndsm_{fs}_{ID}"
+            ndsm_metadata_tmpfile = None
+            if metadata_path:
+                ndsm_metadata_tmpfile = grass.tempfile()
+
             grass.run_command(
                 f"r.ndsm.import.{fs.lower()}",
                 aoi=aoi,
@@ -286,9 +312,31 @@ def main():
                 alignment_raster=alignment_raster,
                 output=ndsm_out,
                 flags=import_flags,
+                metadata_file=ndsm_metadata_tmpfile,
                 quiet=True,
                 overwrite=True,
             )
+            if ndsm_metadata_tmpfile:
+                ndsm_urls, ndsm_names = get_download_urls_and_names(
+                    metadata_tmpfile=ndsm_metadata_tmpfile,
+                    keep_data=keep_data,
+                    download_dir=os.path.join(download_dir, "nDSM"),
+                    out_fs=ndsm_out,
+                    fs=fs,
+                )
+                license_info, base_url = get_license_and_url_from_addon(
+                    f"r.ndsm.import.{fs.lower()}"
+                )
+                metadata_list.append(
+                    collect_metadata(
+                        fs=fs,
+                        raster_list=[ndsm_out],
+                        license_info=license_info,
+                        base_url=base_url,
+                        original_names=ndsm_names,
+                        download_urls=ndsm_urls,
+                    )
+                )
 
         # import iDSM data
         if (
@@ -301,6 +349,10 @@ def main():
             grass.message(_(f"Importing iDSM data for {fs}..."))
             idsm_out = f"idsm_{fs}_{ID}"
             rm_rasters.append(idsm_out)
+            idsm_metadata_tmpfile = None
+            if metadata_path:
+                idsm_metadata_tmpfile = grass.tempfile()
+
             grass.run_command(
                 "r.idsm.import",
                 aoi=aoi,
@@ -310,8 +362,30 @@ def main():
                 alignment_raster=alignment_raster,
                 output=idsm_out,
                 flags=import_flags,
+                metadata_file=idsm_metadata_tmpfile,
                 quiet=True,
             )
+            if idsm_metadata_tmpfile:
+                idsm_urls, idsm_names = get_download_urls_and_names(
+                    metadata_tmpfile=idsm_metadata_tmpfile,
+                    keep_data=keep_data,
+                    download_dir=os.path.join(download_dir, "iDSM"),
+                    out_fs=idsm_out,
+                    fs=fs,
+                )
+                license_info, base_url = get_license_and_url_from_addon(
+                    f"r.idsm.import.{fs.lower()}"
+                )
+                metadata_list.append(
+                    collect_metadata(
+                        fs=fs,
+                        raster_list=[idsm_out],
+                        license_info=license_info,
+                        base_url=base_url,
+                        original_names=idsm_names,
+                        download_urls=idsm_urls,
+                    )
+                )
             raster_info = grass.raster_info(idsm_out)["comments"].split()
             if raster_info[0].replace('"', "") in ["r.buildvrt", "r.patch"]:
                 idsm_rasters = [
@@ -335,6 +409,10 @@ def main():
                 grass.message(_(f"Importing DSM data for {fs}..."))
                 dsm_out = f"dsm_{fs}_{ID}"
                 rm_rasters.append(dsm_out)
+                dsm_metadata_tmpfile = None
+                if metadata_path:
+                    dsm_metadata_tmpfile = grass.tempfile()
+
                 grass.run_command(
                     "r.dsm.import",
                     aoi=aoi,
@@ -344,8 +422,30 @@ def main():
                     alignment_raster=alignment_raster,
                     output=dsm_out,
                     flags=import_flags,
+                    metadata_file=dsm_metadata_tmpfile,
                     quiet=True,
                 )
+                if dsm_metadata_tmpfile:
+                    dsm_urls, dsm_names = get_download_urls_and_names(
+                        metadata_tmpfile=dsm_metadata_tmpfile,
+                        keep_data=keep_data,
+                        download_dir=os.path.join(download_dir, "DSM"),
+                        out_fs=dsm_out,
+                        fs=fs,
+                    )
+                    license_info, base_url = get_license_and_url_from_addon(
+                        f"r.dsm.import.{fs.lower()}"
+                    )
+                    metadata_list.append(
+                        collect_metadata(
+                            fs=fs,
+                            raster_list=[dsm_out],
+                            license_info=license_info,
+                            base_url=base_url,
+                            original_names=dsm_names,
+                            download_urls=dsm_urls,
+                        )
+                    )
                 raster_info = grass.raster_info(dsm_out)["comments"].split()
                 if raster_info[0].replace('"', "") in [
                     "r.buildvrt",
@@ -372,6 +472,10 @@ def main():
             grass.message(_(f"Importing DTM data for {fs}..."))
             dtm_out = f"dtm_{fs}_{ID}"
             rm_rasters.append(dtm_out)
+            dtm_metadata_tmpfile = None
+            if metadata_path:
+                dtm_metadata_tmpfile = grass.tempfile()
+
             grass.run_command(
                 "r.dtm.import",
                 aoi=aoi,
@@ -381,8 +485,30 @@ def main():
                 alignment_raster=alignment_raster,
                 output=dtm_out,
                 flags=import_flags,
+                metadata_file=dtm_metadata_tmpfile,
                 quiet=True,
             )
+            if dtm_metadata_tmpfile:
+                dtm_urls, dtm_names = get_download_urls_and_names(
+                    metadata_tmpfile=dtm_metadata_tmpfile,
+                    keep_data=keep_data,
+                    download_dir=os.path.join(download_dir, "DTM"),
+                    out_fs=dtm_out,
+                    fs=fs,
+                )
+                license_info, base_url = get_license_and_url_from_addon(
+                    f"r.dtm.import.{fs.lower()}"
+                )
+                metadata_list.append(
+                    collect_metadata(
+                        fs=fs,
+                        raster_list=[dtm_out],
+                        license_info=license_info,
+                        base_url=base_url,
+                        original_names=dtm_names,
+                        download_urls=dtm_urls,
+                    )
+                )
             raster_info = grass.raster_info(dtm_out)["comments"].split()
             if raster_info[0].replace('"', "") in ["r.buildvrt", "r.patch"]:
                 dtm_rasters = [
@@ -408,6 +534,13 @@ def main():
     else:
         grass.fatal(_("No nDSM imported!"))
     grass.message(_(f"nDSM raster map <{output}> is created."))
+
+    # Write metadata file if metadata_path was set
+    write_metadata_markdown(
+        metadata_list=metadata_list,
+        metadata_path=metadata_path,
+        data_label="nDOM",
+    )
 
 
 if __name__ == "__main__":
