@@ -81,7 +81,6 @@
 
 import atexit
 import os
-import sys
 import pathlib
 
 import grass.script as grass
