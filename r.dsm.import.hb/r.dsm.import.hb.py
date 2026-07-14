@@ -45,16 +45,6 @@
 # %end
 
 # %option
-# % key: nprocs
-# % type: integer
-# % required: no
-# % multiple: no
-# % label: Number of parallel processes
-# % description: Number of cores for multiprocessing, -2 is the number of available cores - 1
-# % answer: -2
-# %end
-
-# %option
 # % key: metadata_file
 # % type: string
 # % required: no
@@ -141,8 +131,6 @@ def main():
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])
     alignment_raster = options["alignment_raster"]
-    nprocs = int(options["nprocs"])
-    nprocs = setup_parallel_processing(nprocs)
     metadata_file = options["metadata_file"]
     output = options["output"]
     keep_data = flags["k"]
