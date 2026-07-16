@@ -44,6 +44,13 @@
 # % description: Name for output raster map
 # %end
 
+# %option
+# % key: metadata_file
+# % type: string
+# % required: no
+# % description: Temporary file for metadata URLs
+# %end
+
 # %flag
 # % key: k
 # % label: Keep downloaded data in the download directory
@@ -61,6 +68,7 @@
 
 import atexit
 import os
+import pathlib
 import grass.script as grass
 
 from grass_gis_helpers.cleanup import general_cleanup
@@ -112,6 +120,7 @@ def main():
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])
     alignment_raster = options["alignment_raster"]
+    metadata_file = options["metadata_file"]
     output = options["output"]
     keep_data = flags["k"]
     native_res = flags["r"]
@@ -205,6 +214,15 @@ def main():
         create_vrt(all_idsms, output)
 
     grass.message(_(f"iDSM raster map <{output}> is created."))
+
+    if metadata_file and url_tiles:
+        try:
+            with pathlib.Path(metadata_file).open("w", encoding="utf-8") as f:
+                for url in url_tiles:
+                    f.write(f"{url}\n")
+            grass.debug("Wrote tile URLs to tempfile")
+        except Exception as e:
+            grass.warning(f"Could not write tempfile metadata: {e}")
 
 
 if __name__ == "__main__":
