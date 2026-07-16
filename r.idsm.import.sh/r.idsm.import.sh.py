@@ -63,6 +63,7 @@
 
 import atexit
 import os
+from urllib.parse import urlparse, parse_qs
 import grass.script as grass
 
 from grass_gis_helpers.cleanup import general_cleanup
@@ -71,7 +72,6 @@ from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
 )
 from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
-from urllib.parse import urlparse, parse_qs
 
 # set variables
 TINDEX = (
