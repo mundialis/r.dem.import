@@ -18,7 +18,7 @@
 <em><b>r.dem.import</b></em> - Toolset for the import of digital elevation
 models (DEMs). It includes import addons for the open geodata elevation
 models for Germany e.g. for the digital terrain models (DTMs), the digital
-surface models (DSMs) and the normalised DSMs (nDSMs).
+surface models (DSMs), image-based DSMs (iDSMs) and the normalised DSMs (nDSMs).
 
 <h2>KEYWORDS</h2>
 
@@ -33,9 +33,12 @@ surface models (DSMs) and the normalised DSMs (nDSMs).
 The <em>r.dem.import</em> toolset consists of the following modules:
 
 <dl>
+  <dt><a href="r.idsm.import/r.idsm.import.html">r.idsm.import</a></dt>
+  <dd> downloads image-based digital surface models (iDSM) for specified
+    federal state and area of interest.</dd>
   <dt><a href="r.ndsm.import/r.ndsm.import.html">r.ndsm.import</a></dt>
   <dd> downloads digital surface models (DSM) and digital terrain models (DTM)
-    for specified federal state and area of interest, and creates a single
+    for specified federal state and aoi, and creates a single
     file of a normalised DSM (nDSM).</dd>
   <dt><a href="r.dsm.import/r.dsm.import.html">r.dsm.import</a></dt>
   <dd> downloads digital surface models (DSM) for specified federal state
@@ -50,6 +53,7 @@ Overview of the available elevation models:
   <thead>
   <tr>
   <th>Federal state</th>
+  <th>iDSM</th>
   <th>nDSM</th>
   <th>DSM</th>
   <th>DTM</th>
@@ -59,76 +63,90 @@ Overview of the available elevation models:
   <tr>
   <td>Baden-Württemberg (BW)</td>
   <td>Not available</td>
-  <td>Not available</td>
-  <td>Not available</td>
+  <td>TODO</td>
+  <td>TODO</td>
+  <td>TODO</td>
   </tr>
   <tr>
   <td>Bayern (BY)</td>
-  <td>Not available</td>
+  <td>TODO</td>
+  <td>TODO</td>
   <td>Not available</td>
   <td>TODO</td>
   </tr>
   <tr>
   <td>Berlin (BE)</td>
+  <td>TODO</td>
   <td>DSM-DTM</td>
   <td>r.dsm.import fs=BE</td>
   <td>r.dtm.import fs=BE</td>
   </tr>
   <tr>
   <td>Brandenburg (BB)</td>
+  <td>r.idsm.import fs=BB</td>
   <td>DSM-DTM</td>
-  <td>r.dsm.import fs=BB</td>
+  <td>Not available</td>
   <td>r.dtm.import fs=BB</td>
   </tr>
   <tr>
   <td>Bremen (HB)</td>
   <td>Not available</td>
+  <td>DSM-DTM</td>
   <td>r.dsm.import fs=HB</td>
   <td>r.dtm.import fs=HB</td>
   </tr>
   <tr>
   <td>Hamburg (HH)</td>
+  <td>r.idsm.import fs=HH</td>
   <td>DSM-DTM</td>
-  <td>r.dsm.import fs=HH</td>
+  <td>Not available</td>
   <td>r.dtm.import fs=HH</td>
   </tr>
   <tr>
   <td>Hessen (HE)</td>
+  <td>Not available</td>
   <td>DSM-DTM</td>
   <td>r.dsm.import fs=HE</td>
   <td>r.dtm.import fs=HE</td>
   </tr>
   <tr>
   <td>Mecklenburg-Vorpommern (MV)</td>
-  <td>Not available</td>
-  <td>Not available</td>
-  <td>Not available</td>
+  <td>TODO</td>
+  <td>TODO</td>
+  <td>TODO</td>
+  <td>TODO</td>
   </tr>
   <tr>
   <td>Niedersachsen (NI)</td>
+  <td>TODO</td>
+  <td>DSM-DTM</td>
   <td>r.dsm.import fs=NI</td>
   <td>r.dtm.import fs=NI</td>
   </tr>
   <tr>
   <td>Nordrhein-Westfalen (NW)</td>
+  <td>r.idsm.import fs=NW</td>
   <td>r.ndsm.import fs=NW</td>
-  <td>TODO</td>
-  <td>TODO</td>
+  <td>Not available</td>
+  <td>r.dtm.import fs=NI</td>
   </tr>
   <tr>
   <td>Rheinland-Pfalz (RP)</td>
-  <td>Not available</td>
+  <td>TODO</td>
+  <td>TODO</td>
   <td>Not available</td>
   <td>TODO</td>
   </tr>
   <tr>
   <td>Saarland (SL)</td>
   <td>Not available</td>
-  <td>Not available</td>
-  <td>Not available</td>
+  <td>TODO</td>
+  <td>TODO</td>
+  <td>TODO</td>
   </tr>
   <tr>
   <td>Sachsen (SN)</td>
+  <td>Not available</td>
   <td>DSM-DTM</td>
   <td>r.dsm.import fs=SN</td>
   <td>r.dtm.import fs=SN</td>
@@ -138,15 +156,18 @@ Overview of the available elevation models:
   <td>TODO</td>
   <td>TODO</td>
   <td>TODO</td>
+  <td>TODO</td>
   </tr>
   <tr>
   <td>Schleswig-Holstein (SH)</td>
+  <td>r.idsm.import fs=SH</td>
   <td>TODO</td>
-  <td>TODO</td>
+  <td>Not available</td>
   <td>TODO</td>
   </tr>
   <tr>
   <td>Thüringen (TH)</td>
+  <td>Not available</td>
   <td>DSM-DTM</td>
   <td>r.dsm.import fs=TH</td>
   <td>r.dtm.import fs=TH</td>
@@ -164,4 +185,5 @@ Overview of the available elevation models:
 
 <h2>AUTHOR</h2>
 
-Anika Weinmann, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a>
+Anika Weinmann, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a><br>
+Kim Kaiser, <a href="https://www.mundialis.de/">mundialis GmbH &amp; Co. KG</a>

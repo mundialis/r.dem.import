@@ -5,6 +5,10 @@
 Implemented federal state options are:
 
 - [Nordrhein-Westfalen (NW)](r.idsm.import.nw.md)
+- [Brandenburg (BB)](r.idsm.import.bb.html)
+- [Hamburg (HH)](r.idsm.import.hh.html)
+- [Nordrhein-Westfalen (NW)](r.idsm.import.nw.html)
+- [Schleswig-Holstein (SH)](r.idsm.import.sh.html)
 
 ## EXAMPLE
 
@@ -18,4 +22,6 @@ r.idsm.import fs=NW aoi=aoi_NW output=idsm_NW -r
 
 Veronica Koess, [mundialis GmbH & Co. KG](https://www.mundialis.de/)  
 Anika Weinmann, [mundialis GmbH & Co. KG](https://www.mundialis.de/)  
-Lina Krisztian, [mundialis GmbH & Co. KG](https://www.mundialis.de/)
+Lina Krisztian, [mundialis GmbH & Co. KG](https://www.mundialis.de/)\
+Kim Kaiser, [mundialis GmbH & Co. KG](https://www.mundialis.de/)
+

@@ -15,6 +15,8 @@
 # % description: Downloads iDSM for Schleswig-Holstein and aoi.
 # % keyword: raster
 # % keyword: import
+# % keyword: DOM
+# % keyword: DSM
 # % keyword: bDOM
 # % keyword: iDSM
 # % keyword: open-geodata-germany
@@ -64,18 +66,18 @@ import os
 import grass.script as grass
 
 from grass_gis_helpers.cleanup import general_cleanup
-from grass_gis_helpers.data_import import (
-    download_and_import_tindex,
-)
+from grass_gis_helpers.data_import import download_and_import_tindex
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
 )
 from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
+from urllib.parse import urlparse, parse_qs
 
 # set variables
-TINDEX = "https://github.com/kimariak/tile-indices/blob/main/iDSM/SH/sh_bdom_"
-        "tindex_proj.gpkg.gz"
-
+TINDEX = (
+    "https://github.com/kimariak/tile-indices/raw/sh_tindex/iDSM/SH/"
+    "sh_bdom_tindex_proj.gpkg.gz"
+)
 CURRENT_WORKING_DIR = os.getcwd()
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
@@ -120,17 +122,18 @@ def main():
     # set region if aoi is given
     if aoi:
         grass.run_command("g.region", vector=aoi, flags="a")
+
     # get tile index
     tindex_vect = f"idsm_tindex_{ID}"
     rm_vectors.append(tindex_vect)
     download_and_import_tindex(TINDEX, tindex_vect, download_dir)
 
-    # get download urls which overlap with aoi
-    def url_tiles(tindex, aoi):
+    # get tiles which overlap with aoi
+    def url_tiles(tindex_vect, aoi):
         tindex_clipped = f"clipped_tindex_vect_{grass.tempname(8)}"
         try:
             v_clip_kwargs = {
-                "input": tindex,
+                "input": tindex_vect,
                 "output": tindex_clipped,
                 "flags": "",
                 "quiet": True,
@@ -141,7 +144,6 @@ def main():
             else:
                 v_clip_kwargs["flags"] += "r"
             grass.run_command("v.clip", **v_clip_kwargs)
-            # grass.vector_db_select(tindex_clipped, columns="link_data")
             tiles = [
                 val[0]
                 for val in grass.vector_db_select(
@@ -149,20 +151,27 @@ def main():
                     columns="link_data",
                 )["values"].values()
             ]
+
+            return tiles
+
         finally:
-            rm_vects([tindex_clipped])
-        return tiles
+            rm_vectors.extend(tindex_clipped)
+
+    # create list with tile urls
+    url_tiles_list = url_tiles(tindex_vect, aoi)
 
     # import iDSM files
     grass.message(_("Importing iDSM..."))
     all_idsms = []
-    for url in url_tiles:
+    for url in url_tiles_list:
         if aoi:
             grass.run_command("g.region", vector=aoi)
         else:
             grass.run_command("g.region", region=ORIG_REGION)
         grass.run_command("g.region", res=1, grow=1, quiet=True)
-        idsm_name = os.path.splitext(os.path.basename(url))[0].replace("-", "")
+        idsm_name = os.path.splitext(parse_qs(urlparse(url).query)["file"][0])[
+            0
+        ]
         grass.run_command(
             "r.import",
             input=url,
