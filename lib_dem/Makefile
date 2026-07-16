@@ -5,7 +5,7 @@ PGM = r.dem.import
 include $(MODULE_TOPDIR)/include/Make/Other.make
 include $(MODULE_TOPDIR)/include/Make/Python.make
 
-MODULES = r_dem_import_lib __init__
+MODULES = r_dem_import_lib r_dem_import_metadata_lib __init__
 
 ETCDIR = $(ETC)/$(PGM)
 

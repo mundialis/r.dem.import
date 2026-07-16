@@ -219,19 +219,19 @@ def main():
                 fs=fs,
             )
 
-        # Collect metadata for this federal state (license/source info comes from
-        # the addon's HTML documentation, file/URL info from above)
-        addon_name = get_addon_name(fs)
-        license_info, base_url = get_license_and_url_from_addon(addon_name)
-        fs_metadata = collect_metadata(
-            fs=fs,
-            raster_list=fs_dem_list,
-            license_info=license_info,
-            base_url=base_url,
-            original_names=dem_names,
-            download_urls=dem_urls,
-        )
-        metadata_list.append(fs_metadata)
+            # Collect metadata for this federal state (license/source info comes from
+            # the addon's HTML documentation, file/URL info from above)
+            addon_name = get_addon_name(fs)
+            license_info, base_url = get_license_and_url_from_addon(addon_name)
+            fs_metadata = collect_metadata(
+                fs=fs,
+                raster_list=fs_dem_list,
+                license_info=license_info,
+                base_url=base_url,
+                original_names=dem_names,
+                download_urls=dem_urls,
+            )
+            metadata_list.append(fs_metadata)
 
     create_vrt(all_idsms, output)
     grass.message(_(f"iDSM raster map <{output}> is created."))

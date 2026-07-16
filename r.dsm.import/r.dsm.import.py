@@ -200,6 +200,7 @@ def main():
     )
     local_data_dir = options["local_data_dir"]
     download_dir = check_download_dir(options["download_dir"])
+    alignment_raster = options["alignment_raster"]
     output = options["output"]
     metadata_path = options["metadata"]
     keep_data = flags["k"]
@@ -274,6 +275,7 @@ def main():
             params = {
                 "aoi": aoi,
                 "download_dir": download_dir,
+                "alignment_raster": alignment_raster,
                 "output": out_fs,
                 "flags": r_dsm_import_fs_flags,
                 "overwrite": True,
@@ -305,19 +307,19 @@ def main():
                     fs=fs,
                 )
 
-        # Collect metadata for this federal state (license/source info comes from
-        # the addon's HTML documentation, file/URL info from above)
-        addon_name = get_addon_name(fs)
-        license_info, base_url = get_license_and_url_from_addon(addon_name)
-        fs_metadata = collect_metadata(
-            fs=fs,
-            raster_list=fs_dem_list,
-            license_info=license_info,
-            base_url=base_url,
-            original_names=dem_names,
-            download_urls=dem_urls,
-        )
-        metadata_list.append(fs_metadata)
+                # Collect metadata for this federal state (license/source info comes from
+                # the addon's HTML documentation, file/URL info from above)
+                addon_name = get_addon_name(fs)
+                license_info, base_url = get_license_and_url_from_addon(addon_name)
+                fs_metadata = collect_metadata(
+                    fs=fs,
+                    raster_list=fs_dem_list,
+                    license_info=license_info,
+                    base_url=base_url,
+                    original_names=dem_names,
+                    download_urls=dem_urls,
+                )
+                metadata_list.append(fs_metadata)
 
     create_vrt(all_dsms, output)
     grass.message(_(f"DSM raster map <{output}> is created."))
