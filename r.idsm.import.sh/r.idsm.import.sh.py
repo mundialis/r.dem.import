@@ -75,7 +75,7 @@ from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
 
 # set variables
 TINDEX = (
-    "https://github.com/kimariak/tile-indices/raw/sh_tindex/iDSM/SH/"
+    "https://github.com/mundialis/tile-indices/raw/main/iDSM/SH/"
     "sh_bdom_tindex_proj.gpkg.gz"
 )
 CURRENT_WORKING_DIR = os.getcwd()
