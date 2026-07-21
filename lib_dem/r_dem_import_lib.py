@@ -73,7 +73,6 @@ OPEN_DATA_AVAILABILITY = {
             "MV",
             "NI",
             "RP",
-            "SH",
             "SL",
             "ST",
             "SN",
@@ -83,6 +82,7 @@ OPEN_DATA_AVAILABILITY = {
             "BB",
             "HH",
             "NW",
+            "SH",
         ],
     },
     "nDSM": {
