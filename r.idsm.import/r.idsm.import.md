@@ -4,7 +4,6 @@
 (iDSM, in German bDOM) for specified federal state and area of interest.
 Implemented federal state options are:
 
-- [Nordrhein-Westfalen (NW)](r.idsm.import.nw.md)
 - [Brandenburg (BB)](r.idsm.import.bb.html)
 - [Hamburg (HH)](r.idsm.import.hh.html)
 - [Nordrhein-Westfalen (NW)](r.idsm.import.nw.html)

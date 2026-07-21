@@ -227,7 +227,7 @@ def main():
         adjust_raster_resolution(f"{output}_tmp", output, ns_res)
         rm_rasters.append(f"{output}_tmp")
 
-    grass.message(_(f"DSM raster map <{output}> is created."))
+    grass.message(_(f"iDSM raster map <{output}> is created."))
 
 
 if __name__ == "__main__":
