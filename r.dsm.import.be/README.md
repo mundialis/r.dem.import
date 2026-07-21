@@ -1,15 +1,12 @@
+<!-- markdownlint-disable MD041 -->
 ## DESCRIPTION
 
-*r.dsm.import.be* downloads and imports [digital surface model (DSM, in
-German
-DOM)](https://daten.berlin.de/datensaetze/dom-digitales-oberflachenmodell-5f84f650)
-for Berlin (BE) and area of interest.  
+*r.dsm.import.be* downloads and imports [digital surface model (DSM, in German DOM)](https://daten.berlin.de/datensaetze/dom-digitales-oberflachenmodell-5f84f650) for Berlin (BE) and area of interest.
 The data can be used when referencing the source:  
-id: dl-by-de/2.0,  
+id: dl-by-de/2.0,
 name: Datenlizenz Deutschland Namensnennung 2.0,  
-url: https://www.govdata.de/dl-de/by-2-0,  
-source: (c) FIS-Broker Berlin ([FIS-Broker
-Berlin](https://fbinter.stadt-berlin.de/fb/))
+url: [https://www.govdata.de/dl-de/by-2-0](https://www.govdata.de/dl-de/by-2-0),
+source: (c) FIS-Broker Berlin ([FIS-Broker Berlin](https://fbinter.stadt-berlin.de/fb/))
 
 ## EXAMPLE
 
