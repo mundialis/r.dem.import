@@ -1,41 +1,33 @@
+<!-- markdownlint-disable MD041 -->
 [![image-alt](grass_logo.png)](https://grass.osgeo.org/grass-stable/manuals/index.html)
 
 ------------------------------------------------------------------------
 
 ## NAME
 
-***r.dem.import*** - Toolset for the import of digital elevation models
-(DEMs). It includes import addons for the open geodata elevation models
-for Germany e.g. for the digital terrain models (DTMs), the digital
-surface models (DSMs), image-based DSMs (iDSMs) and the normalised DSMs (nDSMs).
+***r.dem.import*** - Toolset for the import of digital elevation models (DEMs). It includes import addons for the open geodata elevation models for Germany e.g. for the digital terrain models (DTMs), the digital surface models (DSMs), image-based DSMs (iDSMs) and the normalised DSMs (nDSMs).
 
 ## KEYWORDS
 
-[raster](raster.md), [import](topic_import.md),
-[](keywords.html#elevation.md)
+[raster](raster.md), [import](topic_import.md), [elevation](keywords.html#elevation.md)
 
 ## DESCRIPTION
 
-The *r.dem.import* toolset consists of the following modules:
+The *r.dem.import* toolset consists of the following modules:  
 
 [r.idsm.import](r.idsm.import/r.idsm.import.md)  
-downloads image-based digital surface models (iDSM) for specified federal 
-state and area of interest.
+downloads image-based digital surface models (iDSM) for specified federal state and area of interest.
 
 [r.ndsm.import](r.ndsm.import/r.ndsm.import.md)  
-downloads digital surface models (DSM) and digital terrain models (DTM)
-for specified federal state and aoi, and creates a single
-file of a normalised DSM (nDSM).
+downloads digital surface models (DSM) and digital terrain models (DTM) for specified federal state and aoi, and creates a single file of a normalised DSM (nDSM).
 
 [r.dsm.import](r.dsm.import/r.dsm.import.md)  
-downloads digital surface models (DSM) for specified federal state and
-aoi
+downloads digital surface models (DSM) for specified federal state and aoi
 
 [r.dtm.import](r.dtm.import/r.dtm.import.md)  
-downloads digital terrain models (DTM) for specified federal state and
-aoi
+downloads digital terrain models (DTM) for specified federal state and aoi
 
-Overview of the available elevation models:
+Overview of the available elevation models:  
 
 | Federal state | iDSM | nDSM | DSM | DTM |
 |----|----|----|----|----|
@@ -62,5 +54,5 @@ Overview of the available elevation models:
 
 ## AUTHOR
 
-Anika Weinmann, [mundialis GmbH & Co. KG](https://www.mundialis.de/)\
+Anika Weinmann, [mundialis GmbH & Co. KG](https://www.mundialis.de/)  
 Kim Kaiser, [mundialis GmbH & Co. KG](https://www.mundialis.de/)

@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD041 -->
 ## r.dem.import - Toolset for the import of digital elevation models (DEMs)
 
 It includes import addons for the open geodata elevation models for Germany,
