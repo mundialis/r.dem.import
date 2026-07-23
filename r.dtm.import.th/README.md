@@ -1,9 +1,7 @@
+<!-- markdownlint-disable MD041 -->
 ## DESCRIPTION
 
-*r.dtm.import.th* downloads and imports [digital terrain model (DTM, in
-German
-DGM)](https://geoportal.thueringen.de/gdi-th/download-offene-geodaten/download-hoehendaten)
-for Thüringen (TH) and area of interest.  
+*r.dtm.import.th* downloads and imports [digital terrain model (DTM, in German DGM)](https://geoportal.thueringen.de/gdi-th/download-offene-geodaten/download-hoehendaten) for Thüringen (TH) and area of interest.  
 The data can be used when referencing the source:  
 id: dl-by-de/2.0,  
 name: Datenlizenz Deutschland Namensnennung 2.0,  

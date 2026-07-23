@@ -1,7 +1,7 @@
+<!-- markdownlint-disable MD041 -->
 ## DESCRIPTION
 
-*r.idsm.import* downloads and imports image based digital surface models
-(iDSM, in German bDOM) for specified federal state and area of interest.
+*r.idsm.import* downloads and imports image based digital surface models (iDSM, in German bDOM) for specified federal state and area of interest.  
 Implemented federal state options are:
 
 - [Brandenburg (BB)](r.idsm.import.bb.html)
@@ -21,6 +21,6 @@ r.idsm.import fs=NW aoi=aoi_NW output=idsm_NW -r
 
 Veronica Koess, [mundialis GmbH & Co. KG](https://www.mundialis.de/)  
 Anika Weinmann, [mundialis GmbH & Co. KG](https://www.mundialis.de/)  
-Lina Krisztian, [mundialis GmbH & Co. KG](https://www.mundialis.de/)\
+Lina Krisztian, [mundialis GmbH & Co. KG](https://www.mundialis.de/)  
 Kim Kaiser, [mundialis GmbH & Co. KG](https://www.mundialis.de/)
 

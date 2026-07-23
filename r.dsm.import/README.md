@@ -1,9 +1,8 @@
+<!-- markdownlint-disable MD041 -->
 ## DESCRIPTION
 
-*r.dsm.import* downloads and imports digital surface models (DSM, in
-German DOM) for specified federal state and area of interest.
-Alternatively, local data can be imported. Implemented federal state
-options are:
+*r.dsm.import* downloads and imports digital surface models (DSM, in German DOM) for specified federal state and area of interest.
+Alternatively, local data can be imported. Implemented federal state options are:
 
 - Baden-Württemberg (BW): only local data import
 - Bayern (BY): only local data import
@@ -15,8 +14,7 @@ options are:
 - [Sachsen (SN)](r.dsm.import.sn.md)
 - [Thüringen (TH)](r.dsm.import.th.md)
 
-For local data import the parameter **local_data_dir** has to be given
-and the folder structure has to be as follows:
+For local data import the parameter **local_data_dir** has to be given and the folder structure has to be as follows:
 
 ```sh
 /path/to/DSMs/
@@ -25,10 +23,7 @@ and the folder structure has to be as follows:
 └── ...
 ```
 
-In the federal state folders the addons searches for a `vrt` file or if
-none is given all `tif`s will be imported. If local data does not
-overlap with aoi, data will be downloaded from Open Data portals if
-federal state supports Open Data.
+In the federal state folders the addons searches for a `vrt` file or if none is given all `tif`s will be imported. If local data does not overlap with aoi, data will be downloaded from Open Data portals if federal state supports Open Data.
 
 ## EXAMPLE
 

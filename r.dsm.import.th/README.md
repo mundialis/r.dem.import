@@ -1,9 +1,7 @@
+<!-- markdownlint-disable MD041 -->
 ## DESCRIPTION
 
-*r.dsm.import.th* downloads and imports [digital surface model (DSM, in
-German
-DOM)](https://geoportal.thueringen.de/gdi-th/download-offene-geodaten/download-hoehendaten)
-for Thüringen (TH) and area of interest.  
+*r.dsm.import.th* downloads and imports [digital surface model (DSM, in German DOM)](https://geoportal.thueringen.de/gdi-th/download-offene-geodaten/download-hoehendaten) for Thüringen (TH) and area of interest.  
 The data can be used when referencing the source:  
 id: dl-by-de/2.0,  
 name: Datenlizenz Deutschland Namensnennung 2.0,  

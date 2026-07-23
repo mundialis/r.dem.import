@@ -1,15 +1,12 @@
+<!-- markdownlint-disable MD041 -->
 ## DESCRIPTION
 
-*r.idsm.import.nw* downloads and imports [image based digital surface
-model (iDSM, in German
-bDOM)](https://www.opengeodata.nrw.de/produkte/geobasis/hm/bdom50_las/bdom50_las/)
-for Nordrhein-Westfalen (NW) and area of interest.  
+*r.idsm.import.nw* downloads and imports [image based digital surface model (iDSM, in German bDOM)](https://www.opengeodata.nrw.de/produkte/geobasis/hm/bdom50_las/bdom50_las/) for Nordrhein-Westfalen (NW) and area of interest.  
 The data can be used when referencing the source:  
 id: dl-zero-de/2.0,  
 name: Datenlizenz Deutschland - Zero - Version 2.0,  
 url: https://www.govdata.de/dl-de/zero-2-0,  
-source: (c) Landesbetrieb Information und Technik Nordrhein-Westfalen
-([IT.NRW](https://www.it.nrw/))
+source: (c) Landesbetrieb Information und Technik Nordrhein-Westfalen ([IT.NRW](https://www.it.nrw/))
 
 ## EXAMPLE
 
