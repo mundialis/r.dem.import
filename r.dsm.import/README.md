@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD041 -->
 ## DESCRIPTION
 
-*r.dsm.import* downloads and imports digital surface models (DSM, in German DOM) for specified federal state and area of interest.
+*r.dsm.import* downloads and imports digital surface models (DSM, in German DOM) for specified federal state and area of interest.  
 Alternatively, local data can be imported. Implemented federal state options are:
 
 - Baden-Württemberg (BW): only local data import

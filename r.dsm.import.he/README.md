@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD041 -->
 ## DESCRIPTION
 
-*r.dsm.import.he* downloads and imports [digital surface model (DSM, in German DOM)](https://hvbg.hessen.de/registry/spatial/dataset/acb6269d-db21-4b6d-8329-de291b6e8180) for Hessen (HE) and area of interest.  
+*r.dsm.import.he* downloads and imports [digital surface model (DSM, in German DOM)](https://hvbg.hessen.de/registry/spatial/dataset/acb6269d-db21-4b6d-8329-de291b6e8180) for Hesse (HE) and area of interest.  
 The data can be used when referencing the source:  
 id: dl-zero-de/2.0,  
 name: Datenlizenz Deutschland - Zero - Version 2.0,  
