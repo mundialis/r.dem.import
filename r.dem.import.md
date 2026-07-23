@@ -1,7 +1,8 @@
 <!-- markdownlint-disable MD041 -->
+
 [![image-alt](grass_logo.png)](https://grass.osgeo.org/grass-stable/manuals/index.html)
 
-------------------------------------------------------------------------
+______________________________________________________________________
 
 ## NAME
 
@@ -13,7 +14,7 @@
 
 ## DESCRIPTION
 
-The *r.dem.import* toolset consists of the following modules:  
+The *r.dem.import* toolset consists of the following modules:
 
 [r.idsm.import](r.idsm.import/r.idsm.import.md)  
 downloads image-based digital surface models (iDSM) for specified federal state and area of interest.
@@ -27,7 +28,7 @@ downloads digital surface models (DSM) for specified federal state and aoi
 [r.dtm.import](r.dtm.import/r.dtm.import.md)  
 downloads digital terrain models (DTM) for specified federal state and aoi
 
-Overview of the available elevation models:  
+Overview of the available elevation models:
 
 | Federal state | iDSM | nDSM | DSM | DTM |
 | - | - | - | - | - |
@@ -45,13 +46,12 @@ Overview of the available elevation models:
 | Saarland (SL) | Not available | TODO | TODO | TODO |
 | Sachsen (SN) | Not available | DSM-DTM | r.dsm.import fs=SN | r.dtm.import fs=SN |
 | Sachsen-Anhalt (ST) | TODO | TODO | TODO | TODO |
-| Schleswig-Holstein (SH) | r.idsm.import fs=SH | TODO | Not available | TODO |
+| Schleswig-Holstein (SH) | r.idsm.import fs=SH | iDSM-DTM | Not available | r.dtm.import.sh fs=SH |
 | Thüringen (TH) | Not available | DSM-DTM | r.dsm.import fs=TH | r.dtm.import fs=TH |
-
 
 ## REQUIREMENTS
 
-- [grass-gis-helpers\>=0.4.0](https://pypi.org/project/grass-gis-helpers/)
+- [grass-gis-helpers>=0.4.0](https://pypi.org/project/grass-gis-helpers/)
 
 ## AUTHOR
 

@@ -10,6 +10,7 @@
 - [Hamburg (HH)](r.dtm.import.hh.md)
 - [Hessen (HE)](r.dtm.import.he.md)
 - [Nordrhein-Westfalen (NW)](r.dtm.import.nw.md)
+- [Schleswig-Holstein](r.dtm.import.sh.md)
 - [Sachsen (SN)](r.dtm.import.sn.md)
 - [Thüringen (TH)](r.dtm.import.th.md)
 
