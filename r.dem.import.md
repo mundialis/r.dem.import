@@ -30,7 +30,7 @@ downloads digital terrain models (DTM) for specified federal state and aoi
 Overview of the available elevation models:  
 
 | Federal state | iDSM | nDSM | DSM | DTM |
-|----|----|----|----|----|
+| - | - | - | - | - |
 | Baden-Württemberg (BW) | Not available | TODO | TODO | TODO |
 | Bayern (BY) | TODO | TODO | Not available | TODO |
 | Berlin (BE) | TODO | DSM-DTM | r.dsm.import fs=BE | r.dtm.import fs=BE |
@@ -47,6 +47,7 @@ Overview of the available elevation models:
 | Sachsen-Anhalt (ST) | TODO | TODO | TODO | TODO |
 | Schleswig-Holstein (SH) | r.idsm.import fs=SH | TODO | Not available | TODO |
 | Thüringen (TH) | Not available | DSM-DTM | r.dsm.import fs=TH | r.dtm.import fs=TH |
+
 
 ## REQUIREMENTS
 

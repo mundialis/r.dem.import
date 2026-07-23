@@ -5,7 +5,7 @@
 The data can be used when referencing the source:  
 id: CC-BY 4.0,  
 name: Creative Commons Namensnennung 4.0 International,  
-url: https://creativecommons.org/licenses/by/4.0/,  
+url: [https://creativecommons.org/licenses/by/4.0/](https://creativecommons.org/licenses/by/4.0/),  
 source: (c) Landesamt für Geoinformation und Landesvermessung Niedersachsen ([LGLN](https://www.lgln.niedersachsen.de/startseite/))
 
 ## EXAMPLE

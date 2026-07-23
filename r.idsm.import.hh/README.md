@@ -5,7 +5,7 @@
 The data can be used when referencing the source:  
 id: dl-by-de/2.0,  
 name: Datenlizenz Deutschland Namensnennung 2.0,  
-url: https://www.govdata.de/dl-de/by-2-0,  
+url: [https://www.govdata.de/dl-de/by-2-0](https://www.govdata.de/dl-de/by-2-0),  
 source: (c) Landesbetrieb Geoinformation und Vermessung ([LGV-HH](https://www.hamburg.de/politik-und-verwaltung/behoerden/behoerde-fuer-stadtentwicklung-und-wohnen/aemter-und-landesbetrieb/landesbetrieb-geoinformation-und-vermessung))
 
 ## EXAMPLE

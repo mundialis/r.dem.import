@@ -5,7 +5,7 @@
 The data can be used when referencing the source:  
 id: dl-by-de/2.0,  
 name: Datenlizenz Deutschland Namensnennung 2.0,  
-url: https://www.govdata.de/dl-de/by-2-0,  
+url: [https://www.govdata.de/dl-de/by-2-0(https://www.govdata.de/dl-de/by-2-0)],  
 source: (c) FIS-Broker Berlin ([FIS-Broker Berlin](https://fbinter.stadt-berlin.de/fb/))
 
 ## EXAMPLE

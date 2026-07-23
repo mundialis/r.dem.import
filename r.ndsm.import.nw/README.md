@@ -5,7 +5,7 @@
 The data can be used when referencing the source:  
 id: dl-zero-de/2.0,  
 name: Datenlizenz Deutschland - Zero - Version 2.0,  
-url: https://www.govdata.de/dl-de/zero-2-0,  
+url: [https://www.govdata.de/dl-de/zero-2-0](https://www.govdata.de/dl-de/zero-2-0),  
 source: (c) Landesbetrieb Information und Technik Nordrhein-Westfalen ([IT.NRW](https://www.it.nrw/))
 
 ## EXAMPLE
