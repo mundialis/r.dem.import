@@ -61,11 +61,14 @@
 
 import atexit
 import os
+import requests
 from urllib.parse import urlparse, parse_qs
 import grass.script as grass
 
 from grass_gis_helpers.cleanup import general_cleanup
-from grass_gis_helpers.data_import import download_and_import_tindex
+from grass_gis_helpers.data_import import (
+    download_and_import_tindex,
+)
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
 )
@@ -73,7 +76,7 @@ from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
 
 # set variables
 TINDEX = (
-    "https://github.com/kimariak/tile-indices/blob/sh_tindex/DTM/SH/"
+    "https://github.com/mundialis/tile-indices/raw/main/DTM/SH/"
     "sh_dtm_tindex_proj.gpkg.gz"
 )
 CURRENT_WORKING_DIR = os.getcwd()
@@ -129,61 +132,82 @@ def main():
     # get tiles which overlap with aoi
     def url_tiles(tindex_vect, aoi):
         tindex_clipped = f"clipped_tindex_vect_{grass.tempname(8)}"
-        try:
-            v_clip_kwargs = {
-                "input": tindex_vect,
-                "output": tindex_clipped,
-                "flags": "",
-                "quiet": True,
-            }
-            if aoi:
-                v_clip_kwargs["clip"] = aoi
-                v_clip_kwargs["flags"] += "d"
-            else:
-                v_clip_kwargs["flags"] += "r"
-            grass.run_command("v.clip", **v_clip_kwargs)
-            tiles = [
-                val[0]
-                for val in grass.vector_db_select(
-                    tindex_clipped,
-                    columns="link_data",
-                )["values"].values()
-            ]
-
-            return tiles
-
-        finally:
-            rm_vectors.extend(tindex_clipped)
+        rm_vectors.append(tindex_clipped)
+        v_clip_kwargs = {
+            "input": tindex_vect,
+            "output": tindex_clipped,
+            "flags": "",
+            "quiet": True,
+        }
+        if aoi:
+            v_clip_kwargs["clip"] = aoi
+            v_clip_kwargs["flags"] += "d"
+        else:
+            v_clip_kwargs["flags"] += "r"
+        grass.run_command("v.clip", **v_clip_kwargs)
+        tiles = [
+            val[0]
+            for val in grass.vector_db_select(
+                tindex_clipped,
+                columns="link_data",
+            )["values"].values()
+        ]
+        return tiles
 
     # create list with tile urls
     url_tiles_list = url_tiles(tindex_vect, aoi)
 
-    # import DTM files
+    # download DTM files
     grass.message(_("Importing DTM..."))
     all_dtms = []
     for url in url_tiles_list:
         if aoi:
-            grass.run_command("g.region", vector=aoi)
+            grass.run_command("g.region", vector=aoi, flags="a")
         else:
             grass.run_command("g.region", region=ORIG_REGION)
         grass.run_command("g.region", res=1, grow=1, quiet=True)
-        dtm_name = os.path.splitext(parse_qs(urlparse(url).query)["file"][0])[
-            0
-        ]
+
+        filename = parse_qs(urlparse(url).query)["file"][0]
+        filepath = os.path.join(download_dir, filename)
+
+        with open(filepath, "wb") as f:
+            f.write(requests.get(url).content)
+
+        # clean xyz file
+        # SHs download endpoint appends HTML code after xyz file
+        # workaround removes non-numeric lines before importing with r.in.xyz
+        cleanfile = filepath + ".clean"
+        with open(filepath) as fin, open(cleanfile, "w") as fout:
+            for line in fin:
+                if line.startswith("<!DOCTYPE"):
+                    break
+                cols = line.split()
+                if len(cols) != 3:
+                    continue
+                try:
+                    float(cols[0])
+                    float(cols[1])
+                    float(cols[2])
+                    fout.write(line)
+                except ValueError:
+                    continue
+                fout.write(line)
+
+        # import DTM files
         grass.run_command(
-            "r.import",
-            input=url,
-            output=dtm_name,
-            extent="region",
-            overwrite=True,
+            "r.in.xyz",
+            input=cleanfile,
+            output=filename,
+            separator="space",
             quiet=True,
+            overwrite=True,
         )
-        all_dtms.append(dtm_name)
+        all_dtms.append(filename)
+    rm_rasters.extend(all_dtms)
 
     # create VRT
     tmp_out = f"tmp_{output}_{ID}"
     rm_rasters.append(tmp_out)
-    rm_rasters.extend(all_dtms)
     create_vrt(all_dtms, tmp_out)
 
     # clip to region / aoi

@@ -12,6 +12,7 @@ Implemented federal state options are:
 - Niedersachsen
 - [Nordrhein-Westfalen (NW)](r.ndsm.import.nw.md)
 - Sachsen
+- Schleswig-Holstein
 - Thüringen
 
 ## EXAMPLE
