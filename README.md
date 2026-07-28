@@ -1,4 +1,5 @@
 <!-- markdownlint-disable MD041 -->
+
 ## r.dem.import - Toolset for the import of digital elevation models (DEMs)
 
 It includes import addons for the open geodata elevation models for Germany,
@@ -32,7 +33,7 @@ The r.dem.import toolset consists of the following modules:
 | NI | ☑ | ☑ | via DSM & DTM | | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Open GeoData](https://ni-lgln-opengeodata.hub.arcgis.com/) <br> [iDSM](https://ni-lgln-opengeodata.hub.arcgis.com/apps/lgln-opengeodata::bildbasiertes-digitales-oberfl%C3%A4chenmodell-bdom20/about) |
 | NW | ☑ | n.a. | ☑ | ☑ | DTM <br> nDSM <br> iDSM | DTM: 1m <br> nDSM: 0.5m <br> iDSM: 0.5m | [Open GeoData](https://www.opengeodata.nrw.de/produkte/geobasis/hm/) |
 | RP | | n.a. | | | | | [Geoportal](https://www.geoportal.rlp.de/) <br> [iDSM](https://geoshop.rlp.de/opendata-domb.html) |
-| SH | | n.a. | | ☑ | | | [Geoportal](https://geodaten.schleswig-holstein.de/gaialight-sh/_apps/dladownload/) |
+| SH | ☑ | n.a. | via DSM & DTM | ☑ | DTM <br> iDSM | DTM: 1m <br> iDSM: 0.2m | [Geoportal](https://geodaten.schleswig-holstein.de/gaialight-sh/_apps/dladownload/) |
 | SL | | | | n.a. | | | [Geoportal](https://geoportal.saarland.de/) |
 | SN | ☑ | ☑ | via DSM & DTM | n.a. | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Open Geodata](https://www.geodaten.sachsen.de/downloadbereich-digitale-hoehenmodelle-4851.html) |
 | ST | | | | | | | [Geoportal](https://www.lvermgeo.sachsen-anhalt.de/de/gdp-open-data.html) <br> [iDSM](https://www.lvermgeo.sachsen-anhalt.de/de/gdp-bdom20.html) |
