@@ -61,10 +61,9 @@
 
 import atexit
 import os
-import requests
 from urllib.parse import urlparse, parse_qs
 import grass.script as grass
-
+import requests
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.data_import import (
     download_and_import_tindex,
