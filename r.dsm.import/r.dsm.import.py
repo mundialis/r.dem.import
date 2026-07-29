@@ -106,7 +106,6 @@ from grass.pygrass.utils import get_lib_path
 import grass.script as grass
 
 from grass_gis_helpers.cleanup import general_cleanup
-from grass_gis_helpers.data_import import import_local_raster_data
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
 )
@@ -126,7 +125,10 @@ if path is None:
     grass.fatal("Unable to find the dem library directory.")
 sys.path.append(path)
 try:
-    from r_dem_import_lib import OPEN_DATA_AVAILABILITY
+    from r_dem_import_lib import (
+        OPEN_DATA_AVAILABILITY,
+        import_local_data,
+    )
     from r_dem_import_metadata_lib import get_download_urls_and_names
 except Exception as imp_err:
     grass.fatal(f"r.dem.import library could not be imported: {imp_err}")
@@ -147,42 +149,6 @@ def cleanup():
         orig_region=ORIG_REGION,
         rm_rasters=rm_rasters,
     )
-
-
-def import_local_data(aoi, out, local_data_dir, fs, all_dsms, native_res_flag):
-    """Import local DSM data
-
-    Args:
-        aoi (str): Vector map with area of interest
-        out (str): Base output name
-        local_data_dir (str): Path to local data directory with federal state
-                              subfolders
-        fs (str): the abbrivation of the federal state
-        all_dsms (list): empty list where the imported DSM rasters
-                         will be appended
-        native_res_flag (bool): True if native data resolution should be used
-
-    """
-    imported_local_data = import_local_raster_data(
-        aoi,
-        f"{out}_{fs}",
-        os.path.join(local_data_dir, fs),
-        native_res_flag,
-        all_dsms,
-        rm_rasters,
-        band_dict=None,
-    )
-
-    if not imported_local_data and fs in ["BW"]:
-        grass.fatal(_("Local data does not overlap with aoi."))
-    elif not imported_local_data:
-        grass.message(
-            _(
-                "Local data does not overlap with aoi. Data will be downloaded"
-                " from Open Data portal."
-            )
-        )
-    return imported_local_data
 
 
 def get_addon_name(fs):
@@ -226,7 +192,14 @@ def main():
         imported_local_data = False
         if fs in local_fs_list:
             imported_local_data = import_local_data(
-                aoi, output, local_data_dir, fs, all_dsms, native_res
+                aoi,
+                output,
+                local_data_dir,
+                fs,
+                all_dsms,
+                rm_rasters,
+                "raster",
+                native_res,
             )
             if imported_local_data:
                 fs_dem_list = [f"{output}_{fs}"]

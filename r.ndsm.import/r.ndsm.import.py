@@ -122,6 +122,7 @@ import grass.script as grass
 from grass.pygrass.utils import get_lib_path
 
 from grass_gis_helpers.cleanup import general_cleanup
+from grass_gis_helpers.data_import import import_local_raster_data
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
 )
@@ -141,7 +142,10 @@ if path is None:
     grass.fatal("Unable to find the dem library directory.")
 sys.path.append(path)
 try:
-    from r_dem_import_lib import OPEN_DATA_AVAILABILITY
+    from r_dem_import_lib import (
+        OPEN_DATA_AVAILABILITY,
+        import_local_data,
+    )
     from r_dem_import_metadata_lib import get_download_urls_and_names
 except Exception as imp_err:
     grass.fatal(f"r.dem.import library could not be imported: {imp_err}")
@@ -249,21 +253,23 @@ def main():
     local_ndsm_fs_list = []
     if local_data_dir_ndsm and local_data_dir_ndsm != "":
         local_ndsm_fs_list = os.listdir(local_data_dir_ndsm)
-        grass.fatal(_("Local nDSM data dir is not yet supported."))
 
     # local iDSM files
     local_idsm_fs_list = []
     if local_data_dir_idsm and local_data_dir_idsm != "":
+        grass.fatal(_("Local iDSM data dir for nDSM is not yet supported."))
         local_idsm_fs_list = os.listdir(local_data_dir_idsm)
 
     # local DSM files
     local_dsm_fs_list = []
     if local_data_dir_dsm and local_data_dir_dsm != "":
+        grass.fatal(_("Local DSM data dir for nDSM is not yet supported."))
         local_dsm_fs_list = os.listdir(local_data_dir_dsm)
 
     # local DTM files
     local_dtm_fs_list = []
     if local_data_dir_dtm and local_data_dir_dtm != "":
+        grass.fatal(_("Local DTM data dir for nDSM is not yet supported."))
         local_dtm_fs_list = os.listdir(local_data_dir_dtm)
 
     ndsm_list = []
@@ -276,12 +282,19 @@ def main():
         dsm_out = None
         # check if local data for federal state given
         imported_local_data = False
-        # TODO import local nDSM
         if fs in local_ndsm_fs_list:
             grass.message(_("Local nDSM import not yet supported!"))
-        #     imported_local_data = import_local_data(
-        #         aoi_map, local_data_dir, fs, output_alkis_fs
-        #     )
+            imported_local_data = import_local_data(
+                aoi,
+                output,
+                local_data_dir_ndsm,
+                fs,
+                ndsm_list,
+                rm_rasters,
+                "raster",
+                nativ_res,
+            )
+        # TODO import nDSM via local iDSM/DSM and DTM
         # elif fs in OPEN_DATA_AVAILABILITY["nDSM"]["NO_OPEN_DATA"]:
         #     grass.fatal(
         #         _(f"No local data for {fs} available. Is the path correct?")
