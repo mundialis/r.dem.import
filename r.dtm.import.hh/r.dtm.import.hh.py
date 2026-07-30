@@ -84,6 +84,11 @@ from grass_gis_helpers.open_geodata_germany.download_data import (
 )
 from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
 
+try:
+    from r_dem_import_lib import xyz_laz_clip_region_aoi
+except Exception as imp_err:
+    grass.fatal(f"r.dem.import library could not be imported: {imp_err}")
+
 # set constant variables
 TINDEX = (
     "https://github.com/mundialis/tile-indices/raw/main/DTM/HH/"
@@ -175,21 +180,13 @@ def main():
     tmp_out = f"tmp_{output}_{ID}"
     rm_rasters.append(tmp_out)
     rm_rasters.extend(all_dtms)
-    create_vrt(all_dtms, tmp_out)
+    create_vrt(all_dtms, tmp_out, copy_raster_maps=False)
 
-    # clip to region / aoi
+     # clip xyz-file to region /aoi
     if aoi:
-        grass.run_command("g.region", vector=aoi, align=tmp_out)
+        xyz_laz_clip_region_aoi(tmp_out, output, aoi=aoi)
     else:
-        grass.run_command("g.region", region=ORIG_REGION, align=tmp_out)
-    grass.run_command(
-        "r.mapcalc", expression="MASK = 1", overwrite=True, quiet=True
-    )
-    grass.run_command(
-        "r.mapcalc",
-        expression=f"{output} = {tmp_out}",
-        quiet=True,
-    )
+        xyz_laz_clip_region_aoi(tmp_out, output, region=ORIG_REGION)
 
     # resample / interpolate whole VRT (because interpolating single files leads
     # to empty rows and columns)

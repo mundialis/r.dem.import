@@ -80,7 +80,12 @@ from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
     download_data_using_threadpool,
 )
-from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
+from grass_gis_helpers.raster import (
+    adjust_raster_resolution,
+    create_vrt,
+    vrt_to_raster,
+)
+
 
 # set constant variables
 TINDEX = (

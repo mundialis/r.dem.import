@@ -15,11 +15,6 @@ import os
 from time import sleep
 import grass.script as grass
 
-from grass_gis_helpers.data_import import (
-    import_local_raster_data,
-    import_local_xyz_files,
-)
-
 from grass_gis_helpers.general import set_nprocs
 
 OPEN_DATA_AVAILABILITY = {
@@ -285,66 +280,27 @@ def import_dem_from_wms(
             sleep(10)
 
 
-def import_local_data(
-        aoi,
-        out,
-        local_data_dir,
-        fs,
-        all_dems,
-        rm_rasters,
-        raster_type,
-        native_res_flag=None,
-    ):
-    """Import local DEM raster data
+def xyz_laz_clip_region_aoi(xyz_raster, output, aoi=None, region=None):
+    """Clip imported xyz/laz-file to region/aoi
 
+    r.in.pdal/r.in.xyz can not import only part of region/aoi.
+    Thus clip in a follow up step
     Args:
-        aoi (str): Vector map with area of interest
-        out (str): Base output name
-        local_data_dir (str): Path to local data directory with federal state
-                              subfolders
-        fs (str): the abbrivation of the federal state
-        all_dems (list): empty list where the imported DEM rasters
-                         will be appended
-        rm_rasters (list): List of rasters for cleanup, will be appended
-        raster_type (string): Raster files type. Either raster or xyz
-        native_res_flag (bool): True if native data resolution should be used
-                                (only used for raster import)
+        xyz_raster (str): Imported xyz/laz-file
+        output (str): Clipped output raster map
+        aoi (str): AOI if given
+        region (str): Region (if no AOI given)
 
-    """
-    if raster_type == "raster":
-        imported_local_data = import_local_raster_data(
-            aoi,
-            f"{out}_{fs}",
-            os.path.join(local_data_dir, fs),
-            native_res_flag,
-            all_dems,
-            rm_rasters,
-            band_dict=None,
-        )
-    elif raster_type == "xyz":
-        if native_res_flag == None:
-            grass.warning(_(
-                "Note, that 'native_res_flag' will be ignored"
-                "for local data import of xyz files."
-            ))
-        imported_local_data = import_local_xyz_files(
-                aoi,
-                f"{out}_{fs}",
-                os.path.join(local_data_dir, fs),
-                all_dems,
-            )
+    """    
+    if aoi:
+        grass.run_command("g.region", vector=aoi, align=xyz_raster)
     else:
-        grass.fatal(_(
-            f"Invalid raster_type for local data import: '{raster_type}'."
-            "Valid ones are 'raster' or 'xyz'."))
-
-    if not imported_local_data and fs in ["BW"]:
-        grass.fatal(_("Local data does not overlap with aoi."))
-    elif not imported_local_data:
-        grass.message(
-            _(
-                "Local data does not overlap with aoi. Data will be downloaded"
-                " from Open Data portal."
-            )
-        )
-    return imported_local_data
+        grass.run_command("g.region", region=region, align=xyz_raster)
+    grass.run_command(
+        "r.mapcalc", expression="MASK = 1", overwrite=True, quiet=True
+    )
+    grass.run_command(
+        "r.mapcalc",
+        expression=f"{output} = {xyz_raster}",
+        quiet=True,
+    )

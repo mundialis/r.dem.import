@@ -80,7 +80,11 @@ from grass_gis_helpers.data_import import (
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
 )
-from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
+from grass_gis_helpers.raster import (
+    adjust_raster_resolution,
+    create_vrt,
+    vrt_to_raster,
+)
 
 # set constant variables
 TINDEX = (
@@ -171,15 +175,17 @@ def main():
                 sleep(10)
         all_ndsms.append(ndsm_name)
 
+    # Create VRT of tiles
+    # (dont copy raster maps -> create real raster in the next steps)
+    vrt = f"vrt_ndsm_{output}_{ID}"
+    rm_rasters.append(vrt)
+    rm_rasters.extend(all_ndsms)
+    create_vrt(all_ndsms, vrt, copy_raster_maps=False)
+    
     # resample / interpolate whole VRT (because interpolating single files leads
     # to empty rows and columns)
     # check resolution and resample / interpolate data if needed
     if not native_res:
-        # create VRT
-        vrt = f"vrt_ndsm_{ID}"
-        rm_rasters.append(vrt)
-        create_vrt(all_ndsms, vrt)
-
         grass.message(_("Resampling / interpolating data..."))
         if alignment_raster:
             # set extent from imported data, and align with alignment raster
@@ -196,10 +202,9 @@ def main():
             grass.run_command("g.region", raster=vrt)
             grass.run_command("g.region", res=ns_res, flags="a")
         adjust_raster_resolution(vrt, output, ns_res)
-        rm_rasters.extend(all_ndsms)
     else:
-        # create VRT
-        create_vrt(all_ndsms, output)
+        # Note: Want real raster/no VRT as output
+        vrt_to_raster(vrt, output)
 
     grass.message(_(f"nDSM raster map <{output}> is created."))
 
