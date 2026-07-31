@@ -294,8 +294,10 @@ def xyz_laz_clip_region_aoi(xyz_raster, output, aoi=None, region=None):
     """    
     if aoi:
         grass.run_command("g.region", vector=aoi, align=xyz_raster)
-    else:
+    elif region:
         grass.run_command("g.region", region=region, align=xyz_raster)
+    else:
+         grass.fatal("Neither 'region' nor 'aoi' is set, but one of them is required")
     grass.run_command(
         "r.mapcalc",
         expression=f"{output} = {xyz_raster}",
