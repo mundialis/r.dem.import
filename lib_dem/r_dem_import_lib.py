@@ -297,9 +297,6 @@ def xyz_laz_clip_region_aoi(xyz_raster, output, aoi=None, region=None):
     else:
         grass.run_command("g.region", region=region, align=xyz_raster)
     grass.run_command(
-        "r.mapcalc", expression="MASK = 1", overwrite=True, quiet=True
-    )
-    grass.run_command(
         "r.mapcalc",
         expression=f"{output} = {xyz_raster}",
         quiet=True,

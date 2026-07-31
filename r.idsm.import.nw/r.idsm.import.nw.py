@@ -70,6 +70,8 @@ import atexit
 import os
 import pathlib
 import grass.script as grass
+import sys
+from grass.pygrass.utils import get_lib_path
 
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.data_import import (
@@ -86,6 +88,11 @@ from grass_gis_helpers.raster import (
     vrt_to_raster,
 )
 
+# import module library
+path = get_lib_path(modname="r.dem.import")
+if path is None:
+    grass.fatal("Unable to find the dem library directory.")
+sys.path.append(path)
 try:
     from r_dem_import_lib import xyz_laz_clip_region_aoi
 except Exception as imp_err:
