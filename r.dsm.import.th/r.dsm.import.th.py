@@ -83,7 +83,12 @@ from grass_gis_helpers.open_geodata_germany.download_data import (
     download_data_using_threadpool,
     extract_compressed_files,
 )
-from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
+from grass_gis_helpers.raster import (
+    adjust_raster_resolution,
+    create_vrt,
+    vrt_to_raster,
+)
+
 
 # set constant variables
 TINDEX = (
@@ -172,18 +177,21 @@ def main():
         import_single_local_xyz_file(xyz_file, dsm_name)
         all_dsms.append(dsm_name)
 
-    # create VRT
-    create_vrt(all_dsms, output)
+    # Create VRT of tiles
+    # (dont copy raster maps -> create real raster in the next steps)
+    vrt = f"vrt_dsm_{output}_{ID}"
+    rm_rasters.append(vrt)
+    rm_rasters.extend(all_dsms)
+    create_vrt(all_dsms, vrt, copy_raster_maps=False)
 
     # resample / interpolate whole VRT (because interpolating single files lead
     # to emplty rows and columns)
     # check resolution and resample / interpolate data if needed
     if not native_res:
+        grass.message(_("Resampling / interpolating data..."))
         if alignment_raster:
             # set extent from imported data, and align with alignment raster
-            grass.run_command(
-                "g.region", raster=output, align=alignment_raster
-            )
+            grass.run_command("g.region", raster=vrt, align=alignment_raster)
             ns_res = float(
                 grass.parse_command("r.info", map=alignment_raster, flags="g")[
                     "nsres"
@@ -193,12 +201,12 @@ def main():
             # if no alignemnt raster is given,
             # use extent of imported data and
             # set and align with current region resolution
-            grass.run_command("g.region", raster=output)
+            grass.run_command("g.region", raster=vrt)
             grass.run_command("g.region", res=ns_res, flags="a")
-        grass.message(_("Resampling / interpolating data..."))
-        grass.run_command("g.rename", raster=f"{output},{output}_tmp")
-        adjust_raster_resolution(f"{output}_tmp", output, ns_res)
-        rm_rasters.append(f"{output}_tmp")
+        adjust_raster_resolution(vrt, output, ns_res)
+    else:
+        # Note: Want real raster/no VRT as output
+        vrt_to_raster(vrt, output)
 
     grass.message(_(f"DSM raster map <{output}> is created."))
 

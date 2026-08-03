@@ -323,6 +323,8 @@ def main():
                 )
                 metadata_list.append(fs_metadata)
 
+    # Patch DSMs of different federal states
+    # (keep as VRT. Federal states DSMs itself are no VRTs)
     create_vrt(all_dsms, output)
     grass.message(_(f"DSM raster map <{output}> is created."))
 
