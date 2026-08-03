@@ -197,9 +197,10 @@ def main():
                 )
             )
             all_dtms_local = []
+            out_fs = f"dtm_{fs}_{ID}"
             imported_local_data = import_local_data(
                 aoi,
-                output,
+                out_fs,
                 local_data_dir,
                 fs,
                 all_dtms_local,
@@ -210,6 +211,7 @@ def main():
                 alignment_raster,
             )
             if imported_local_data:
+                all_dtms.append(out_fs)
                 fs_dem_list = [f"{output}_{fs}"]
                 local_fs_dir = os.path.join(local_data_dir, fs)
                 if pathlib.Path(local_fs_dir).exists():
