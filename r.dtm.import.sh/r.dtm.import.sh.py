@@ -44,6 +44,13 @@
 # % description: Name for output raster map
 # %end
 
+# %option
+# % key: metadata_file
+# % type: string
+# % required: no
+# % description: Temporary file for metadata URLs
+# %end
+
 # %flag
 # % key: k
 # % label: Keep downloaded data in the download directory
@@ -61,6 +68,7 @@
 
 import atexit
 import os
+import pathlib
 from urllib.parse import urlparse, parse_qs
 import sys
 from grass.pygrass.utils import get_lib_path
@@ -69,6 +77,7 @@ import requests
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.data_import import (
     download_and_import_tindex,
+    get_list_of_tindex_locations,
 )
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
@@ -123,6 +132,7 @@ def main():
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])
     alignment_raster = options["alignment_raster"]
+    metadata_file = options["metadata_file"]
     output = options["output"]
     keep_data = flags["k"]
     native_res = flags["r"]
@@ -140,38 +150,13 @@ def main():
     rm_vectors.append(tindex_vect)
     download_and_import_tindex(TINDEX, tindex_vect, download_dir)
 
-    # get tiles which overlap with aoi
-    def url_tiles(tindex_vect, aoi):
-        tindex_clipped = f"clipped_tindex_vect_{grass.tempname(8)}"
-        rm_vectors.append(tindex_clipped)
-        v_clip_kwargs = {
-            "input": tindex_vect,
-            "output": tindex_clipped,
-            "flags": "",
-            "quiet": True,
-        }
-        if aoi:
-            v_clip_kwargs["clip"] = aoi
-            v_clip_kwargs["flags"] += "d"
-        else:
-            v_clip_kwargs["flags"] += "r"
-        grass.run_command("v.clip", **v_clip_kwargs)
-        tiles = [
-            val[0]
-            for val in grass.vector_db_select(
-                tindex_clipped,
-                columns="link_data",
-            )["values"].values()
-        ]
-        return tiles
-
-    # create list with tile urls
-    url_tiles_list = url_tiles(tindex_vect, aoi)
+    # get download urls which overlap with aoi
+    url_tiles = get_list_of_tindex_locations(tindex_vect, aoi)
 
     # download DTM files
     grass.message(_("Importing DTM..."))
     all_dtms = []
-    for url in url_tiles_list:
+    for url in url_tiles:
         if aoi:
             grass.run_command("g.region", vector=aoi, flags="a")
         else:
@@ -253,6 +238,15 @@ def main():
         rm_rasters.append(f"{output}_tmp")
 
     grass.message(_(f"DTM raster map <{output}> is created."))
+
+    if metadata_file and url_tiles:
+        try:
+            with pathlib.Path(metadata_file).open("w", encoding="utf-8") as f:
+                for url in url_tiles:
+                    f.write(f"{url}\n")
+            grass.debug("Wrote tile URLs to tempfile")
+        except Exception as e:
+            grass.warning(f"Could not write tempfile metadata: {e}")
 
 
 if __name__ == "__main__":
