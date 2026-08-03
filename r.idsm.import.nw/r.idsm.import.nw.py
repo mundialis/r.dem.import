@@ -70,6 +70,8 @@ import atexit
 import os
 import pathlib
 import grass.script as grass
+import sys
+from grass.pygrass.utils import get_lib_path
 
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.data_import import (
@@ -80,7 +82,22 @@ from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
     download_data_using_threadpool,
 )
-from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
+from grass_gis_helpers.raster import (
+    adjust_raster_resolution,
+    create_vrt,
+    vrt_to_raster,
+)
+
+# import module library
+path = get_lib_path(modname="r.dem.import")
+if path is None:
+    grass.fatal("Unable to find the dem library directory.")
+sys.path.append(path)
+try:
+    from r_dem_import_lib import xyz_laz_clip_region_aoi
+except Exception as imp_err:
+    grass.fatal(f"r.dem.import library could not be imported: {imp_err}")
+
 
 # set constant variables
 TINDEX = (
@@ -183,19 +200,27 @@ def main():
         grass.run_command("r.in.pdal", **r_in_pdal_kwargs)
         all_idsms.append(idsm_name)
 
+    # create VRT
+    tmp_out = f"tmp_{output}_{ID}"
+    rm_rasters.append(tmp_out)
+    rm_rasters.extend(all_idsms)
+    create_vrt(all_idsms, tmp_out, copy_raster_maps=False)
+
+    # clip xyz-file to region /aoi
+    if aoi:
+        xyz_laz_clip_region_aoi(tmp_out, output, aoi=aoi)
+    else:
+        xyz_laz_clip_region_aoi(tmp_out, output, region=ORIG_REGION)
+
+
     # resample / interpolate whole VRT (because interpolating single files leads
     # to empty rows and columns)
     # check resolution and resample / interpolate data if needed
     if not native_res:
-        # create VRT
-        vrt = f"vrt_idsm_{ID}"
-        rm_rasters.append(vrt)
-        create_vrt(all_idsms, vrt)
-
         grass.message(_("Resampling / interpolating data..."))
         if alignment_raster:
             # set extent from imported data, and align with alignment raster
-            grass.run_command("g.region", raster=vrt, align=alignment_raster)
+            grass.run_command("g.region", raster=output, align=alignment_raster)
             ns_res = float(
                 grass.parse_command("r.info", map=alignment_raster, flags="g")[
                     "nsres"
@@ -205,13 +230,12 @@ def main():
             # if no alignemnt raster is given,
             # use extent of imported data and
             # set and align with current region resolution
-            grass.run_command("g.region", raster=vrt)
+            grass.run_command("g.region", raster=output)
             grass.run_command("g.region", res=ns_res, flags="a")
-        adjust_raster_resolution(vrt, output, ns_res)
-        rm_rasters.extend(all_idsms)
-    else:
-        # create VRT
-        create_vrt(all_idsms, output)
+        grass.message(_("Resampling / interpolating data..."))
+        grass.run_command("g.rename", raster=f"{output},{output}_tmp")
+        adjust_raster_resolution(f"{output}_tmp", output, ns_res)
+        rm_rasters.append(f"{output}_tmp")
 
     grass.message(_(f"iDSM raster map <{output}> is created."))
 

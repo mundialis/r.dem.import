@@ -233,6 +233,8 @@ def main():
             )
             metadata_list.append(fs_metadata)
 
+    # Patch iDSMs of different federal states
+    # (keep as VRT. Federal states iDSMs itself are no VRTs)
     create_vrt(all_idsms, output)
     grass.message(_(f"iDSM raster map <{output}> is created."))
 

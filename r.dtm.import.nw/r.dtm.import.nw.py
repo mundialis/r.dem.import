@@ -79,7 +79,11 @@ from grass_gis_helpers.data_import import (
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
 )
-from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
+from grass_gis_helpers.raster import (
+    adjust_raster_resolution,
+    create_vrt,
+    vrt_to_raster,
+)
 
 # set constant variables
 TINDEX = (
@@ -145,7 +149,7 @@ def main():
 
     # import DTM directly
     grass.message(_("Importing DTM..."))
-    all_dtm = []
+    all_dtms = []
     for url in url_tiles:
         dtm_name = os.path.splitext(os.path.basename(url))[0].replace("-", "")
         if "/vsicurl/" not in url:
@@ -158,17 +162,19 @@ def main():
             overwrite=True,
             quiet=True,
         )
-        all_dtm.append(dtm_name)
+        all_dtms.append(dtm_name)
+
+    # Create VRT of tiles
+    # (dont copy raster maps -> create real raster in the next steps)
+    vrt = f"vrt_dtm_{output}_{ID}"
+    rm_rasters.append(vrt)
+    rm_rasters.extend(all_dtms)
+    create_vrt(all_dtms, vrt, copy_raster_maps=False)
 
     # resample / interpolate whole VRT (because interpolating single files leads
     # to empty rows and columns)
     # check resolution and resample / interpolate data if needed
     if not native_res:
-        # create VRT
-        vrt = f"vrt_dtm_{ID}"
-        rm_rasters.append(vrt)
-        create_vrt(all_dtm, vrt)
-
         grass.message(_("Resampling / interpolating data..."))
         if alignment_raster:
             # set extent from imported data, and align with alignment raster
@@ -185,10 +191,9 @@ def main():
             grass.run_command("g.region", raster=vrt)
             grass.run_command("g.region", res=ns_res, flags="a")
         adjust_raster_resolution(vrt, output, ns_res)
-        rm_rasters.extend(all_dtm)
     else:
-        # create VRT
-        create_vrt(all_dtm, output)
+        # Note: Want real raster/no VRT as output
+        vrt_to_raster(vrt, output)
 
     grass.message(_(f"DTM raster map <{output}> is created."))
 

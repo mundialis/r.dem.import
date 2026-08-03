@@ -285,6 +285,31 @@ def import_dem_from_wms(
             sleep(10)
 
 
+def xyz_laz_clip_region_aoi(xyz_raster, output, aoi=None, region=None):
+    """Clip imported xyz/laz-file to region/aoi
+
+    r.in.pdal/r.in.xyz can not import only part of region/aoi.
+    Thus clip in a follow up step
+    Args:
+        xyz_raster (str): Imported xyz/laz-file
+        output (str): Clipped output raster map
+        aoi (str): AOI if given
+        region (str): Region (if no AOI given)
+
+    """    
+    if aoi:
+        grass.run_command("g.region", vector=aoi, align=xyz_raster)
+    elif region:
+        grass.run_command("g.region", region=region, align=xyz_raster)
+    else:
+         grass.fatal("Neither 'region' nor 'aoi' is set, but one of them is required")
+    grass.run_command(
+        "r.mapcalc",
+        expression=f"{output} = {xyz_raster}",
+        quiet=True,
+    )
+
+
 def import_local_data(
         aoi,
         out,

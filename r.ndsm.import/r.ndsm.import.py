@@ -539,7 +539,8 @@ def main():
             compute_ndsm(dtm_out, idsm_out, dsm_out, ndsm_out)
         ndsm_list.append(ndsm_out)
 
-    # create VRT
+    # Patch nDSMs of different federal states
+    # (keep as VRT. Federal states nDSMs itself are no VRTs)
     if len(ndsm_list) > 0:
         create_vrt(ndsm_list, output)
         # check result for completeness

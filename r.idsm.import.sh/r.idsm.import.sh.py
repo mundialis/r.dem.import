@@ -46,6 +46,13 @@
 # % description: Name for output raster map
 # %end
 
+# %option
+# % key: metadata_file
+# % type: string
+# % required: no
+# % description: Temporary file for metadata URLs
+# %end
+
 # %flag
 # % key: k
 # % label: Keep downloaded data in the download directory
@@ -63,15 +70,24 @@
 
 import atexit
 import os
+import pathlib
 from urllib.parse import urlparse, parse_qs
 import grass.script as grass
 
 from grass_gis_helpers.cleanup import general_cleanup
-from grass_gis_helpers.data_import import download_and_import_tindex
+from grass_gis_helpers.data_import import (
+    download_and_import_tindex,
+    get_list_of_tindex_locations,
+)
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
 )
-from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
+from grass_gis_helpers.raster import (
+    adjust_raster_resolution,
+    create_vrt,
+    vrt_to_raster,
+)
+
 
 # set variables
 TINDEX = (
@@ -111,6 +127,7 @@ def main():
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])
     alignment_raster = options["alignment_raster"]
+    metadata_file = options["metadata_file"]
     output = options["output"]
     keep_data = flags["k"]
     native_res = flags["r"]
@@ -128,42 +145,13 @@ def main():
     rm_vectors.append(tindex_vect)
     download_and_import_tindex(TINDEX, tindex_vect, download_dir)
 
-    # get tiles which overlap with aoi
-    def url_tiles(tindex_vect, aoi):
-        tindex_clipped = f"clipped_tindex_vect_{grass.tempname(8)}"
-        try:
-            v_clip_kwargs = {
-                "input": tindex_vect,
-                "output": tindex_clipped,
-                "flags": "",
-                "quiet": True,
-            }
-            if aoi:
-                v_clip_kwargs["clip"] = aoi
-                v_clip_kwargs["flags"] += "d"
-            else:
-                v_clip_kwargs["flags"] += "r"
-            grass.run_command("v.clip", **v_clip_kwargs)
-            tiles = [
-                val[0]
-                for val in grass.vector_db_select(
-                    tindex_clipped,
-                    columns="link_data",
-                )["values"].values()
-            ]
-
-            return tiles
-
-        finally:
-            rm_vectors.extend(tindex_clipped)
-
-    # create list with tile urls
-    url_tiles_list = url_tiles(tindex_vect, aoi)
+    # get download urls which overlap with aoi
+    url_tiles = get_list_of_tindex_locations(tindex_vect, aoi)
 
     # import iDSM files
     grass.message(_("Importing iDSM..."))
     all_idsms = []
-    for url in url_tiles_list:
+    for url in url_tiles:
         if aoi:
             grass.run_command("g.region", vector=aoi)
         else:
@@ -182,25 +170,12 @@ def main():
         )
         all_idsms.append(idsm_name)
 
-    # create VRT
-    tmp_out = f"tmp_{output}_{ID}"
-    rm_rasters.append(tmp_out)
+    # Create VRT of tiles
+    # (dont copy raster maps -> create real raster in the next steps)
+    vrt = f"vrt_idsm_{output}_{ID}"
+    rm_rasters.append(vrt)
     rm_rasters.extend(all_idsms)
-    create_vrt(all_idsms, tmp_out)
-
-    # clip to region / aoi
-    if aoi:
-        grass.run_command("g.region", vector=aoi, align=tmp_out)
-    else:
-        grass.run_command("g.region", region=ORIG_REGION, align=tmp_out)
-    grass.run_command(
-        "r.mapcalc", expression="MASK = 1", overwrite=True, quiet=True
-    )
-    grass.run_command(
-        "r.mapcalc",
-        expression=f"{output} = {tmp_out}",
-        quiet=True,
-    )
+    create_vrt(all_idsms, vrt, copy_raster_maps=False)
 
     # resample/interpolate whole VRT (because interpolating single files leads
     # to empty rows and columns)
@@ -208,9 +183,7 @@ def main():
     if not native_res:
         if alignment_raster:
             # set extent from imported data, and align with alignment raster
-            grass.run_command(
-                "g.region", raster=output, align=alignment_raster
-            )
+            grass.run_command("g.region", raster=vrt, align=alignment_raster)
             ns_res = float(
                 grass.parse_command("r.info", map=alignment_raster, flags="g")[
                     "nsres"
@@ -220,14 +193,23 @@ def main():
             # if no alignemnt raster is given,
             # use extent of imported data and
             # set and align with current region resolution
-            grass.run_command("g.region", raster=output)
+            grass.run_command("g.region", raster=vrt)
             grass.run_command("g.region", res=ns_res, flags="a")
-        grass.message(_("Resampling / interpolating data..."))
-        grass.run_command("g.rename", raster=f"{output},{output}_tmp")
-        adjust_raster_resolution(f"{output}_tmp", output, ns_res)
-        rm_rasters.append(f"{output}_tmp")
+        adjust_raster_resolution(vrt, output, ns_res)
+    else:
+        # Note: Want real raster/no VRT as output
+        vrt_to_raster(vrt, output)
 
     grass.message(_(f"iDSM raster map <{output}> is created."))
+
+    if metadata_file and url_tiles:
+        try:
+            with pathlib.Path(metadata_file).open("w", encoding="utf-8") as f:
+                for url in url_tiles:
+                    f.write(f"{url}\n")
+            grass.debug("Wrote tile URLs to tempfile")
+        except Exception as e:
+            grass.warning(f"Could not write tempfile metadata: {e}")
 
 
 if __name__ == "__main__":
