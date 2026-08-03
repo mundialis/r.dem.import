@@ -20,6 +20,12 @@ from grass_gis_helpers.data_import import (
     import_local_xyz_files,
 )
 
+from grass_gis_helpers.raster import (
+    adjust_raster_resolution,
+    create_vrt,
+    vrt_to_raster,
+)
+
 from grass_gis_helpers.general import set_nprocs
 
 OPEN_DATA_AVAILABILITY = {
@@ -318,7 +324,9 @@ def import_local_data(
         all_dems,
         rm_rasters,
         raster_type,
-        native_res_flag=None,
+        native_res,
+        ns_res,
+        alignment_raster=None,
     ):
     """Import local DEM raster data
 
@@ -332,26 +340,30 @@ def import_local_data(
                          will be appended
         rm_rasters (list): List of rasters for cleanup, will be appended
         raster_type (string): Raster files type. Either raster or xyz
-        native_res_flag (bool): True if native data resolution should be used
-                                (only used for raster import)
+        native_res (bool): Flag to keep native resolution of imported data
+                           (True, if resolution kept)
+        ns_res (float): Resolution to resample imported raster to
+        alignment_raster (str): If data should be resampled,
+                                raster to align imported data to
 
     """
+    if alignment_raster and native_res:
+        grass.fatal(
+            _(
+                "Alignment raster can only be used if data are resampled "
+                "(i.e. native resolution is not kept)."
+            )
+        )
     if raster_type == "raster":
         imported_local_data = import_local_raster_data(
             aoi,
             f"{out}_{fs}",
             os.path.join(local_data_dir, fs),
-            native_res_flag,
             all_dems,
             rm_rasters,
             band_dict=None,
         )
     elif raster_type == "xyz":
-        if native_res_flag == None:
-            grass.warning(_(
-                "Note, that 'native_res_flag' will be ignored"
-                "for local data import of xyz files."
-            ))
         imported_local_data = import_local_xyz_files(
                 aoi,
                 f"{out}_{fs}",
@@ -372,4 +384,38 @@ def import_local_data(
                 " from Open Data portal."
             )
         )
+
+    if imported_local_data:
+        # Create VRT of tiles
+        # (dont copy raster maps -> create real raster in the next steps)
+        vrt = f"vrt_local_dem_{out}_{os.getpid()}"
+        rm_rasters.append(vrt)
+        rm_rasters.extend(all_dems)
+        create_vrt(all_dems, vrt, copy_raster_maps=False)
+
+        # Check resolution and resample / interpolate data if needed
+        # resample / interpolate whole VRT
+        # (interpolating single files leads to empty rows and columns)
+        if not native_res:
+            grass.message(_("Resampling / interpolating data..."))
+            if alignment_raster:
+                # set extent from imported data, and align with alignment raster
+                grass.run_command("g.region", raster=vrt, align=alignment_raster)
+                # replace region ns_res with alignment raster ns_res
+                ns_res = float(
+                    grass.parse_command("r.info", map=alignment_raster, flags="g")[
+                        "nsres"
+                    ],
+                )
+            else:
+                # if no alignemnt raster is given,
+                # use extent of imported data and
+                # set and align with current region resolution
+                grass.run_command("g.region", raster=vrt)
+                grass.run_command("g.region", res=ns_res, flags="a")
+            adjust_raster_resolution(vrt, out, ns_res)
+        else:
+            # Note: Want real raster/no VRT as output
+            vrt_to_raster(vrt, out)
+
     return imported_local_data

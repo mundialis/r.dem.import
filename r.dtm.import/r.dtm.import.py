@@ -172,6 +172,7 @@ def main():
 
     # save original region
     grass.run_command("g.region", save=ORIG_REGION, quiet=True)
+    ns_res = grass.region()["nsres"]
 
     # local DTM files
     local_fs_list = []
@@ -189,8 +190,24 @@ def main():
         # check if local data for federal state given
         imported_local_data = False
         if fs in local_fs_list:
+            grass.message(
+                _(
+                    "NOTE: Local data DTM import currently "
+                    "only supported for xyz files"
+                )
+            )
+            all_dtms_local = []
             imported_local_data = import_local_data(
-                aoi, output, local_data_dir, fs, all_dtms, rm_rasters, "xyz",
+                aoi,
+                output,
+                local_data_dir,
+                fs,
+                all_dtms_local,
+                rm_rasters,
+                "xyz",
+                native_res,
+                ns_res,
+                alignment_raster,
             )
             if imported_local_data:
                 fs_dem_list = [f"{output}_{fs}"]

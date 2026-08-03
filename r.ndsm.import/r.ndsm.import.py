@@ -244,10 +244,11 @@ def main():
     metadata_path = options["metadata"]
     output = options["output"]
     keep_data = flags["k"]
-    nativ_res = flags["r"]
+    native_res = flags["r"]
 
     # save orig region
     grass.run_command("g.region", save=ORIG_REGION, quiet=True)
+    ns_res = grass.region()["nsres"]
 
     # local nDSM files
     local_ndsm_fs_list = []
@@ -283,17 +284,30 @@ def main():
         # check if local data for federal state given
         imported_local_data = False
         if fs in local_ndsm_fs_list:
-            grass.message(_("Local nDSM import not yet supported!"))
+            grass.message(
+                _(
+                    "NOTE: Local data nDSM import currently "
+                    "only supported for raster (e.g. tif) files"
+                )
+            )
+            ndsm_out = f"ndsm_{fs}_{ID}"
+            ndsm_list_local = []
             imported_local_data = import_local_data(
                 aoi,
-                output,
+                ndsm_out,
                 local_data_dir_ndsm,
                 fs,
-                ndsm_list,
+                ndsm_list_local,
                 rm_rasters,
                 "raster",
-                nativ_res,
+                native_res,
+                ns_res,
+                alignment_raster,
             )
+            # If local data import, was not succesfull,
+            # set back ndsm_out variable
+            if not imported_local_data:
+                ndsm_out = None
         # TODO import nDSM via local iDSM/DSM and DTM
         # elif fs in OPEN_DATA_AVAILABILITY["nDSM"]["NO_OPEN_DATA"]:
         #     grass.fatal(
@@ -302,7 +316,7 @@ def main():
 
         # set flags for nDSM, iDSM, DSM and DTM
         import_flags = ""
-        if nativ_res:
+        if native_res:
             import_flags += "r"
         if keep_data:
             import_flags += "k"
