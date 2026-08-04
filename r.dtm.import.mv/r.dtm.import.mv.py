@@ -51,6 +51,9 @@
 # % description: Temporary file for metadata URLs
 # %end
 
+# %option G_OPT_MEMORYMB
+# %end
+
 # %flag
 # % key: k
 # % label: Keep downloaded data in the download directory
@@ -68,25 +71,31 @@
 
 import atexit
 import os
+import pathlib
+import sys
 from urllib.parse import urlparse, parse_qs
 import grass.script as grass
 
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.data_import import (
     download_and_import_tindex,
-    get_list_of_tindex_locations
+    get_list_of_tindex_locations,
 )
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
 )
-from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
+from grass_gis_helpers.raster import (
+    adjust_raster_resolution,
+    create_vrt,
+    vrt_to_raster,
+)
 
 # set variables
 # TINDEX = (
 #     "https://github.com/mundialis/tile-indices/raw/main/DTM/MV/"
 #     "mv_dtm_tindex_proj.gpkg.gz"
 # )
-TINDEX="https://github.com/kimariak/tile-indices/raw/mv_tindex/DTM/MV/mv_dtm_tindex_proj.gpkg.gz"
+TINDEX = "https://github.com/kimariak/tile-indices/raw/mv_tindex/DTM/MV/mv_dtm_tindex_proj.gpkg.gz"
 CURRENT_WORKING_DIR = os.getcwd()
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
@@ -145,7 +154,9 @@ def main():
     grass.message(_("Importing DTM..."))
     all_dtm = []
     for url in url_tiles:
-        url_name = os.path.splitext(parse_qs(urlparse(url).query)["file"][0])[0]
+        url_name = os.path.splitext(parse_qs(urlparse(url).query)["file"][0])[
+            0
+        ]
         dtm_name = url_name.strip("_gtiff")
         grass.run_command(
             "r.import",
@@ -156,19 +167,22 @@ def main():
             quiet=True,
         )
         all_dtm.append(dtm_name)
-    
-    # create VRT
-    create_vrt(all_dtm, output)
 
-    # resample/interpolate whole VRT (because interpolating single files leads
+    # Create VRT of tiles
+    # (dont copy raster maps -> create real raster in the next steps)
+    vrt = f"vrt_dtm_{output}_{ID}"
+    rm_rasters.append(vrt)
+    rm_rasters.extend(all_dtm)
+    create_vrt(all_dtm, vrt, copy_raster_maps=False)
+
+    # resample / interpolate whole VRT (because interpolating single files leads
     # to empty rows and columns)
     # check resolution and resample / interpolate data if needed
     if not native_res:
+        grass.message(_("Resampling / interpolating data..."))
         if alignment_raster:
             # set extent from imported data, and align with alignment raster
-            grass.run_command(
-                "g.region", raster=output, align=alignment_raster
-            )
+            grass.run_command("g.region", raster=vrt, align=alignment_raster)
             ns_res = float(
                 grass.parse_command("r.info", map=alignment_raster, flags="g")[
                     "nsres"
@@ -178,12 +192,12 @@ def main():
             # if no alignemnt raster is given,
             # use extent of imported data and
             # set and align with current region resolution
-            grass.run_command("g.region", raster=output)
+            grass.run_command("g.region", raster=vrt)
             grass.run_command("g.region", res=ns_res, flags="a")
-        grass.message(_("Resampling / interpolating data..."))
-        grass.run_command("g.rename", raster=f"{output},{output}_tmp")
-        adjust_raster_resolution(f"{output}_tmp", output, ns_res)
-        rm_rasters.append(f"{output}_tmp")
+        adjust_raster_resolution(vrt, output, ns_res)
+    else:
+        # Note: Want real raster/no VRT as output
+        vrt_to_raster(vrt, output)
 
     grass.message(_(f"DTM raster map <{output}> is created."))
 
