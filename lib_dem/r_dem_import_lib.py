@@ -25,7 +25,6 @@ OPEN_DATA_AVAILABILITY = {
             "RP",
             "ST",
             # no data available
-            "MV",
             "SL",
         ],
         "SUPPORTED": [
@@ -34,6 +33,7 @@ OPEN_DATA_AVAILABILITY = {
             "HB",
             "HE",
             "HH",
+            "MV",
             "NI",
             "NW",
             "SH",

@@ -29,7 +29,7 @@ The r.dem.import toolset consists of the following modules:
 | HB | ☑ | ☑ | via DSM & DTM | n.a. | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Geoportal](https://geoportal.bremen.de/geoportal/#) |
 | HE | Bug | Bug | | | | | [Geoportal](/https://www.geoportal.hessen.de/search/) |
 | HH | ☑ | n.a. | via iDSM & DTM | ☑ | DTM <br> iDSM | DTM: 1m <br> iDSM: 1m | [Geoportal](https://geoportal-hamburg.de/) |
-| MV | | | | | | | [Geoportal](https://laiv.geodaten-mv.de/afgvk/) <br> [iDSM](https://laiv.geodaten-mv.de/afgvk/Geotopographie/Download?produkt=BDOM20) |
+| MV | ☑ | | | | | | [Geoportal](https://laiv.geodaten-mv.de/afgvk/) <br> [iDSM](https://laiv.geodaten-mv.de/afgvk/Geotopographie/Download?produkt=BDOM20) |
 | NI | ☑ | ☑ | via DSM & DTM | | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Open GeoData](https://ni-lgln-opengeodata.hub.arcgis.com/) <br> [iDSM](https://ni-lgln-opengeodata.hub.arcgis.com/apps/lgln-opengeodata::bildbasiertes-digitales-oberfl%C3%A4chenmodell-bdom20/about) |
 | NW | ☑ | n.a. | ☑ | ☑ | DTM <br> nDSM <br> iDSM | DTM: 1m <br> nDSM: 0.5m <br> iDSM: 0.5m | [Open GeoData](https://www.opengeodata.nrw.de/produkte/geobasis/hm/) |
 | RP | | n.a. | | | | | [Geoportal](https://www.geoportal.rlp.de/) <br> [iDSM](https://geoshop.rlp.de/opendata-domb.html) |
