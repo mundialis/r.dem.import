@@ -122,6 +122,7 @@ import grass.script as grass
 from grass.pygrass.utils import get_lib_path
 
 from grass_gis_helpers.cleanup import general_cleanup
+from grass_gis_helpers.data_import import import_local_raster_data
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
 )
@@ -526,7 +527,8 @@ def main():
             compute_ndsm(dtm_out, idsm_out, dsm_out, ndsm_out)
         ndsm_list.append(ndsm_out)
 
-    # create VRT
+    # Patch nDSMs of different federal states
+    # (keep as VRT. Federal states nDSMs itself are no VRTs)
     if len(ndsm_list) > 0:
         create_vrt(ndsm_list, output)
         # check result for completeness

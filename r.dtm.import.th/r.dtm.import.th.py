@@ -69,8 +69,10 @@
 import atexit
 import os
 import pathlib
+import sys
 
 import grass.script as grass
+from grass.pygrass.utils import get_lib_path
 
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.data_import import (
@@ -86,6 +88,17 @@ from grass_gis_helpers.open_geodata_germany.download_data import (
     extract_compressed_files,
 )
 from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
+
+# import module library
+path = get_lib_path(modname="r.dem.import")
+if path is None:
+    grass.fatal("Unable to find the dem library directory.")
+sys.path.append(path)
+try:
+    from r_dem_import_lib import xyz_laz_clip_region_aoi
+except Exception as imp_err:
+    grass.fatal(f"r.dem.import library could not be imported: {imp_err}")
+
 
 # set global variables
 TINDEX = (
@@ -174,8 +187,18 @@ def main():
         import_single_local_xyz_file(xyz_file, dtm_name)
         all_dtms.append(dtm_name)
 
-    # create VRT
-    create_vrt(all_dtms, output)
+    #  create VRT
+    tmp_out = f"tmp_{output}_{ID}"
+    rm_rasters.append(tmp_out)
+    rm_rasters.extend(all_dtms)
+    create_vrt(all_dtms, tmp_out, copy_raster_maps=False)
+
+    # clip xyz-file to region /aoi
+    if aoi:
+        xyz_laz_clip_region_aoi(tmp_out, output, aoi=aoi)
+    else:
+        xyz_laz_clip_region_aoi(tmp_out, output, region=ORIG_REGION)
+
 
     # resample / interpolate whole VRT (because interpolating single files leads
     # to empty rows and columns)
