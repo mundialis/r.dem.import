@@ -1,4 +1,4 @@
-grass-gis-helpers>=4.0.0 #TODO
+grass-gis-helpers>=3.1.0 #TODO 4.0.0?
 gdal
 remotezip
 wget
