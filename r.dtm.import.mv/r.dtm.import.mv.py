@@ -72,7 +72,6 @@
 import atexit
 import os
 import pathlib
-import sys
 from urllib.parse import urlparse, parse_qs
 import grass.script as grass
 
@@ -91,11 +90,10 @@ from grass_gis_helpers.raster import (
 )
 
 # set variables
-# TINDEX = (
-#     "https://github.com/mundialis/tile-indices/raw/main/DTM/MV/"
-#     "mv_dtm_tindex_proj.gpkg.gz"
-# )
-TINDEX = "https://github.com/kimariak/tile-indices/raw/mv_tindex/DTM/MV/mv_dtm_tindex_proj.gpkg.gz"
+TINDEX = (
+    "https://github.com/mundialis/tile-indices/raw/main/DTM/MV/"
+    "mv_dtm_tindex_proj.gpkg.gz"
+)
 CURRENT_WORKING_DIR = os.getcwd()
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
