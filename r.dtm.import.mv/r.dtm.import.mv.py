@@ -75,10 +75,18 @@ import pathlib
 from urllib.parse import urlparse, parse_qs
 import grass.script as grass
 
-from grass_gis_helpers.cleanup import general_cleanup
+from grass_gis_helpers.cleanup import (
+    general_cleanup,
+    cleaning_tmp_location,
+)
 from grass_gis_helpers.data_import import (
     download_and_import_tindex,
     get_list_of_tindex_locations,
+)
+from grass_gis_helpers.location import (
+    create_tmp_location,
+    get_current_location,
+    switch_back_original_location,
 )
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
@@ -95,6 +103,7 @@ TINDEX = (
     "mv_dtm_tindex_proj.gpkg.gz"
 )
 CURRENT_WORKING_DIR = os.getcwd()
+EPSGCODE = 25833
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
 
@@ -102,7 +111,10 @@ keep_data = False
 download_dir = None
 rm_rasters = []
 rm_vectors = []
-
+gisdbase = None
+tgtgisrc = None
+tmploc = None
+srcgisrc = None
 
 def cleanup():
     """Cleaning up function"""
@@ -118,11 +130,14 @@ def cleanup():
         rm_dirs=rm_dirs,
         rm_mask=True,
     )
-
+    # remove temp location and switch location
+    cleaning_tmp_location(tgtgisrc, tmploc, gisdbase, srcgisrc)
 
 def main():
     """Main function of r.dtm.import.mv"""
     global rm_rasters, rm_vectors, keep_data, download_dir
+    # global vars for temporary location
+    global gisdbase, tgtgisrc, tmploc, srcgisrc
 
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])
@@ -136,9 +151,38 @@ def main():
     grass.run_command("g.region", save=ORIG_REGION, quiet=True)
     ns_res = grass.region()["nsres"]
 
+    # create region vector if no aoi is given
+    if not aoi:
+        aoi = f"aoi_region_{ID}"
+        rm_vectors.append(aoi)
+        grass.run_command("v.in.region", output=aoi)
+
+    # get current resolution
+    cur_res = grass.region()["nsres"]
+
     # set region if aoi is given
     if aoi:
         grass.run_command("g.region", vector=aoi, flags="a")
+
+    # change location to tmp location for data import
+    tgtloc, tgtmapset, gisdbase, tgtgisrc = get_current_location()
+    tmploc, srcgisrc = create_tmp_location(EPSGCODE)
+
+    # reproject aoi
+    if "@" in aoi:
+        aoi_name, mapset = aoi.split("@")
+    else:
+        mapset = tgtmapset
+        aoi_name = aoi
+    grass.run_command(
+        "v.proj",
+        location=tgtloc,
+        mapset=mapset,
+        input=aoi_name,
+        output=aoi_name,
+        quiet=True,
+    )
+    grass.run_command("g.region", vector=aoi_name, res=cur_res, flags="a")
 
     # get tile index
     tindex_vect = f"dtm_tindex_{ID}"
@@ -166,37 +210,34 @@ def main():
         )
         all_dtm.append(dtm_name)
 
-    # Create VRT of tiles
-    # (dont copy raster maps -> create real raster in the next steps)
-    vrt = f"vrt_dtm_{output}_{ID}"
-    rm_rasters.append(vrt)
-    rm_rasters.extend(all_dtm)
-    create_vrt(all_dtm, vrt, copy_raster_maps=False)
+    # create VRT
+    create_vrt(all_dtm, output)
 
-    # resample / interpolate whole VRT (because interpolating single files leads
-    # to empty rows and columns)
-    # check resolution and resample / interpolate data if needed
+    # get native data resolution
+    if native_res:
+        res = float(
+            grass.parse_command("r.info", map=output, flags="g")["nsres"]
+        )
+
+    # switch back to origin location
+    switch_back_original_location(tgtgisrc)
     if not native_res:
-        grass.message(_("Resampling / interpolating data..."))
-        if alignment_raster:
-            # set extent from imported data, and align with alignment raster
-            grass.run_command("g.region", raster=vrt, align=alignment_raster)
-            ns_res = float(
-                grass.parse_command("r.info", map=alignment_raster, flags="g")[
-                    "nsres"
-                ],
-            )
-        else:
-            # if no alignemnt raster is given,
-            # use extent of imported data and
-            # set and align with current region resolution
-            grass.run_command("g.region", raster=vrt)
-            grass.run_command("g.region", res=ns_res, flags="a")
-        adjust_raster_resolution(vrt, output, ns_res)
+        res = ns_res
+    if alignment_raster:
+        grass.run_command("g.region", vector=aoi, align=alignment_raster)
     else:
-        # Note: Want real raster/no VRT as output
-        vrt_to_raster(vrt, output)
-
+        grass.run_command("g.region", vector=aoi, res=res, flags="a")
+    grass.run_command(
+        "r.proj",
+        location=tmploc,
+        mapset="PERMANENT",
+        input=output,
+        output=output,
+        method="bilinear",
+        flags="n",
+        quiet=True,
+        memory=1000,
+    )
     grass.message(_(f"DTM raster map <{output}> is created."))
 
     if metadata_file and url_tiles:
