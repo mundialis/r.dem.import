@@ -41,7 +41,6 @@ def get_download_urls_and_names(
             dem_names: list of filenames or tile count label (may be empty)
 
     """
-
     dem_urls = []
     dem_names = []
 

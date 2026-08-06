@@ -1,0 +1,13 @@
+builtins = [ "_",]
+line-length = 79
+required-version = ">=0.7.0"
+output-prefer-rule-codes = true
+
+[lint]
+ignore = [ "D203", "D213",]
+select = [ "A", "AIR", "ANN", "ARG", "B", "BLE", "COM", "D", "DTZ", "E", "FA", "FBT", "FLY", "F", "FURB", "G", "ICN", "I", "INT", "ISC", "LOG", "N", "NPY", "PERF", "PGH", "PIE", "PLC", "PLE", "PLR", "PLW", "PT", "PTH", "Q", "RET", "RSE", "RUF", "S", "SIM", "SLF", "SLOT", "T10", "TCH", "TID", "TRY", "UP", "W", "YTT",]
+
+[lint.per-file-ignores]
+"*/testsuite/*" = [ "S101",]
+"tests/*" = [ "S101",]
+"testsuite/*" = [ "S101",]

@@ -98,12 +98,11 @@
 
 import atexit
 import os
-import sys
 import pathlib
+import sys
 
 import grass.script as grass
 from grass.pygrass.utils import get_lib_path
-
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.data_import import import_local_xyz_files
 from grass_gis_helpers.open_geodata_germany.download_data import (
@@ -140,7 +139,7 @@ rm_rasters = []
 
 
 def cleanup():
-    """Cleaning up function"""
+    """Cleaning up function."""
     general_cleanup(
         orig_region=ORIG_REGION,
         rm_rasters=rm_rasters,
@@ -148,7 +147,7 @@ def cleanup():
 
 
 def import_local_data(aoi, out, local_data_dir, fs, all_dtms):
-    """Import local DTM data
+    """Import local DTM data.
 
     Args:
         aoi (str): Vector map with area of interest
@@ -158,6 +157,7 @@ def import_local_data(aoi, out, local_data_dir, fs, all_dtms):
         fs (str): the abbrivation of the federal state
         all_dtms (list): empty list where the imported DTM rasters
                          will be appended
+
     """
     imported_local_data = import_local_xyz_files(
         aoi,
@@ -166,30 +166,30 @@ def import_local_data(aoi, out, local_data_dir, fs, all_dtms):
         all_dtms,
     )
 
-    if not imported_local_data and fs in ["BW"]:
+    if not imported_local_data and fs == "BW":
         grass.fatal(_("Local data does not overlap with aoi."))
     elif not imported_local_data:
         grass.message(
             _(
                 "Local data does not overlap with aoi. Data will be downloaded"
-                " from Open Data portal."
-            )
+                " from Open Data portal.",
+            ),
         )
     return imported_local_data
 
 
 def get_addon_name(fs):
-    """Function to get the addon name for the function to get license info"""
+    """Function to get the addon name for the function to get license info."""
     return f"r.dtm.import.{fs.lower()}"
 
 
 def main():
-    """Main function of r.dtm.import"""
+    """Main function of r.dtm.import."""
     global rm_rasters
 
     aoi = options["aoi"]
     federal_states = get_federal_states(
-        options["federal_state"], options["federal_state_file"]
+        options["federal_state"], options["federal_state_file"],
     )
     local_data_dir = options["local_data_dir"]
     download_dir = check_download_dir(options["download_dir"])
@@ -219,7 +219,7 @@ def main():
         imported_local_data = False
         if fs in local_fs_list:
             imported_local_data = import_local_data(
-                aoi, output, local_data_dir, fs, all_dtms
+                aoi, output, local_data_dir, fs, all_dtms,
             )
             if imported_local_data:
                 fs_dem_list = [f"{output}_{fs}"]
@@ -237,8 +237,8 @@ def main():
             grass.fatal(
                 _(
                     f"No local data for {fs} available. For the federal state "
-                    "there are no open data available. Is the path correct?"
-                )
+                    "there are no open data available. Is the path correct?",
+                ),
             )
 
         # import data when local import was not used
@@ -247,15 +247,15 @@ def main():
                 grass.fatal(
                     _(
                         "The import of the open data is not yet supported for "
-                        f"{fs}."
-                    )
+                        f"{fs}.",
+                    ),
                 )
             elif fs in NO_OPEN_DATA:
                 grass.fatal(
                     _(
                         f"For the federal state {fs} there are no open data "
-                        "available. Please use local data <local_data_dir>."
-                    )
+                        "available. Please use local data <local_data_dir>.",
+                    ),
                 )
             # implement data download and import from open data
             r_dtm_import_fs_flags = ""
@@ -303,7 +303,7 @@ def main():
                 # the addon's HTML documentation, file/URL info from above)
                 addon_name = get_addon_name(fs)
                 license_info, base_url = get_license_and_url_from_addon(
-                    addon_name
+                    addon_name,
                 )
                 fs_metadata = collect_metadata(
                     fs=fs,

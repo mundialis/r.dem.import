@@ -71,7 +71,6 @@ import os
 import pathlib
 
 import grass.script as grass
-
 from grass_gis_helpers.cleanup import cleaning_tmp_location, general_cleanup
 from grass_gis_helpers.data_import import (
     download_and_import_tindex,
@@ -114,11 +113,10 @@ srcgisrc = None
 
 
 def cleanup():
-    """Cleaning up function"""
+    """Cleaning up function."""
     rm_dirs = []
-    if not keep_data:
-        if download_dir:
-            rm_dirs.append(download_dir)
+    if not keep_data and download_dir:
+        rm_dirs.append(download_dir)
     general_cleanup(
         orig_region=ORIG_REGION,
         rm_rasters=rm_rasters,
@@ -131,7 +129,7 @@ def cleanup():
 
 
 def main():
-    """Main function of r.dtm.import.bb"""
+    """Main function of r.dtm.import.bb."""
     global download_dir, rm_files, rm_rasters, rm_vectors, keep_data
     # global vars for temporary location
     global gisdbase, tgtgisrc, tmploc, srcgisrc
@@ -200,7 +198,7 @@ def main():
 
     # extract XYZ files
     grass.message(_("Extracting XYZ files from zip files..."))
-    zip_filenames = [os.path.basename(url) for url in urls]
+    zip_filenames = [pathlib.Path(url).name for url in urls]
     extracted_files = extract_compressed_files(zip_filenames, download_dir)
 
     # import XYZ DTM files
@@ -213,7 +211,7 @@ def main():
     ]
     all_dtms = []
     for data_file_name in data_files:
-        dtm_name = os.path.splitext(os.path.basename(data_file_name))[
+        dtm_name = os.path.splitext(pathlib.Path(data_file_name).name)[
             0
         ].replace("-", "")
         data_file = os.path.join(download_dir, data_file_name)
@@ -228,7 +226,7 @@ def main():
     # get native data resolution
     if native_res:
         res = float(
-            grass.parse_command("r.info", map=output, flags="g")["nsres"]
+            grass.parse_command("r.info", map=output, flags="g")["nsres"],
         )
 
     # switch back to origin location
@@ -255,8 +253,7 @@ def main():
     if metadata_file and urls:
         try:
             with pathlib.Path(metadata_file).open("w", encoding="utf-8") as f:
-                for url in urls:
-                    f.write(f"{url}\n")
+                f.writelines(f"{url}\n" for url in urls)
             grass.debug("Wrote tile URLs to tempfile")
         except Exception as e:
             grass.warning(f"Could not write tempfile metadata: {e}")

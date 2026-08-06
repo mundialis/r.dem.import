@@ -71,9 +71,9 @@
 import atexit
 import os
 import pathlib
-from urllib.parse import urlparse, parse_qs
-import grass.script as grass
+from urllib.parse import parse_qs, urlparse
 
+import grass.script as grass
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.data_import import (
     download_and_import_tindex,
@@ -88,13 +88,12 @@ from grass_gis_helpers.raster import (
     vrt_to_raster,
 )
 
-
 # set variables
 TINDEX = (
     "https://github.com/mundialis/tile-indices/raw/main/iDSM/SH/"
     "sh_bdom_tindex_proj.gpkg.gz"
 )
-CURRENT_WORKING_DIR = os.getcwd()
+CURRENT_WORKING_DIR = pathlib.Path.cwd()
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
 
@@ -105,12 +104,11 @@ rm_vectors = []
 
 
 def cleanup():
-    """Cleaning up function"""
+    """Cleaning up function."""
     os.chdir(CURRENT_WORKING_DIR)
     rm_dirs = []
-    if not keep_data:
-        if download_dir:
-            rm_dirs.append(download_dir)
+    if not keep_data and download_dir:
+        rm_dirs.append(download_dir)
     general_cleanup(
         orig_region=ORIG_REGION,
         rm_rasters=rm_rasters,
@@ -121,7 +119,7 @@ def cleanup():
 
 
 def main():
-    """Main function of r.idsm.import.sh"""
+    """Main function of r.idsm.import.sh."""
     global rm_rasters, rm_vectors, keep_data, download_dir
 
     aoi = options["aoi"]

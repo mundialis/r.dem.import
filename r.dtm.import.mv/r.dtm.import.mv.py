@@ -72,12 +72,12 @@
 import atexit
 import os
 import pathlib
-from urllib.parse import urlparse, parse_qs
-import grass.script as grass
+from urllib.parse import parse_qs, urlparse
 
+import grass.script as grass
 from grass_gis_helpers.cleanup import (
-    general_cleanup,
     cleaning_tmp_location,
+    general_cleanup,
 )
 from grass_gis_helpers.data_import import (
     download_and_import_tindex,
@@ -91,18 +91,14 @@ from grass_gis_helpers.location import (
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
 )
-from grass_gis_helpers.raster import (
-    adjust_raster_resolution,
-    create_vrt,
-    vrt_to_raster,
-)
+from grass_gis_helpers.raster import create_vrt
 
 # set variables
 TINDEX = (
     "https://github.com/mundialis/tile-indices/raw/main/DTM/MV/"
     "mv_dtm_tindex_proj.gpkg.gz"
 )
-CURRENT_WORKING_DIR = os.getcwd()
+CURRENT_WORKING_DIR = pathlib.Path.cwd()
 EPSGCODE = 25833
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
@@ -116,13 +112,13 @@ tgtgisrc = None
 tmploc = None
 srcgisrc = None
 
+
 def cleanup():
-    """Cleaning up function"""
+    """Cleaning up function."""
     os.chdir(CURRENT_WORKING_DIR)
     rm_dirs = []
-    if not keep_data:
-        if download_dir:
-            rm_dirs.append(download_dir)
+    if not keep_data and download_dir:
+        rm_dirs.append(download_dir)
     general_cleanup(
         orig_region=ORIG_REGION,
         rm_rasters=rm_rasters,
@@ -133,8 +129,9 @@ def cleanup():
     # remove temp location and switch location
     cleaning_tmp_location(tgtgisrc, tmploc, gisdbase, srcgisrc)
 
+
 def main():
-    """Main function of r.dtm.import.mv"""
+    """Main function of r.dtm.import.mv."""
     global rm_rasters, rm_vectors, keep_data, download_dir
     # global vars for temporary location
     global gisdbase, tgtgisrc, tmploc, srcgisrc
@@ -216,7 +213,7 @@ def main():
     # get native data resolution
     if native_res:
         res = float(
-            grass.parse_command("r.info", map=output, flags="g")["nsres"]
+            grass.parse_command("r.info", map=output, flags="g")["nsres"],
         )
 
     # switch back to origin location

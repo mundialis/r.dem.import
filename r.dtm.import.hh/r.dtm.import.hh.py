@@ -70,10 +70,9 @@ import atexit
 import os
 import pathlib
 import sys
-from grass.pygrass.utils import get_lib_path
-import grass.script as grass
-from remotezip import RemoteZip
 
+import grass.script as grass
+from grass.pygrass.utils import get_lib_path
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.data_import import (
     download_and_import_tindex,
@@ -84,6 +83,7 @@ from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
 )
 from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
+from remotezip import RemoteZip
 
 # import module library
 path = get_lib_path(modname="r.dem.import")
@@ -104,7 +104,7 @@ DATA_ZIP_URL = (
     "https://daten-hamburg.de/geographie_geologie_geobasisdaten/"
     "Digitales_Hoehenmodell/DGM1/dgm1_2x2km_XYZ_hh_2021_04_01.zip"
 )
-CURRENT_WORKING_DIR = os.getcwd()
+CURRENT_WORKING_DIR = pathlib.Path.cwd()
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
 
@@ -116,12 +116,11 @@ rm_vectors = []
 
 
 def cleanup():
-    """Cleaning up function"""
+    """Cleaning up function."""
     os.chdir(CURRENT_WORKING_DIR)
     rm_dirs = []
-    if not keep_data:
-        if download_dir:
-            rm_dirs.append(download_dir)
+    if not keep_data and download_dir:
+        rm_dirs.append(download_dir)
     general_cleanup(
         orig_region=ORIG_REGION,
         rm_rasters=rm_rasters,
@@ -132,7 +131,7 @@ def cleanup():
 
 
 def main():
-    """Main function of r.dtm.import.hh"""
+    """Main function of r.dtm.import.hh."""
     global rm_rasters, rm_vectors, keep_data, download_dir
 
     aoi = options["aoi"]
@@ -175,8 +174,8 @@ def main():
         else:
             grass.run_command("g.region", region=ORIG_REGION)
         grass.run_command("g.region", res=1, grow=1, quiet=True)
-        dtm_name = os.path.splitext(os.path.basename(xyz_file))[0].replace(
-            "-", ""
+        dtm_name = os.path.splitext(pathlib.Path(xyz_file).name)[0].replace(
+            "-", "",
         )
         xyz_file = os.path.join(download_dir, xyz_file)
         import_single_local_xyz_file(xyz_file, dtm_name, use_cur_reg=True)
@@ -188,7 +187,7 @@ def main():
     rm_rasters.extend(all_dtms)
     create_vrt(all_dtms, tmp_out, copy_raster_maps=False)
 
-     # clip xyz-file to region /aoi
+    # clip xyz-file to region /aoi
     if aoi:
         xyz_laz_clip_region_aoi(tmp_out, output, aoi=aoi)
     else:
@@ -201,7 +200,7 @@ def main():
         if alignment_raster:
             # set extent from imported data, and align with alignment raster
             grass.run_command(
-                "g.region", raster=output, align=alignment_raster
+                "g.region", raster=output, align=alignment_raster,
             )
             ns_res = float(
                 grass.parse_command("r.info", map=alignment_raster, flags="g")[
@@ -224,8 +223,7 @@ def main():
     if metadata_file and DATA_ZIP_URL:
         try:
             with pathlib.Path(metadata_file).open("w", encoding="utf-8") as f:
-                for url in DATA_ZIP_URL:
-                    f.write(f"{url}\n")
+                f.writelines(f"{url}\n" for url in DATA_ZIP_URL)
             grass.debug("Wrote ZIP URL to tempfile")
         except Exception as e:
             grass.warning(f"Could not write tempfile metadata: {e}")

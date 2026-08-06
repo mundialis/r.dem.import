@@ -69,10 +69,10 @@
 import atexit
 import os
 import pathlib
-import grass.script as grass
 import sys
-from grass.pygrass.utils import get_lib_path
 
+import grass.script as grass
+from grass.pygrass.utils import get_lib_path
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.data_import import (
     download_and_import_tindex,
@@ -85,7 +85,6 @@ from grass_gis_helpers.open_geodata_germany.download_data import (
 from grass_gis_helpers.raster import (
     adjust_raster_resolution,
     create_vrt,
-    vrt_to_raster,
 )
 
 # import module library
@@ -117,11 +116,10 @@ rm_vectors = []
 
 
 def cleanup():
-    """Cleaning up function"""
+    """Cleaning up function."""
     rm_dirs = []
-    if not keep_data:
-        if download_dir:
-            rm_dirs.append(download_dir)
+    if not keep_data and download_dir:
+        rm_dirs.append(download_dir)
     general_cleanup(
         orig_region=ORIG_REGION,
         rm_rasters=rm_rasters,
@@ -131,7 +129,7 @@ def cleanup():
 
 
 def main():
-    """Main function of r.idsm.import.nw"""
+    """Main function of r.idsm.import.nw."""
     global keep_data, download_dir
 
     aoi = options["aoi"]
@@ -166,7 +164,7 @@ def main():
     grass.message(_("Importing iDSMs..."))
     all_idsms = []
     for url in url_tiles:
-        idsm_name = os.path.splitext(os.path.basename(url))[0].replace("-", "")
+        idsm_name = os.path.splitext(pathlib.Path(url).name)[0].replace("-", "")
         r_in_pdal_kwargs = {
             "input": os.path.join(download_dir, f"{idsm_name}.laz"),
             "output": idsm_name,
@@ -212,7 +210,6 @@ def main():
     else:
         xyz_laz_clip_region_aoi(tmp_out, output, region=ORIG_REGION)
 
-
     # resample / interpolate whole VRT (because interpolating single files leads
     # to empty rows and columns)
     # check resolution and resample / interpolate data if needed
@@ -220,7 +217,9 @@ def main():
         grass.message(_("Resampling / interpolating data..."))
         if alignment_raster:
             # set extent from imported data, and align with alignment raster
-            grass.run_command("g.region", raster=output, align=alignment_raster)
+            grass.run_command(
+                "g.region", raster=output, align=alignment_raster,
+            )
             ns_res = float(
                 grass.parse_command("r.info", map=alignment_raster, flags="g")[
                     "nsres"

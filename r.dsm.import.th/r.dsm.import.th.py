@@ -71,7 +71,6 @@ import os
 import pathlib
 
 import grass.script as grass
-
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.data_import import (
     download_and_import_tindex,
@@ -88,7 +87,6 @@ from grass_gis_helpers.raster import (
     create_vrt,
     vrt_to_raster,
 )
-
 
 # set constant variables
 TINDEX = (
@@ -109,11 +107,10 @@ rm_vectors = []
 
 
 def cleanup():
-    """Cleaning up function"""
+    """Cleaning up function."""
     rm_dirs = []
-    if not keep_data:
-        if download_dir:
-            rm_dirs.append(download_dir)
+    if not keep_data and download_dir:
+        rm_dirs.append(download_dir)
     general_cleanup(
         orig_region=ORIG_REGION,
         rm_rasters=rm_rasters,
@@ -123,7 +120,7 @@ def cleanup():
 
 
 def main():
-    """Main function of r.dsm.import.th"""
+    """Main function of r.dsm.import.th."""
     global rm_rasters, rm_vectors, keep_data, download_dir
 
     aoi = options["aoi"]
@@ -161,16 +158,16 @@ def main():
 
     # extract XYZ files
     grass.message(_("Extracting XYZ files from zip files..."))
-    zip_filenames = [os.path.basename(url) for url in urls]
+    zip_filenames = [pathlib.Path(url).name for url in urls]
     extract_compressed_files(zip_filenames, download_dir)
 
     # import XYZ DSM files
     grass.message(_("Importing DSMs..."))
     grass.run_command("g.region", grow=1, quiet=True)
-    xyz_files = [os.path.basename(url_tile) for url_tile in url_tiles]
+    xyz_files = [pathlib.Path(url_tile).name for url_tile in url_tiles]
     all_dsms = []
     for xyz_file_name in xyz_files:
-        dsm_name = os.path.splitext(os.path.basename(xyz_file_name))[
+        dsm_name = os.path.splitext(pathlib.Path(xyz_file_name).name)[
             0
         ].replace("-", "")
         xyz_file = os.path.join(download_dir, xyz_file_name)
@@ -213,8 +210,7 @@ def main():
     if metadata_file and urls:
         try:
             with pathlib.Path(metadata_file).open("w", encoding="utf-8") as f:
-                for url in urls:
-                    f.write(f"{url}\n")
+                f.writelines(f"{url}\n" for url in urls)
             grass.debug("Wrote tile URLs to tempfile")
         except Exception as e:
             grass.warning(f"Could not write tempfile metadata: {e}")
