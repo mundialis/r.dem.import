@@ -93,9 +93,8 @@
 import atexit
 import sys
 
-from grass.pygrass.utils import get_lib_path
 import grass.script as grass
-
+from grass.pygrass.utils import get_lib_path
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
@@ -131,7 +130,7 @@ rm_rasters = []
 
 
 def cleanup():
-    """Cleaning up function"""
+    """Cleaning up function."""
     general_cleanup(
         orig_region=ORIG_REGION,
         rm_rasters=rm_rasters,
@@ -139,16 +138,15 @@ def cleanup():
 
 
 def get_addon_name(fs):
-    """Function to get the addon name for the function to get license info"""
+    """Function to get the addon name for the function to get license info."""
     return f"r.idsm.import.{fs.lower()}"
 
 
 def main():
-    """Main function of r.idsm.import"""
-
+    """Main function of r.idsm.import."""
     aoi = options["aoi"]
     federal_states = get_federal_states(
-        options["federal_state"], options["federal_state_file"]
+        options["federal_state"], options["federal_state_file"],
     )
     download_dir = check_download_dir(options["download_dir"])
     alignment_raster = options["alignment_raster"]
@@ -173,8 +171,8 @@ def main():
                 _(
                     "The import of the open data is not yet supported "
                     "or the data are not available as Opendata."
-                    f"{fs}."
-                )
+                    f"{fs}.",
+                ),
             )
 
         # implement data download and import from open data

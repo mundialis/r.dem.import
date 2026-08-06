@@ -22,10 +22,9 @@
 
 import os
 
+import grass.script as grass
 from grass.gunittest.case import TestCase
 from grass.gunittest.gmodules import SimpleModule
-import grass.script as grass
-
 from grass_gis_helpers.cleanup import cleaning_tmp_location
 from grass_gis_helpers.location import (
     create_tmp_location,
@@ -38,7 +37,7 @@ from grass_gis_helpers.tests import (
 
 
 class RImportNdsmTestBase(TestCase):
-    """Base test class for r.ndsm.import"""
+    """Base test class for r.ndsm.import."""
 
     fs = ""
     ref_res = None
@@ -61,7 +60,7 @@ class RImportNdsmTestBase(TestCase):
 
     # pylint: disable=invalid-name
     def tearDown(self):
-        """Tear Down method to remove created vector and raster maps"""
+        """Tear Down method to remove created vector and raster maps."""
         self.runModule("g.remove", type="vector", name="rm_vec", flags="f")
         self.rm_rast_pattern.append(f"{self.test_output}*")
         for rast_pattern in self.rm_rast_pattern:
@@ -76,25 +75,27 @@ class RImportNdsmTestBase(TestCase):
     # pylint: disable=invalid-name
     def tearDownClass(cls):
         """Tear down class method to remove and reset region and remove
-        temporary location"""
+        temporary location.
+        """
         if cls.fs != "":
             grass.run_command("g.region", region=cls.orig_region)
             grass.run_command(
-                "g.remove", type="region", name=cls.orig_region, flags="f"
+                "g.remove", type="region", name=cls.orig_region, flags="f",
             )
             # switch location and remove temp location
             cleaning_tmp_location(
-                cls.ORIG_GISRC, cls.TMP_LOC, cls.GISDBASE, cls.TMP_GISRC
+                cls.ORIG_GISRC, cls.TMP_LOC, cls.GISDBASE, cls.TMP_GISRC,
             )
 
     @classmethod
     # pylint: disable=invalid-name
     def setUpClass(cls):
         """Set up class method to create temporary location, import area of
-        interest and set region"""
+        interest and set region.
+        """
         if cls.fs != "":
             # switch to location with EPSG code 25832
-            loc, mapset, cls.GISDBASE, cls.ORIG_GISRC = get_current_location()
+            _loc, _mapset, cls.GISDBASE, cls.ORIG_GISRC = get_current_location()
             if cls.TMP_LOC is None:
                 cls.TMP_LOC, cls.TMP_GISRC = create_tmp_location(epsg=25832)
             # import aoi_map for testing
@@ -112,13 +113,14 @@ class RImportNdsmTestBase(TestCase):
 
     def check_extension_map(self, type="vector", aoi=None):
         """Method to check the extension of the output vector map
-        and the region or aoi
+        and the region or aoi.
 
         Args:
             type (str): The type of map for which the extension should be
                         checked "vector" or "raster"
             aoi (str): Name of the area of interest vectormap; if no one is set
                        the current region is used
+
         """
         if not aoi:
             reg = grass.region()
@@ -136,11 +138,11 @@ class RImportNdsmTestBase(TestCase):
         # get extent of output vector map
         if type == "vector":
             out_reg = grass.parse_command(
-                "v.info", map=self.test_output, flags="g"
+                "v.info", map=self.test_output, flags="g",
             )
         else:
             out_reg = grass.parse_command(
-                "r.info", map=self.test_output, flags="g"
+                "r.info", map=self.test_output, flags="g",
             )
         ext_out_n = float(out_reg["north"])
         ext_out_s = float(out_reg["south"])
@@ -157,10 +159,11 @@ class RImportNdsmTestBase(TestCase):
         )
 
     def check_raster_res(self, ref_res):
-        """Check the resolution of the output raster map
+        """Check the resolution of the output raster map.
 
         Args:
             ref_res (float): The reference resolution for comparison
+
         """
         r_info = grass.parse_command("r.info", map=self.test_output, flags="g")
         out_res_ns = round(float(r_info["nsres"]), 2)
@@ -174,7 +177,7 @@ class RImportNdsmTestBase(TestCase):
 
     def region_extent_for_output(self):
         """
-        If no aoi is given the output map extent should be as big as the region
+        If no aoi is given the output map extent should be as big as the region.
         """
         print(f"Running test import for region for {self.fs}...")
 
@@ -186,23 +189,23 @@ class RImportNdsmTestBase(TestCase):
             overwrite=True,
         )
         self.assertModule(
-            check_output, "Importing data for the region extent failed"
+            check_output, "Importing data for the region extent failed",
         )
         self.assertRasterExists(
-            self.test_output, f"Creation of {self.test_output} failed."
+            self.test_output, f"Creation of {self.test_output} failed.",
         )
         self.check_extension_map(type="raster")
         check_number_of_grass_elements(
-            n_rast + self.num_rast_regext, n_vect, n_gr, n_reg, n_mapsets
+            n_rast + self.num_rast_regext, n_vect, n_gr, n_reg, n_mapsets,
         )
         print(
             "Running test importing data for region extent of "
-            f"{self.fs} finished."
+            f"{self.fs} finished.",
         )
 
     def aoi_extent_for_output(self):
         """
-        Tests importing data only for aoi given by aoi_map
+        Tests importing data only for aoi given by aoi_map.
         """
         print(f"\nTest aoi {self.fs}...")
 
@@ -217,16 +220,16 @@ class RImportNdsmTestBase(TestCase):
         )
         self.assertModule(check_output, "Importing data for aoi fails.")
         self.assertRasterExists(
-            self.test_output, f"Creation of {self.test_output} failed."
+            self.test_output, f"Creation of {self.test_output} failed.",
         )
         self.check_extension_map(type="raster", aoi=self.aoi_map)
 
         # check resolution
         self.check_raster_res(self.ref_res)
         check_number_of_grass_elements(
-            n_rast + self.num_rast_aoi, n_vect, n_gr, n_reg, n_mapsets
+            n_rast + self.num_rast_aoi, n_vect, n_gr, n_reg, n_mapsets,
         )
         print(
             f"Test for importing data only for aoi of {self.fs} successfully "
-            "finished.\n"
+            "finished.\n",
         )

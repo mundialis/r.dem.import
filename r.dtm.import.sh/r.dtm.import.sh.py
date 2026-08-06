@@ -69,11 +69,12 @@
 import atexit
 import os
 import pathlib
-from urllib.parse import urlparse, parse_qs
 import sys
-from grass.pygrass.utils import get_lib_path
+from urllib.parse import parse_qs, urlparse
+
 import grass.script as grass
 import requests
+from grass.pygrass.utils import get_lib_path
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.data_import import (
     download_and_import_tindex,
@@ -99,7 +100,7 @@ TINDEX = (
     "https://github.com/mundialis/tile-indices/raw/main/DTM/SH/"
     "sh_dtm_tindex_proj.gpkg.gz"
 )
-CURRENT_WORKING_DIR = os.getcwd()
+CURRENT_WORKING_DIR = pathlib.Path.cwd()
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
 
@@ -110,12 +111,11 @@ rm_vectors = []
 
 
 def cleanup():
-    """Cleaning up function"""
+    """Cleaning up function."""
     os.chdir(CURRENT_WORKING_DIR)
     rm_dirs = []
-    if not keep_data:
-        if download_dir:
-            rm_dirs.append(download_dir)
+    if not keep_data and download_dir:
+        rm_dirs.append(download_dir)
     general_cleanup(
         orig_region=ORIG_REGION,
         rm_rasters=rm_rasters,
@@ -126,7 +126,7 @@ def cleanup():
 
 
 def main():
-    """Main function of r.dtm.import.sh"""
+    """Main function of r.dtm.import.sh."""
     global rm_rasters, rm_vectors, keep_data, download_dir
 
     aoi = options["aoi"]
@@ -166,14 +166,13 @@ def main():
         filename = parse_qs(urlparse(url).query)["file"][0]
         filepath = os.path.join(download_dir, filename)
 
-        with open(filepath, "wb") as f:
-            f.write(requests.get(url).content)
+        pathlib.Path(filepath).write_bytes(requests.get(url, timeout=10).content)
 
         # clean xyz file
         # SHs download endpoint appends HTML code after xyz file
         # workaround removes non-numeric lines before importing with r.in.xyz
         cleanfile = filepath + ".clean"
-        with open(filepath) as fin, open(cleanfile, "w") as fout:
+        with pathlib.Path(filepath).open("wb") as fin, pathlib.Path(cleanfile).open("w", encoding="utf-8") as fout:
             for line in fin:
                 if line.startswith("<!DOCTYPE"):
                     break
@@ -219,7 +218,7 @@ def main():
         if alignment_raster:
             # set extent from imported data, and align with alignment raster
             grass.run_command(
-                "g.region", raster=output, align=alignment_raster
+                "g.region", raster=output, align=alignment_raster,
             )
             ns_res = float(
                 grass.parse_command("r.info", map=alignment_raster, flags="g")[

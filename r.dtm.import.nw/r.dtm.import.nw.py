@@ -69,8 +69,8 @@
 import atexit
 import os
 import pathlib
-import grass.script as grass
 
+import grass.script as grass
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.data_import import (
     download_and_import_tindex,
@@ -106,11 +106,10 @@ rm_vectors = []
 
 
 def cleanup():
-    """Cleaning up function"""
+    """Cleaning up function."""
     rm_dirs = []
-    if not keep_data:
-        if download_dir:
-            rm_dirs.append(download_dir)
+    if not keep_data and download_dir:
+        rm_dirs.append(download_dir)
     general_cleanup(
         orig_region=ORIG_REGION,
         rm_rasters=rm_rasters,
@@ -120,7 +119,7 @@ def cleanup():
 
 
 def main():
-    """Main function of r.dtm.import.nw"""
+    """Main function of r.dtm.import.nw."""
     global rm_rasters, rm_vectors, keep_data, download_dir
 
     aoi = options["aoi"]
@@ -151,7 +150,7 @@ def main():
     grass.message(_("Importing DTM..."))
     all_dtms = []
     for url in url_tiles:
-        dtm_name = os.path.splitext(os.path.basename(url))[0].replace("-", "")
+        dtm_name = os.path.splitext(pathlib.Path(url).name)[0].replace("-", "")
         if "/vsicurl/" not in url:
             url = f"/vsicurl/{url}"
         grass.run_command(

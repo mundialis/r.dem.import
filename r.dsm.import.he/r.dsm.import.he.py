@@ -67,14 +67,12 @@
 # %end
 
 import atexit
-from datetime import datetime
 import os
 import pathlib
+from datetime import datetime
 from time import sleep
 
-from osgeo import gdal
 import grass.script as grass
-
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.data_import import (
     download_and_import_tindex,
@@ -88,6 +86,7 @@ from grass_gis_helpers.raster import (
     create_vrt,
     vrt_to_raster,
 )
+from osgeo import gdal
 
 # set global variables
 TINDEX = (
@@ -107,11 +106,10 @@ rm_vectors = []
 
 
 def cleanup():
-    """Cleaning up function"""
+    """Cleaning up function."""
     rm_dirs = []
-    if not keep_data:
-        if download_dir:
-            rm_dirs.append(download_dir)
+    if not keep_data and download_dir:
+        rm_dirs.append(download_dir)
     general_cleanup(
         orig_region=ORIG_REGION,
         rm_rasters=rm_rasters,
@@ -121,7 +119,7 @@ def cleanup():
 
 
 def main():
-    """Main function of r.dsm.import.he"""
+    """Main function of r.dsm.import.he."""
     global rm_rasters, rm_vectors, keep_data, download_dir
 
     aoi = options["aoi"]
@@ -157,7 +155,7 @@ def main():
         dsm_src = gdal.Open(url_tiles[0].replace("DATE", date_today))
         dsm_res = abs(dsm_src.GetGeoTransform()[1])
     for url in url_tiles:
-        dsm_name = os.path.splitext(os.path.basename(url))[0].replace("-", "")
+        dsm_name = os.path.splitext(pathlib.Path(url).name)[0].replace("-", "")
         import_kwargs = {
             "input": url.replace("DATE", date_today),
             "output": dsm_name,
