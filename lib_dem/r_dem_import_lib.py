@@ -249,7 +249,7 @@ def import_dem_from_wms(
         data_format (str): Format of data to import
         retries (int): Set how often function is retried.
     """
-    
+
     # set region
     grass.run_command("g.region", vector=tile_key)
     if not native_res:

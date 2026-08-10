@@ -122,7 +122,7 @@ def cleanup():
 
 def main():
     """Main function of r.ndsm.import.nw."""
-    global rm_rasters, rm_vectors, keep_data, download_dir
+    global keep_data, download_dir
 
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])
@@ -152,7 +152,9 @@ def main():
     grass.message(_("Importing nDSMs..."))
     all_ndsms = []
     for url in url_tiles:
-        ndsm_name = os.path.splitext(pathlib.Path(url).name)[0].replace("-", "")
+        ndsm_name = os.path.splitext(pathlib.Path(url).name)[0].replace(
+            "-", ""
+        )
         if "/vsicurl/" not in url:
             url = f"/vsicurl/{url}"
 

@@ -164,7 +164,9 @@ def main():
     grass.message(_("Importing iDSMs..."))
     all_idsms = []
     for url in url_tiles:
-        idsm_name = os.path.splitext(pathlib.Path(url).name)[0].replace("-", "")
+        idsm_name = os.path.splitext(pathlib.Path(url).name)[0].replace(
+            "-", ""
+        )
         r_in_pdal_kwargs = {
             "input": os.path.join(download_dir, f"{idsm_name}.laz"),
             "output": idsm_name,
@@ -218,7 +220,9 @@ def main():
         if alignment_raster:
             # set extent from imported data, and align with alignment raster
             grass.run_command(
-                "g.region", raster=output, align=alignment_raster,
+                "g.region",
+                raster=output,
+                align=alignment_raster,
             )
             ns_res = float(
                 grass.parse_command("r.info", map=alignment_raster, flags="g")[

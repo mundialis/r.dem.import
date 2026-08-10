@@ -191,11 +191,10 @@ def get_addon_name(fs):
 
 def main():
     """Main function of r.dsm.import."""
-    global rm_rasters
-
     aoi = options["aoi"]
     federal_states = get_federal_states(
-        options["federal_state"], options["federal_state_file"],
+        options["federal_state"],
+        options["federal_state_file"],
     )
     local_data_dir = options["local_data_dir"]
     download_dir = check_download_dir(options["download_dir"])
@@ -225,7 +224,12 @@ def main():
         imported_local_data = False
         if fs in local_fs_list:
             imported_local_data = import_local_data(
-                aoi, output, local_data_dir, fs, all_dsms, native_res,
+                aoi,
+                output,
+                local_data_dir,
+                fs,
+                all_dsms,
+                native_res,
             )
             if imported_local_data:
                 fs_dem_list = [f"{output}_{fs}"]

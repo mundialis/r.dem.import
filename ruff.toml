@@ -1,0 +1,21 @@
+exclude = [
+    ".git",
+    "__pycache__",
+    ".env",
+    ".venv",
+    "env",
+    "venv",
+    "ENV",
+    "env.bak",
+    "venv.bak",
+    "ctypes",
+    "pydispatch",
+    "__init__.py",
+]
+
+lint.ignore = [
+    "E501",     # line-too-long
+    "F821",     # undefined-name
+]
+
+[lint.per-file-ignores]

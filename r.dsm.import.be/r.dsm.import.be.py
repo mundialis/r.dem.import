@@ -130,7 +130,7 @@ def cleanup():
 
 def main():
     """Main function of r.dsm.import.be."""
-    global download_dir, rm_files, rm_rasters, rm_vectors, keep_data
+    global download_dir, keep_data
     # global vars for temporary location
     global gisdbase, tgtgisrc, tmploc, srcgisrc
 

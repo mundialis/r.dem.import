@@ -134,7 +134,7 @@ def cleanup():
 
 def main():
     """Main function of r.idsm.import.hh."""
-    global download_dir, keep_data, rm_rasters, rm_vectors
+    global download_dir, keep_data
 
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])
@@ -203,7 +203,9 @@ def main():
         if alignment_raster:
             # set extent from imported data, and align with alignment raster
             grass.run_command(
-                "g.region", raster=output, align=alignment_raster,
+                "g.region",
+                raster=output,
+                align=alignment_raster,
             )
             ns_res = float(
                 grass.parse_command("r.info", map=alignment_raster, flags="g")[

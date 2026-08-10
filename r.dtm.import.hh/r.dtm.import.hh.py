@@ -132,7 +132,7 @@ def cleanup():
 
 def main():
     """Main function of r.dtm.import.hh."""
-    global rm_rasters, rm_vectors, keep_data, download_dir
+    global keep_data, download_dir
 
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])
@@ -175,7 +175,8 @@ def main():
             grass.run_command("g.region", region=ORIG_REGION)
         grass.run_command("g.region", res=1, grow=1, quiet=True)
         dtm_name = os.path.splitext(pathlib.Path(xyz_file).name)[0].replace(
-            "-", "",
+            "-",
+            "",
         )
         xyz_file = os.path.join(download_dir, xyz_file)
         import_single_local_xyz_file(xyz_file, dtm_name, use_cur_reg=True)
@@ -200,7 +201,9 @@ def main():
         if alignment_raster:
             # set extent from imported data, and align with alignment raster
             grass.run_command(
-                "g.region", raster=output, align=alignment_raster,
+                "g.region",
+                raster=output,
+                align=alignment_raster,
             )
             ns_res = float(
                 grass.parse_command("r.info", map=alignment_raster, flags="g")[

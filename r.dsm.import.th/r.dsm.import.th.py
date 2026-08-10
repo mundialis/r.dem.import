@@ -121,7 +121,7 @@ def cleanup():
 
 def main():
     """Main function of r.dsm.import.th."""
-    global rm_rasters, rm_vectors, keep_data, download_dir
+    global keep_data, download_dir
 
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])

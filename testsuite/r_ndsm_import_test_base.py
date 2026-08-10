@@ -80,11 +80,17 @@ class RImportNdsmTestBase(TestCase):
         if cls.fs != "":
             grass.run_command("g.region", region=cls.orig_region)
             grass.run_command(
-                "g.remove", type="region", name=cls.orig_region, flags="f",
+                "g.remove",
+                type="region",
+                name=cls.orig_region,
+                flags="f",
             )
             # switch location and remove temp location
             cleaning_tmp_location(
-                cls.ORIG_GISRC, cls.TMP_LOC, cls.GISDBASE, cls.TMP_GISRC,
+                cls.ORIG_GISRC,
+                cls.TMP_LOC,
+                cls.GISDBASE,
+                cls.TMP_GISRC,
             )
 
     @classmethod
@@ -95,7 +101,9 @@ class RImportNdsmTestBase(TestCase):
         """
         if cls.fs != "":
             # switch to location with EPSG code 25832
-            _loc, _mapset, cls.GISDBASE, cls.ORIG_GISRC = get_current_location()
+            _loc, _mapset, cls.GISDBASE, cls.ORIG_GISRC = (
+                get_current_location()
+            )
             if cls.TMP_LOC is None:
                 cls.TMP_LOC, cls.TMP_GISRC = create_tmp_location(epsg=25832)
             # import aoi_map for testing
@@ -138,11 +146,15 @@ class RImportNdsmTestBase(TestCase):
         # get extent of output vector map
         if type == "vector":
             out_reg = grass.parse_command(
-                "v.info", map=self.test_output, flags="g",
+                "v.info",
+                map=self.test_output,
+                flags="g",
             )
         else:
             out_reg = grass.parse_command(
-                "r.info", map=self.test_output, flags="g",
+                "r.info",
+                map=self.test_output,
+                flags="g",
             )
         ext_out_n = float(out_reg["north"])
         ext_out_s = float(out_reg["south"])
@@ -189,14 +201,20 @@ class RImportNdsmTestBase(TestCase):
             overwrite=True,
         )
         self.assertModule(
-            check_output, "Importing data for the region extent failed",
+            check_output,
+            "Importing data for the region extent failed",
         )
         self.assertRasterExists(
-            self.test_output, f"Creation of {self.test_output} failed.",
+            self.test_output,
+            f"Creation of {self.test_output} failed.",
         )
         self.check_extension_map(type="raster")
         check_number_of_grass_elements(
-            n_rast + self.num_rast_regext, n_vect, n_gr, n_reg, n_mapsets,
+            n_rast + self.num_rast_regext,
+            n_vect,
+            n_gr,
+            n_reg,
+            n_mapsets,
         )
         print(
             "Running test importing data for region extent of "
@@ -220,14 +238,19 @@ class RImportNdsmTestBase(TestCase):
         )
         self.assertModule(check_output, "Importing data for aoi fails.")
         self.assertRasterExists(
-            self.test_output, f"Creation of {self.test_output} failed.",
+            self.test_output,
+            f"Creation of {self.test_output} failed.",
         )
         self.check_extension_map(type="raster", aoi=self.aoi_map)
 
         # check resolution
         self.check_raster_res(self.ref_res)
         check_number_of_grass_elements(
-            n_rast + self.num_rast_aoi, n_vect, n_gr, n_reg, n_mapsets,
+            n_rast + self.num_rast_aoi,
+            n_vect,
+            n_gr,
+            n_reg,
+            n_mapsets,
         )
         print(
             f"Test for importing data only for aoi of {self.fs} successfully "

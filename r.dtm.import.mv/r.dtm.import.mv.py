@@ -132,7 +132,7 @@ def cleanup():
 
 def main():
     """Main function of r.dtm.import.mv."""
-    global rm_rasters, rm_vectors, keep_data, download_dir
+    global keep_data, download_dir
     # global vars for temporary location
     global gisdbase, tgtgisrc, tmploc, srcgisrc
 

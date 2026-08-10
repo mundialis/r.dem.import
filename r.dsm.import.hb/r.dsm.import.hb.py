@@ -104,10 +104,14 @@ TINDEX = (
     "hb_dom1_tindex_proj.gpkg.gz"
 )
 ZIP_URLS = [
-    ("https://gdi2.geo.bremen.de/inspire/download/DOM/data/"
-    "Gitternetz_DOM1_2017_HB_ASCII_XYZ.zip"),
-    ("https://gdi2.geo.bremen.de/inspire/download/DOM/data/"
-    "Gitternetz_DOM1_2015_BHV_ASCII_XYZ.zip"),
+    (
+        "https://gdi2.geo.bremen.de/inspire/download/DOM/data/"
+        "Gitternetz_DOM1_2017_HB_ASCII_XYZ.zip"
+    ),
+    (
+        "https://gdi2.geo.bremen.de/inspire/download/DOM/data/"
+        "Gitternetz_DOM1_2015_BHV_ASCII_XYZ.zip"
+    ),
 ]
 CURRENT_WORKING_DIR = pathlib.Path.cwd()
 ID = grass.tempname(12)
@@ -136,7 +140,7 @@ def cleanup():
 
 def main():
     """Main function of r.dsm.import.hb."""
-    global rm_rasters, rm_vectors, keep_data, download_dir
+    global keep_data, download_dir
 
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])
@@ -176,7 +180,9 @@ def main():
                 continue
         if not zip_success:
             grass.fatal(
-                _(f"No valid tile {datafile} found within zip-urls {ZIP_URLS}"),
+                _(
+                    f"No valid tile {datafile} found within zip-urls {ZIP_URLS}"
+                ),
             )
 
     # import XYZ DSM files
@@ -189,11 +195,15 @@ def main():
             grass.run_command("g.region", region=ORIG_REGION)
         grass.run_command("g.region", res=1, grow=1, quiet=True)
         dsm_name = os.path.splitext(pathlib.Path(xyz_file).name)[0].replace(
-            "-", "",
+            "-",
+            "",
         )
         xyz_file = os.path.join(download_dir, xyz_file)
         import_single_local_xyz_file(
-            xyz_file, dsm_name, use_cur_reg=True, skip=1,
+            xyz_file,
+            dsm_name,
+            use_cur_reg=True,
+            skip=1,
         )
         all_dsms.append(dsm_name)
 
@@ -216,7 +226,9 @@ def main():
         if alignment_raster:
             # set extent from imported data, and align with alignment raster
             grass.run_command(
-                "g.region", raster=output, align=alignment_raster,
+                "g.region",
+                raster=output,
+                align=alignment_raster,
             )
             ns_res = float(
                 grass.parse_command("r.info", map=alignment_raster, flags="g")[

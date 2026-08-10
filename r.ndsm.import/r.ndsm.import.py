@@ -211,7 +211,9 @@ def check_completeness_of_ndsm(aoi, ndsm):
         quiet=True,
     )
     check_output_univar = grass.parse_command(
-        "r.univar", map=check_output, flags="g",
+        "r.univar",
+        map=check_output,
+        flags="g",
     )
     if "nan" in check_output_univar["mean"]:
         grass.fatal(
@@ -229,11 +231,10 @@ def get_addon_name(fs):
 
 def main():
     """Main function of r.ndsm.import."""
-    global rm_rasters
-
     aoi = options["aoi"]
     federal_states = get_federal_states(
-        options["federal_state"], options["federal_state_file"],
+        options["federal_state"],
+        options["federal_state_file"],
     )
     local_data_dir_ndsm = options["local_data_dir_ndsm"]
     local_data_dir_idsm = options["local_data_dir_idsm"]

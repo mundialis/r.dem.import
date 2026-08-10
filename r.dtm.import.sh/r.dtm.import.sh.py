@@ -127,7 +127,7 @@ def cleanup():
 
 def main():
     """Main function of r.dtm.import.sh."""
-    global rm_rasters, rm_vectors, keep_data, download_dir
+    global keep_data, download_dir
 
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])
@@ -166,13 +166,17 @@ def main():
         filename = parse_qs(urlparse(url).query)["file"][0]
         filepath = os.path.join(download_dir, filename)
 
-        pathlib.Path(filepath).write_bytes(requests.get(url, timeout=10).content)
+        pathlib.Path(filepath).write_bytes(
+            requests.get(url, timeout=10).content
+        )
 
         # clean xyz file
         # SHs download endpoint appends HTML code after xyz file
         # workaround removes non-numeric lines before importing with r.in.xyz
         cleanfile = filepath + ".clean"
-        with pathlib.Path(filepath).open("wb") as fin, pathlib.Path(cleanfile).open("w", encoding="utf-8") as fout:
+        with pathlib.Path(filepath).open("wb") as fin, pathlib.Path(
+            cleanfile
+        ).open("w", encoding="utf-8") as fout:
             for line in fin:
                 if line.startswith("<!DOCTYPE"):
                     break
@@ -218,7 +222,9 @@ def main():
         if alignment_raster:
             # set extent from imported data, and align with alignment raster
             grass.run_command(
-                "g.region", raster=output, align=alignment_raster,
+                "g.region",
+                raster=output,
+                align=alignment_raster,
             )
             ns_res = float(
                 grass.parse_command("r.info", map=alignment_raster, flags="g")[

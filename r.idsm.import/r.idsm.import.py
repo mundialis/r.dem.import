@@ -146,7 +146,8 @@ def main():
     """Main function of r.idsm.import."""
     aoi = options["aoi"]
     federal_states = get_federal_states(
-        options["federal_state"], options["federal_state_file"],
+        options["federal_state"],
+        options["federal_state_file"],
     )
     download_dir = check_download_dir(options["download_dir"])
     alignment_raster = options["alignment_raster"]
