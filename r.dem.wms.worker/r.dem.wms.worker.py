@@ -88,7 +88,6 @@ import sys
 
 import grass.script as grass
 from grass.pygrass.utils import get_lib_path
-
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.location import switch_back_original_location
 from grass_gis_helpers.mapset import switch_to_new_mapset
@@ -114,7 +113,7 @@ WAITING_TIME = 10
 
 
 def cleanup():
-    """Remove all not needed files at the end"""
+    """Remove all not needed files at the end."""
     general_cleanup(
         rm_rasters=rm_rast,
         rm_groups=rm_group,
@@ -127,7 +126,7 @@ def cleanup():
 
 
 def main():
-    """Main function of r.dem.wms.worker"""
+    """Main function of r.dem.wms.worker."""
     global original_nprocs
     # parser options
     tile_key = options["tile_key"]

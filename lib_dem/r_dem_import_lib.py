@@ -13,7 +13,6 @@
 
 import os
 from time import sleep
-import grass.script as grass
 
 from grass_gis_helpers.data_import import (
     import_local_raster_data,
@@ -36,7 +35,6 @@ OPEN_DATA_AVAILABILITY = {
             "RP",
             "ST",
             # no data available
-            "MV",
             "SL",
         ],
         "SUPPORTED": [
@@ -45,6 +43,7 @@ OPEN_DATA_AVAILABILITY = {
             "HB",
             "HE",
             "HH",
+            "MV",
             "NI",
             "NW",
             "SH",
@@ -125,11 +124,12 @@ WAITING_TIME = 10
 
 
 def setup_parallel_processing(nprocs):
-    """Get possible number of workers and modify environment variables
+    """Get possible number of workers and modify environment variables.
+
     Args:
         nprocs (int): Number of workers to use
     Returns:
-        nprocs (int): Possible number of workers to use
+        nprocs (int): Possible number of workers to use.
     """
     nprocs = set_nprocs(nprocs)
     # set some common environmental variables, like:
@@ -154,6 +154,7 @@ def create_grid_and_tiles_list(
 ):
     """Check if aoi is smaller than grid tile size and create grid if not.
     Also create a list containing tiles which overlap with the aoi.
+
     Args:
         ns_res (float): Vertical resolution
         ew_res (float): Horizontal resolution
@@ -162,12 +163,13 @@ def create_grid_and_tiles_list(
         rm_vectors (list): List of vectors to remove in cleanup
         aoi (str): Name of aoi
         id (str): id used in GRASS session
-        fs (str): Abbreviation of federal state
+        fs (str): Abbreviation of federal state.
 
     Returns:
         rm_vectors (list): Extended list of vectors to remove in cleanup
         number_tiles (str): Number of tiles overlapping with aoi
         tiles_list (list): List of tile names overlapping with aoi
+
     """
     # check if aoi is smaller than tile size
     if ns_res <= float(tile_size) and ew_res <= float(tile_size):
@@ -245,7 +247,8 @@ def import_dem_from_wms(
     data_format="tiff",
     retries=10,
 ):
-    """Import DEMs from WMS
+    """Import DEMs from WMS.
+
     Args:
         tile_key (str): Key of current tile
         raster_name (str): Name of resulting raster
@@ -253,7 +256,8 @@ def import_dem_from_wms(
         resolution_to_import (float): Resolution to resample imported raster to
         layer_name (str): Name of WMS Layer
         native_res (bool): Keep native DEM resolution
-        retries (int): Set how often function is retried
+        data_format (str): Format of data to import
+        retries (int): Set how often function is retried.
     """
 
     # set region
@@ -292,7 +296,7 @@ def import_dem_from_wms(
 
 
 def xyz_laz_clip_region_aoi(xyz_raster, output, aoi=None, region=None):
-    """Clip imported xyz/laz-file to region/aoi
+    """Clip imported xyz/laz-file to region/aoi.
 
     r.in.pdal/r.in.xyz can not import only part of region/aoi.
     Thus clip in a follow up step
@@ -302,13 +306,15 @@ def xyz_laz_clip_region_aoi(xyz_raster, output, aoi=None, region=None):
         aoi (str): AOI if given
         region (str): Region (if no AOI given)
 
-    """    
+    """
     if aoi:
         grass.run_command("g.region", vector=aoi, align=xyz_raster)
     elif region:
         grass.run_command("g.region", region=region, align=xyz_raster)
     else:
-         grass.fatal("Neither 'region' nor 'aoi' is set, but one of them is required")
+        grass.fatal(
+            "Neither 'region' nor 'aoi' is set, but one of them is required",
+        )
     grass.run_command(
         "r.mapcalc",
         expression=f"{output} = {xyz_raster}",

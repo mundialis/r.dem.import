@@ -2,17 +2,17 @@
 #
 ############################################################################
 #
-# MODULE:      r.dtm.import.be
-# AUTHOR(S):   Anika Weinmann
-# PURPOSE:     Downloads and imports DTM for Berlin and aoi
-# SPDX-FileCopyrightText: (c) 2024 by mundialis GmbH & Co. KG and the
+# MODULE:      r.dtm.import.mv
+# AUTHOR(S):   Kim Kaiser, Anika Weinmann
+# PURPOSE:     Downloads DTM for Mecklenburg-Vorpommern and aoi
+# SPDX-FileCopyrightText: (c) 2026 by mundialis GmbH & Co. KG and the
 #                             GRASS Development Team
 # SPDX-License-Identifier: GPL-3.0-or-later.
 #
 ############################################################################
 
 # %module
-# % description: Downloads and imports DTM for Berlin and aoi.
+# % description: Downloads DTM for Mecklenburg-Vorpommern and aoi.
 # % keyword: raster
 # % keyword: import
 # % keyword: DGM
@@ -51,6 +51,9 @@
 # % description: Temporary file for metadata URLs
 # %end
 
+# %option G_OPT_MEMORYMB
+# %end
+
 # %flag
 # % key: k
 # % label: Keep downloaded data in the download directory
@@ -69,13 +72,16 @@
 import atexit
 import os
 import pathlib
+from urllib.parse import parse_qs, urlparse
 
 import grass.script as grass
-from grass_gis_helpers.cleanup import cleaning_tmp_location, general_cleanup
+from grass_gis_helpers.cleanup import (
+    cleaning_tmp_location,
+    general_cleanup,
+)
 from grass_gis_helpers.data_import import (
     download_and_import_tindex,
     get_list_of_tindex_locations,
-    import_single_local_xyz_file,
 )
 from grass_gis_helpers.location import (
     create_tmp_location,
@@ -84,28 +90,23 @@ from grass_gis_helpers.location import (
 )
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
-    download_data_using_threadpool,
-    extract_compressed_files,
-    fix_corrupted_data,
 )
 from grass_gis_helpers.raster import create_vrt
 
-# set constant variables
+# set variables
 TINDEX = (
-    "https://github.com/mundialis/tile-indices/raw/main/DTM/BE/"
-    "be_dgm_tindex_proj.gpkg.gz"
+    "https://github.com/mundialis/tile-indices/raw/main/DTM/MV/"
+    "mv_dtm_tindex_proj.gpkg.gz"
 )
-DATA_BASE_URL = "https://fbinter.stadt-berlin.de/fb/atom/DGM1/"
+CURRENT_WORKING_DIR = pathlib.Path.cwd()
 EPSGCODE = 25833
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
 
-# set global variables
 keep_data = False
-rm_files = []
+download_dir = None
 rm_rasters = []
 rm_vectors = []
-download_dir = None
 gisdbase = None
 tgtgisrc = None
 tmploc = None
@@ -114,6 +115,7 @@ srcgisrc = None
 
 def cleanup():
     """Cleaning up function."""
+    os.chdir(CURRENT_WORKING_DIR)
     rm_dirs = []
     if not keep_data and download_dir:
         rm_dirs.append(download_dir)
@@ -122,15 +124,15 @@ def cleanup():
         rm_rasters=rm_rasters,
         rm_vectors=rm_vectors,
         rm_dirs=rm_dirs,
-        rm_files=rm_files,
+        rm_mask=True,
     )
     # remove temp location and switch location
     cleaning_tmp_location(tgtgisrc, tmploc, gisdbase, srcgisrc)
 
 
 def main():
-    """Main function of r.dtm.import.be."""
-    global download_dir, keep_data, gisdbase, tgtgisrc, tmploc, srcgisrc
+    """Main function of r.dtm.import.mv."""
+    global keep_data, download_dir, gisdbase, tgtgisrc, tmploc, srcgisrc
 
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])
@@ -182,44 +184,29 @@ def main():
     rm_vectors.append(tindex_vect)
     download_and_import_tindex(TINDEX, tindex_vect, download_dir)
 
-    # get download urls which overlap with aoi
+    # get data files which overlap with aoi
     url_tiles = get_list_of_tindex_locations(tindex_vect, aoi)
 
-    # download XYZ DTM files
-    # TODO check if nprocs 3 is ok or another values should be used
-    grass.message(_("Downloading DTMs..."))
-    urls = [
-        f"{x.replace('/vsizip/vsicurl/', '').split('.zip/')[0]}.zip"
-        for x in url_tiles
-    ]
-    download_data_using_threadpool(urls, download_dir, 3)
-
-    # extract XYZ files
-    grass.message(_("Extracting XYZ files from zip files..."))
-    zip_filenames = [pathlib.Path(url).name for url in urls]
-    extracted_files = extract_compressed_files(zip_filenames, download_dir)
-
-    # import XYZ DTM files
-    grass.message(_("Importing DTMs..."))
-    grass.run_command("g.region", grow=1, quiet=True)
-    data_files = [
-        os.path.join(download_dir, file)
-        for file in extracted_files
-        if file.endswith(".xyz")
-    ]
-    all_dtms = []
-    for data_file_name in data_files:
-        dtm_name = os.path.splitext(pathlib.Path(data_file_name).name)[
+    # import DTM GeoTiff files
+    grass.message(_("Importing DTM..."))
+    all_dtm = []
+    for url in url_tiles:
+        url_name = os.path.splitext(parse_qs(urlparse(url).query)["file"][0])[
             0
-        ].replace("-", "")
-        data_file = os.path.join(download_dir, data_file_name)
-        fix_corrupted_data(data_file)
-        rm_files.append(f"{data_file}.bak")
-        import_single_local_xyz_file(data_file, dtm_name)
-        all_dtms.append(dtm_name)
+        ]
+        dtm_name = url_name.strip("_gtiff")
+        grass.run_command(
+            "r.import",
+            input=url,
+            output=dtm_name,
+            extent="region",
+            overwrite=True,
+            quiet=True,
+        )
+        all_dtm.append(dtm_name)
 
     # create VRT
-    create_vrt(all_dtms, output)
+    create_vrt(all_dtm, output)
 
     # get native data resolution
     if native_res:
@@ -248,10 +235,11 @@ def main():
     )
     grass.message(_(f"DTM raster map <{output}> is created."))
 
-    if metadata_file and urls:
+    if metadata_file and url_tiles:
         try:
             with pathlib.Path(metadata_file).open("w", encoding="utf-8") as f:
-                f.writelines(f"{url}\n" for url in urls)
+                for url in url_tiles:
+                    f.write(f"{url}\n")
             grass.debug("Wrote tile URLs to tempfile")
         except Exception as e:
             grass.warning(f"Could not write tempfile metadata: {e}")

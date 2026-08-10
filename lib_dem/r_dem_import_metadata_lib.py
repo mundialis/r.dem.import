@@ -22,7 +22,6 @@ def get_download_urls_and_names(
     keep_data,
     download_dir,
     out_fs,
-    fs,
 ):
     """Read download URLs from tempfile with fallback to download dir and
     raster count.
@@ -33,7 +32,6 @@ def get_download_urls_and_names(
         keep_data (bool): True if downloaded data is kept in download_dir
         download_dir (str): Path to download directory
         out_fs (str): Prefix of output raster names in current mapset
-        fs (str): Federal state abbreviation
 
     Returns:
         tuple[list, list]: (dem_urls, dem_names)
@@ -41,7 +39,6 @@ def get_download_urls_and_names(
             dem_names: list of filenames or tile count label (may be empty)
 
     """
-
     dem_urls = []
     dem_names = []
 

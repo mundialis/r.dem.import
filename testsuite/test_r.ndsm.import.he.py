@@ -26,7 +26,7 @@ from r_ndsm_import_test_base import RImportNdsmTestBase
 
 
 class TestRNdsmImportHE(RImportNdsmTestBase):
-    """Test class for r.ndsm.import for HE"""
+    """Test class for r.ndsm.import for HE."""
 
     fs = "HE"
     ref_res = 1.0
@@ -36,13 +36,13 @@ class TestRNdsmImportHE(RImportNdsmTestBase):
 
     def test_region_extent_for_output(self):
         """
-        If no aoi is given the output map extent should be as big as the region
+        If no aoi is given the output map extent should be as big as the region.
         """
         self.region_extent_for_output()
 
     def test_aoi_extent_for_output(self):
         """
-        The output map extent should have the same extent as the aoi
+        The output map extent should have the same extent as the aoi.
         """
         self.aoi_extent_for_output()
 

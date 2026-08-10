@@ -31,7 +31,7 @@
 # % type: string
 # % multiple: yes
 # % required: no
-# % options: Berlin,BE,Baden-Württemberg,Brandenburg,BB,BW,Bayern,BY,Bremen,HB,Hamburg,HH,Hessen,HE,Sachsen,NI,Niedersachsen,SH,Schleswig-Holstein,SN,Thüringen,TH,Nordrhein-Westfalen,NW
+# % options: Berlin,BE,Baden-Württemberg,Brandenburg,BB,BW,Bayern,BY,Bremen,HB,Hamburg,HH,Hessen,HE,Sachsen,Mecklenburg-Vorpommern,MV,NI,Niedersachsen,SH,Schleswig-Holstein,SN,Thüringen,TH,Nordrhein-Westfalen,NW
 # % description: Federal state(s) related to the area of interest e.g.:"Nordrhein-Westfalen"
 # %end
 
@@ -98,12 +98,11 @@
 
 import atexit
 import os
-import sys
 import pathlib
+import sys
 
 import grass.script as grass
 from grass.pygrass.utils import get_lib_path
-
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
@@ -142,7 +141,7 @@ rm_rasters = []
 
 
 def cleanup():
-    """Cleaning up function"""
+    """Cleaning up function."""
     general_cleanup(
         orig_region=ORIG_REGION,
         rm_rasters=rm_rasters,
@@ -150,17 +149,16 @@ def cleanup():
 
 
 def get_addon_name(fs):
-    """Function to get the addon name for the function to get license info"""
+    """Function to get the addon name for the function to get license info."""
     return f"r.dtm.import.{fs.lower()}"
 
 
 def main():
-    """Main function of r.dtm.import"""
-    global rm_rasters
-
+    """Main function of r.dtm.import."""
     aoi = options["aoi"]
     federal_states = get_federal_states(
-        options["federal_state"], options["federal_state_file"]
+        options["federal_state"],
+        options["federal_state_file"],
     )
     local_data_dir = options["local_data_dir"]
     download_dir = check_download_dir(options["download_dir"])
@@ -227,8 +225,8 @@ def main():
             grass.fatal(
                 _(
                     f"No local data for {fs} available. For the federal state "
-                    "there are no open data available. Is the path correct?"
-                )
+                    "there are no open data available. Is the path correct?",
+                ),
             )
 
         # import data when local import was not used
@@ -237,15 +235,15 @@ def main():
                 grass.fatal(
                     _(
                         "The import of the open data is not yet supported for "
-                        f"{fs}."
-                    )
+                        f"{fs}.",
+                    ),
                 )
             elif fs in NO_OPEN_DATA:
                 grass.fatal(
                     _(
                         f"For the federal state {fs} there are no open data "
-                        "available. Please use local data <local_data_dir>."
-                    )
+                        "available. Please use local data <local_data_dir>.",
+                    ),
                 )
             # implement data download and import from open data
             r_dtm_import_fs_flags = ""
@@ -286,14 +284,13 @@ def main():
                     keep_data=keep_data,
                     download_dir=download_dir,
                     out_fs=out_fs,
-                    fs=fs,
                 )
 
                 # Collect metadata for this federal state (license/source info comes from
                 # the addon's HTML documentation, file/URL info from above)
                 addon_name = get_addon_name(fs)
                 license_info, base_url = get_license_and_url_from_addon(
-                    addon_name
+                    addon_name,
                 )
                 fs_metadata = collect_metadata(
                     fs=fs,
