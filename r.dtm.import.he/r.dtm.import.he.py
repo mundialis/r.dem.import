@@ -69,7 +69,7 @@
 import atexit
 import os
 import pathlib
-from datetime import datetime
+import datetime
 from time import sleep
 
 import grass.script as grass
@@ -149,7 +149,7 @@ def main():
     grass.message(_("Importing DTMs..."))
     grass.run_command("g.region", grow=1, quiet=True)
     all_dtms = []
-    date_today = datetime.now(tz=datetime.timezone.utc).strftime("%Y%m%d")
+    date_today = datetime.datetime.now(tz=datetime.timezone.utc).strftime("%Y%m%d")
     if native_res:
         dsm_src = gdal.Open(url_tiles[0].replace("DATE", date_today))
         dsm_res = abs(dsm_src.GetGeoTransform()[1])

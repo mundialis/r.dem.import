@@ -118,11 +118,11 @@ def cleanup():
         rm_rasters=rm_rast,
         rm_groups=rm_group,
     )
-    # """Reset nprocs"""
-    # if original_nprocs:
-    #     grass.run_command("g.gisenv", set=f"NPROCS={original_nprocs}")
-    # else:
-    #     grass.run_command("g.gisenv", unset="NPROCS")
+    """Reset nprocs"""
+    if original_nprocs:
+        grass.run_command("g.gisenv", set=f"NPROCS={original_nprocs}")
+    else:
+        grass.run_command("g.gisenv", unset="NPROCS")
 
 
 def main():
