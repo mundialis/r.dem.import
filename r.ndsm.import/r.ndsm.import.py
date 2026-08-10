@@ -291,8 +291,8 @@ def main():
             grass.message(
                 _(
                     "NOTE: Local data nDSM import currently "
-                    "only supported for raster (e.g. tif) files"
-                )
+                    "only supported for raster (e.g. tif) files",
+                ),
             )
             ndsm_out = f"ndsm_{fs}_{ID}"
             ndsm_list_local = []

@@ -193,8 +193,8 @@ def main():
             grass.message(
                 _(
                     "NOTE: Local data DSM import currently "
-                    "only supported for raster (e.g. tif) files"
-                )
+                    "only supported for raster (e.g. tif) files",
+                ),
             )
             all_dsms_local = []
             out_fs = f"dsm_{fs}_{ID}"

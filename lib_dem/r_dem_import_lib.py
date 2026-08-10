@@ -14,18 +14,17 @@
 import os
 from time import sleep
 
+import grass.script as grass
 from grass_gis_helpers.data_import import (
     import_local_raster_data,
     import_local_xyz_files,
 )
-
+from grass_gis_helpers.general import set_nprocs
 from grass_gis_helpers.raster import (
     adjust_raster_resolution,
     create_vrt,
     vrt_to_raster,
 )
-
-from grass_gis_helpers.general import set_nprocs
 
 OPEN_DATA_AVAILABILITY = {
     "DTM": {
@@ -323,18 +322,18 @@ def xyz_laz_clip_region_aoi(xyz_raster, output, aoi=None, region=None):
 
 
 def import_local_data(
-        aoi,
-        out,
-        local_data_dir,
-        fs,
-        all_dems,
-        rm_rasters,
-        raster_type,
-        native_res,
-        ns_res,
-        alignment_raster=None,
-    ):
-    """Import local DEM raster data
+    aoi,
+    out,
+    local_data_dir,
+    fs,
+    all_dems,
+    rm_rasters,
+    raster_type,
+    native_res,
+    ns_res,
+    alignment_raster=None,
+):
+    """Import local DEM raster data.
 
     Args:
         aoi (str): Vector map with area of interest
@@ -357,8 +356,8 @@ def import_local_data(
         grass.fatal(
             _(
                 "Alignment raster can only be used if data are resampled "
-                "(i.e. native resolution is not kept)."
-            )
+                "(i.e. native resolution is not kept).",
+            ),
         )
     if raster_type == "raster":
         imported_local_data = import_local_raster_data(
@@ -371,24 +370,27 @@ def import_local_data(
         )
     elif raster_type == "xyz":
         imported_local_data = import_local_xyz_files(
-                aoi,
-                f"{out}_{fs}",
-                os.path.join(local_data_dir, fs),
-                all_dems,
-            )
+            aoi,
+            f"{out}_{fs}",
+            os.path.join(local_data_dir, fs),
+            all_dems,
+        )
     else:
-        grass.fatal(_(
-            f"Invalid raster_type for local data import: '{raster_type}'."
-            "Valid ones are 'raster' or 'xyz'."))
+        grass.fatal(
+            _(
+                f"Invalid raster_type for local data import: '{raster_type}'."
+                "Valid ones are 'raster' or 'xyz'.",
+            ),
+        )
 
-    if not imported_local_data and fs in ["BW"]:
+    if not imported_local_data and fs == "BW":
         grass.fatal(_("Local data does not overlap with aoi."))
     elif not imported_local_data:
         grass.message(
             _(
                 "Local data does not overlap with aoi. Data will be downloaded"
-                " from Open Data portal."
-            )
+                " from Open Data portal.",
+            ),
         )
 
     if imported_local_data:
@@ -406,12 +408,18 @@ def import_local_data(
             grass.message(_("Resampling / interpolating data..."))
             if alignment_raster:
                 # set extent from imported data, and align with alignment raster
-                grass.run_command("g.region", raster=vrt, align=alignment_raster)
+                grass.run_command(
+                    "g.region",
+                    raster=vrt,
+                    align=alignment_raster,
+                )
                 # replace region ns_res with alignment raster ns_res
                 ns_res = float(
-                    grass.parse_command("r.info", map=alignment_raster, flags="g")[
-                        "nsres"
-                    ],
+                    grass.parse_command(
+                        "r.info",
+                        map=alignment_raster,
+                        flags="g",
+                    )["nsres"],
                 )
             else:
                 # if no alignemnt raster is given,

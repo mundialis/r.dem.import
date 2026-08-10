@@ -191,8 +191,8 @@ def main():
             grass.message(
                 _(
                     "NOTE: Local data DTM import currently "
-                    "only supported for xyz files"
-                )
+                    "only supported for xyz files",
+                ),
             )
             all_dtms_local = []
             out_fs = f"dtm_{fs}_{ID}"
