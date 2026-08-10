@@ -21,13 +21,13 @@
 #
 #############################################################################
 
-from grass.gunittest.main import test
 import grass.script as grass
+from grass.gunittest.main import test
 from r_ndsm_import_test_base import RImportNdsmTestBase
 
 
 class TestRNdsmImportBBSN(RImportNdsmTestBase):
-    """Test class for r.ndsm.import for BB and SN"""
+    """Test class for r.ndsm.import for BB and SN."""
 
     fs = "BB,SN"
     ref_res = 0.2
@@ -37,14 +37,14 @@ class TestRNdsmImportBBSN(RImportNdsmTestBase):
 
     def test_region_extent_for_output(self):
         """
-        If no aoi is given the output map extent should be as big as the region
+        If no aoi is given the output map extent should be as big as the region.
         """
         grass.run_command("g.region", vector=self.aoi_map, res=1, flags="a")
         self.region_extent_for_output()
 
     def test_aoi_extent_for_output(self):
         """
-        The output map extent should have the same extent as the aoi
+        The output map extent should have the same extent as the aoi.
         """
         self.aoi_extent_for_output()
 

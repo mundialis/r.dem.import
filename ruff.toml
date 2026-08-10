@@ -1,0 +1,50 @@
+exclude = [
+    ".git",
+    "__pycache__",
+    ".env",
+    ".venv",
+    "env",
+    "venv",
+    "ENV",
+    "env.bak",
+    "venv.bak",
+    "ctypes",
+    "pydispatch",
+    "__init__.py",
+]
+
+lint.ignore = [
+    "A002",     # builtin-argument-shadowing
+    "ANN001",   # missing-type-function-argument
+    "ANN201",   # missing-return-type-undocumented-public-function
+    "ANN206",   # missing-return-type-class-method
+    "B005",     # Using `.strip()` with multi-character strings is misleading
+    "BLE001",   # blind-except
+    "D100",     # undocumented-public-module
+    "D205",     # blank-line-after-summary
+    "D401",     # non-imperative-mood
+    "D200",     # fits-on-one-line
+    "D202",     # no-blank-line-after-function
+    "D212",     # multi-line-summary-first-line
+    "D413",     # blank-line-after-last-section
+    "E501",     # Line too long (80 > 79)
+    "INT001",   # f-string-in-get-text-func-call
+    "PERF203",  # try-except-in-loop
+    "PLC1901",  # compare-to-empty-string
+    "PLR0912",  # too-many-branches
+    "PLR0913",  # too-many-arguments
+    "PLR0914",  # too-many-local-variables
+    "PLR0915",  # too-many-statements
+    "PLR0917",  # too-many-positional-arguments
+    "PLR2004",  # Magic value used in comparison
+    "PLW0603",  # Using the global statement to update <XX> is discouraged
+    "PLW2901",  # 'for' loop variable XX overwritten by assignment target
+    "PT009",    # pytest-unittest-assertion
+    "PTH118",   # os-path-join
+    "PTH122",   # 'os.path.splitext()' should be replaced by 'Path.suffix', 'Path.stem', and 'Path.parent'
+    "PTH208",   # Use `pathlib.Path.iterdir()` instead
+    "RUF012",   # mutable-class-default
+    "S112",     # `try`-`except`-`continue` detected, consider logging the exception
+]
+
+[lint.per-file-ignores]
