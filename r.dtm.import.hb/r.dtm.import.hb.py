@@ -178,7 +178,8 @@ def main():
         if not zip_success:
             grass.fatal(
                 _(
-                    f"No valid tile {datafile} found within zip-urls {ZIP_URLS}",
+                    f"No valid tile {datafile} found within "
+                    f"zip-urls {ZIP_URLS}",
                 ),
             )
 
