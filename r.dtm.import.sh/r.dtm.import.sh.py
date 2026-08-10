@@ -167,7 +167,7 @@ def main():
         filepath = os.path.join(download_dir, filename)
 
         pathlib.Path(filepath).write_bytes(
-            requests.get(url, timeout=10).content
+            requests.get(url, timeout=10).content,
         )
 
         # clean xyz file
@@ -175,7 +175,7 @@ def main():
         # workaround removes non-numeric lines before importing with r.in.xyz
         cleanfile = filepath + ".clean"
         with pathlib.Path(filepath).open("wb") as fin, pathlib.Path(
-            cleanfile
+            cleanfile,
         ).open("w", encoding="utf-8") as fout:
             for line in fin:
                 if line.startswith("<!DOCTYPE"):

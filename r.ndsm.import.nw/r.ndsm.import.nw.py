@@ -153,7 +153,8 @@ def main():
     all_ndsms = []
     for url in url_tiles:
         ndsm_name = os.path.splitext(pathlib.Path(url).name)[0].replace(
-            "-", ""
+            "-",
+            "",
         )
         if "/vsicurl/" not in url:
             url = f"/vsicurl/{url}"

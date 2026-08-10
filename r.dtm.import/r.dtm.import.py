@@ -299,7 +299,6 @@ def main():
                     keep_data=keep_data,
                     download_dir=download_dir,
                     out_fs=out_fs,
-                    fs=fs,
                 )
 
                 # Collect metadata for this federal state (license/source info comes from

@@ -165,7 +165,8 @@ def main():
     all_idsms = []
     for url in url_tiles:
         idsm_name = os.path.splitext(pathlib.Path(url).name)[0].replace(
-            "-", ""
+            "-",
+            "",
         )
         r_in_pdal_kwargs = {
             "input": os.path.join(download_dir, f"{idsm_name}.laz"),

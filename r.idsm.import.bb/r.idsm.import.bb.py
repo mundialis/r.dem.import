@@ -123,9 +123,7 @@ def cleanup():
 
 def main():
     """Main function of r.idsm.import.bb."""
-    global keep_data, download_dir
-    # global vars for temporary location
-    global gisdbase, tgtgisrc, tmploc, srcgisrc
+    global keep_data, download_dir, gisdbase, tgtgisrc, tmploc, srcgisrc
 
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])

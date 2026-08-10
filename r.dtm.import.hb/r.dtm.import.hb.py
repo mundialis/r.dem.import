@@ -169,8 +169,8 @@ def main():
         zip_success = False
         for data_zip_url in ZIP_URLS:
             try:
-                with RemoteZip(data_zip_url) as zip:
-                    zip.extract(datafile)
+                with RemoteZip(data_zip_url) as zip_file:
+                    zip_file.extract(datafile)
                     zip_success = True
                     break
             except Exception:
@@ -178,7 +178,7 @@ def main():
         if not zip_success:
             grass.fatal(
                 _(
-                    f"No valid tile {datafile} found within zip-urls {ZIP_URLS}"
+                    f"No valid tile {datafile} found within zip-urls {ZIP_URLS}",
                 ),
             )
 

@@ -161,9 +161,9 @@ def main():
     # extract XYZ DTM files
     grass.message(_(f"Extracting {len(datafile_tiles)} DTM files..."))
     os.chdir(download_dir)
-    with RemoteZip(DATA_ZIP_URL) as zip:
+    with RemoteZip(DATA_ZIP_URL) as zip_file:
         for datafile in datafile_tiles:
-            zip.extract(datafile)
+            zip_file.extract(datafile)
 
     # import XYZ DTM files
     grass.message(_("Importing DTM..."))

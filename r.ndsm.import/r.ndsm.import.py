@@ -327,7 +327,6 @@ def main():
                     keep_data=keep_data,
                     download_dir=os.path.join(download_dir, "nDSM"),
                     out_fs=ndsm_out,
-                    fs=fs,
                 )
                 license_info, base_url = get_license_and_url_from_addon(
                     f"r.ndsm.import.{fs.lower()}",
@@ -376,7 +375,6 @@ def main():
                     keep_data=keep_data,
                     download_dir=os.path.join(download_dir, "iDSM"),
                     out_fs=idsm_out,
-                    fs=fs,
                 )
                 license_info, base_url = get_license_and_url_from_addon(
                     f"r.idsm.import.{fs.lower()}",
@@ -435,7 +433,6 @@ def main():
                     keep_data=keep_data,
                     download_dir=os.path.join(download_dir, "DSM"),
                     out_fs=dsm_out,
-                    fs=fs,
                 )
                 license_info, base_url = get_license_and_url_from_addon(
                     f"r.dsm.import.{fs.lower()}",
@@ -498,7 +495,6 @@ def main():
                     keep_data=keep_data,
                     download_dir=os.path.join(download_dir, "DTM"),
                     out_fs=dtm_out,
-                    fs=fs,
                 )
                 license_info, base_url = get_license_and_url_from_addon(
                     f"r.dtm.import.{fs.lower()}",
