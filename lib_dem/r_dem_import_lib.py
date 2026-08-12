@@ -331,6 +331,7 @@ def import_local_data(
     raster_type,
     native_res,
     ns_res,
+    opendata_flag,
     alignment_raster=None,
 ):
     """Import local DEM raster data.
@@ -348,6 +349,8 @@ def import_local_data(
         native_res (bool): Flag to keep native resolution of imported data
                            (True, if resolution kept)
         ns_res (float): Resolution to resample imported raster to
+        opendata_flag (boolean): Flag to indicate if data should be downloaded
+                                 from Open Data portal if local data dont match
         alignment_raster (str): If data should be resampled,
                                 raster to align imported data to
 
@@ -383,9 +386,14 @@ def import_local_data(
             ),
         )
 
-    if not imported_local_data and fs == "BW":
-        grass.fatal(_("Local data does not overlap with aoi."))
-    elif not imported_local_data:
+    if not imported_local_data and not opendata_flag:
+        grass.fatal(
+            _(
+                "Local data does not overlap with AOI. "
+                "Check local_data_dir or consider using o-flag.",
+            ),
+        )
+    elif not imported_local_data and opendata_flag:
         grass.message(
             _(
                 "Local data does not overlap with aoi. Data will be downloaded"
