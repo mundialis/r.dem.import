@@ -109,9 +109,15 @@
 # % label: Use native data resolution
 # %end
 
+# %flag
+# % key: o
+# % description: For local data import: if no matching local data found, try to access via open data portal
+# %end
+
 # %rules
 # % requires_all: -k,download_dir
 # % excludes: -r,alignment_raster
+# % requires: -o, local_data_dir_ndsm, local_data_dir_idsm, local_data_dir_dsm, local_data_dir_dtm
 # %end
 
 import atexit
@@ -287,7 +293,15 @@ def main():
         dsm_out = None
         # check if local data for federal state given
         imported_local_data = False
-        if fs in local_ndsm_fs_list:
+        if fs not in local_ndsm_fs_list and not flags["o"]:
+            grass.fatal(
+                _(
+                    f"Missing federal state folder '{fs}' "
+                    f"within local_data_dir_ndsm: '{local_data_dir_ndsm}'. "
+                    "Check local_data_dir_ndsm or consider using o-flag.",
+                ),
+            )
+        elif fs in local_ndsm_fs_list:
             grass.message(
                 _(
                     "NOTE: Local data nDSM import currently "
@@ -306,6 +320,7 @@ def main():
                 "raster",
                 native_res,
                 ns_res,
+                flags["o"],
                 alignment_raster,
             )
             # If local data import, was not succesfull,
