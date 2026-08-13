@@ -50,7 +50,7 @@ Examples for the use of this toolset are provided in each module
 
 ## SEE ALSO
 
-*[r.dop.import](r.dop.import/README.md) for import of digital orthophotos*
+*[r.dop.import](https://github.com/mundialis/r.dop.import) for import of digital orthophotos*
 
 ## AUTHORS
 
