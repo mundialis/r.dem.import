@@ -33,3 +33,4 @@ $(PGM).html: $(PGM).md
 	sed -i 's+"image-alt" />+"image-alt">+g' $(PGM).html
 	sed -i -E '/<col style="width: [0-9]+%" \/>/d' $(PGM).html
 	sed -i '/<colgroup>/d; /<\/colgroup>/d' $(PGM).html
+	sed -i '/<hr \/>/d' $(PGM).html

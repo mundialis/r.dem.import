@@ -1,17 +1,29 @@
-<!-- markdownlint-disable MD013,MD033,MD041 -->
+<!-- markdownlint-disable MD041 -->
 
-## r.dem.import - Toolset for the import of digital elevation models (DEMs)
+[![image-alt](https://github.com/OSGeo/grass/raw/main/man/grass_logo.png)](https://grass.osgeo.org/grass-stable/manuals/index.html)
 
-This toolset includes import addons for the open geodata elevation models for Germany, e.g. for the digital terrain models (DTMs), the digital surface models (DSMs), the image based digital surface models (iDSMs) and the normalised digital surface models (nDSMs).
+______________________________________________________________________
 
-The **r.dem.import** toolset consists of the following modules:
+## NAME
 
-- [r.dtm.import](r.dtm.import/r.dtm.import.md): downloads digital terrain models (DTM) for specified federal state and area of interest
-- [r.dsm.import](r.dsm.import/r.dsm.import.md): downloads digital surface models (DSM) for specified federal state and AOI
-- [r.idsm.import](r.idsm.import/r.idsm.import.md): downloads image based digital surface models (iDSM) for specified federal state and AOI
-- [r.ndsm.import](r.ndsm.import/r.ndsm.import.md): downloads digital surface models (DSM) and digital terrain models (DTM) for specified federal state and AOI, and creates a single file of a normalised DSM (nDSM)
+***r.dem.import*** - Toolset for the import of digital elevation models (DEMs). It includes import addons for the open geodata elevation models for Germany, e.g. for the digital terrain models (DTMs), the digital surface models (DSMs), the image based digital surface models (iDSMs) and the normalised digital surface models (nDSMs).
 
-## Addon coverage for federal states
+## KEYWORDS
+
+[raster](https://grass.osgeo.org/grass-stable/manuals/keywords.html#raster), [import](https://grass.osgeo.org/grass-stable/manuals/keywords.html#import), [elevation](https://grass.osgeo.org/grass-stable/manuals/keywords.html#elevation)
+
+## DESCRIPTION
+
+### Modules in this toolset
+
+Examples for the use of this toolset are provided in each module
+
+- [r.dtm.import](r.dtm.import/README.md): downloads digital terrain models (DTM) for specified federal state and area of interest
+- [r.dsm.import](r.dsm.import/README.md): downloads digital surface models (DSM) for specified federal state and AOI
+- [r.idsm.import](r.idsm.import/README.md): downloads image based digital surface models (iDSM) for specified federal state and AOI
+- [r.ndsm.import](r.ndsm.import/README.md): downloads digital surface models (DSM) and digital terrain models (DTM) for specified federal state and AOI, and creates a single file of a normalised DSM (nDSM)
+
+### Overview of the available elevation models:
 
 | Federal state | fs | DTM | DSM | iDSM | nDSM | Tile-Index | Resolution | Data Source |
 | - | - | - | - | - | - | - | - | - |
@@ -21,8 +33,8 @@ The **r.dem.import** toolset consists of the following modules:
 | Brandenburg | BB | ☑ | | ☑ | via iDSM & DTM | DTM <br> iDSM | DTM: 1m <br> iDSM: 0.2m | [Geobasis](https://data.geobasis-bb.de/geobasis/daten/) |
 | Bremen | HB | ☑ | ☑ | n.a. | via DSM & DTM | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Geoportal](https://geoportal.bremen.de/geoportal/#) |
 | Hamburg | HH | ☑ | n.a. | ☑ | via iDSM & DTM | DTM <br> iDSM | DTM: 1m <br> iDSM: 1m | [Geoportal](https://geoportal-hamburg.de/) |
-| Hessen| HE | Bug | Bug | | | | | [Geoportal](/https://www.geoportal.hessen.de/search/) |
-| Mecklenburg-Vorpommern | MV | ☑ | | | | DTM | DTM: 1m  | [Geoportal](https://laiv.geodaten-mv.de/afgvk/) <br> [iDSM](https://laiv.geodaten-mv.de/afgvk/Geotopographie/Download?produkt=BDOM20) |
+| Hessen | HE | Bug | Bug | | | | | [Geoportal](/https://www.geoportal.hessen.de/search/) |
+| Mecklenburg-Vorpommern | MV | ☑ | | | | DTM | DTM: 1m | [Geoportal](https://laiv.geodaten-mv.de/afgvk/) <br> [iDSM](https://laiv.geodaten-mv.de/afgvk/Geotopographie/Download?produkt=BDOM20) |
 | Niedersachsen | NI | ☑ | ☑ | | via DSM & DTM | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Open GeoData](https://ni-lgln-opengeodata.hub.arcgis.com/) <br> [iDSM](https://ni-lgln-opengeodata.hub.arcgis.com/apps/lgln-opengeodata::bildbasiertes-digitales-oberfl%C3%A4chenmodell-bdom20/about) |
 | Nordrhein-Westfalen | NW | ☑ | n.a. | ☑ | ☑ | DTM <br> nDSM <br> iDSM | DTM: 1m <br> nDSM: 0.5m <br> iDSM: 0.5m | [Open GeoData](https://www.opengeodata.nrw.de/produkte/geobasis/hm/) |
 | Rheinland-Pfalz | RP | | n.a. | | | | | [Geoportal](https://www.geoportal.rlp.de/) <br> [iDSM](https://geoshop.rlp.de/opendata-domb.html) |
@@ -30,19 +42,17 @@ The **r.dem.import** toolset consists of the following modules:
 | Sachsen | SN | ☑ | ☑ | n.a. | via DSM & DTM | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Open Geodata](https://www.geodaten.sachsen.de/downloadbereich-digitale-hoehenmodelle-4851.html) |
 | Sachsen-Anhalt | ST | | | | | | | [Geoportal](https://www.lvermgeo.sachsen-anhalt.de/de/gdp-open-data.html) <br> [iDSM](https://www.lvermgeo.sachsen-anhalt.de/de/gdp-bdom20.html) |
 | Schleswig-Holstein | SH | ☑ | n.a. | ☑ | via iDSM & DTM | DTM <br> iDSM | DTM: 1m <br> iDSM: 0.2m | [Geoportal](https://geodaten.schleswig-holstein.de/gaialight-sh/_apps/dladownload/) |
-| Thüringen | TH | ☑ | ☑ | n.a. | via DSM & DTM  | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Geoportal](https://geoportal.thueringen.de/gdi-th/download-offene-geodaten/download-hoehendaten) |
+| Thüringen | TH | ☑ | ☑ | n.a. | via DSM & DTM | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Geoportal](https://geoportal.thueringen.de/gdi-th/download-offene-geodaten/download-hoehendaten) |
 
-##
+## REQUIREMENTS
 
-### KEYWORDS
+[grass-gis-helpers>=4.0.0](https://pypi.org/project/grass-gis-helpers/)
 
-[raster](raster.md), [import](topic_import.md), [elevation](keywords.html#elevation.md)
+## SEE ALSO
 
-### REQUIREMENTS
+*[r.dop.import](r.dop.import/README.md) for import of digital orthophotos*
 
-[grass-gis-helpers >= 4.0.0](https://pypi.org/project/grass-gis-helpers/)
-
-### AUTHORS
+## AUTHORS
 
 Anika Weinmann, [mundialis GmbH & Co. KG](https://www.mundialis.de/)  
 Kim Kaiser, [mundialis GmbH & Co. KG](https://www.mundialis.de/)
