@@ -23,7 +23,7 @@ Examples for the use of this toolset are provided in each module
 - [r.idsm.import](r.idsm.import/README.md): downloads image based digital surface models (iDSM) for specified federal state and AOI
 - [r.ndsm.import](r.ndsm.import/README.md): downloads digital surface models (DSM) and digital terrain models (DTM) for specified federal state and AOI, and creates a single file of a normalised DSM (nDSM)
 
-### Overview of the available elevation models:
+### Overview of the available elevation models
 
 | Federal state | fs | DTM | DSM | iDSM | nDSM | Tile-Index | Resolution | Data Source |
 | - | - | - | - | - | - | - | - | - |
