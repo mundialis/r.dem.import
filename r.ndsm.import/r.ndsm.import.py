@@ -293,7 +293,12 @@ def main():
         dsm_out = None
         # check if local data for federal state given
         imported_local_data = False
-        if fs not in local_ndsm_fs_list and not flags["o"]:
+        if (
+            local_data_dir_ndsm
+            and local_data_dir_ndsm != ""
+            and fs not in local_ndsm_fs_list
+            and not flags["o"]
+        ):
             grass.fatal(
                 _(
                     f"Missing federal state folder '{fs}' "

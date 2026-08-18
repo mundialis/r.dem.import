@@ -195,7 +195,12 @@ def main():
 
         # check if local data for federal state given
         imported_local_data = False
-        if fs not in local_fs_list and not flags["o"]:
+        if (
+            local_data_dir
+            and local_data_dir != ""
+            and fs not in local_fs_list
+            and not flags["o"]
+        ):
             grass.fatal(
                 _(
                     f"Missing federal state folder '{fs}' "
