@@ -12,14 +12,14 @@
 ############################################################################
 
 import os
-from time import sleep
 from pathlib import Path
+from time import sleep
 
 import grass.script as grass
 from grass_gis_helpers.data_import import (
+    import_local_las_files,
     import_local_raster_data,
     import_local_xyz_files,
-    import_local_las_files,
 )
 from grass_gis_helpers.general import set_nprocs
 from grass_gis_helpers.raster import (
@@ -363,7 +363,11 @@ def import_local_data(
             ),
         )
     local_data_dir_path = Path(os.path.join(local_data_dir, fs))
-    if any(local_data_dir_path.rglob("*.tif")) or any(local_data_dir_path.rglob("*.jp2")) or any(local_data_dir_path.rglob("*.vrt")):
+    if (
+        any(local_data_dir_path.rglob("*.tif"))
+        or any(local_data_dir_path.rglob("*.jp2"))
+        or any(local_data_dir_path.rglob("*.vrt"))
+    ):
         imported_local_data = import_local_raster_data(
             aoi,
             f"{out}_{fs}",
@@ -379,7 +383,9 @@ def import_local_data(
             os.path.join(local_data_dir, fs),
             all_dems,
         )
-    elif any(local_data_dir_path.rglob("*.las")) or any(local_data_dir_path.rglob("*.laz")):
+    elif any(local_data_dir_path.rglob("*.las")) or any(
+        local_data_dir_path.rglob("*.laz"),
+    ):
         imported_local_data = import_local_las_files(
             aoi,
             f"{out}_{fs}",
@@ -390,7 +396,7 @@ def import_local_data(
         grass.fatal(
             _(
                 "Invalid data type for local data import."
-                "(Supported types: tif, jp2, vrt, xyz, las, laz)."
+                "(Supported types: tif, jp2, vrt, xyz, las, laz).",
             ),
         )
 
