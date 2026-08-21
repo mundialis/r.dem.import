@@ -34,7 +34,7 @@ Examples for the use of this toolset are provided in each module
 | Bremen | HB | ☑ | ☑ | n.a. | via DSM & DTM | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Geoportal](https://geoportal.bremen.de/geoportal/#) |
 | Hamburg | HH | ☑ | n.a. | ☑ | via iDSM & DTM | DTM <br> iDSM | DTM: 1m <br> iDSM: 1m | [Geoportal](https://geoportal-hamburg.de/) |
 | Hessen | HE | Bug | Bug | | | | | [Geoportal](/https://www.geoportal.hessen.de/search/) |
-| Mecklenburg-Vorpommern | MV | ☑ | | | | DTM | DTM: 1m | [Geoportal](https://laiv.geodaten-mv.de/afgvk/) <br> [iDSM](https://laiv.geodaten-mv.de/afgvk/Geotopographie/Download?produkt=BDOM20) |
+| Mecklenburg-Vorpommern | MV | ☑ | | ☑ | | DTM <br> iDSM | DTM: 1m <br> iDSM: 0.2m | [Geoportal](https://laiv.geodaten-mv.de/afgvk/) <br> [iDSM](https://laiv.geodaten-mv.de/afgvk/Geotopographie/Download?produkt=BDOM20) |
 | Niedersachsen | NI | ☑ | ☑ | | via DSM & DTM | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Open GeoData](https://ni-lgln-opengeodata.hub.arcgis.com/) <br> [iDSM](https://ni-lgln-opengeodata.hub.arcgis.com/apps/lgln-opengeodata::bildbasiertes-digitales-oberfl%C3%A4chenmodell-bdom20/about) |
 | Nordrhein-Westfalen | NW | ☑ | n.a. | ☑ | ☑ | DTM <br> nDSM <br> iDSM | DTM: 1m <br> nDSM: 0.5m <br> iDSM: 0.5m | [Open GeoData](https://www.opengeodata.nrw.de/produkte/geobasis/hm/) |
 | Rheinland-Pfalz | RP | | n.a. | | | | | [Geoportal](https://www.geoportal.rlp.de/) <br> [iDSM](https://geoshop.rlp.de/opendata-domb.html) |

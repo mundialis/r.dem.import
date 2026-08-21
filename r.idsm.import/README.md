@@ -6,6 +6,7 @@ Implemented federal state options are:
 
 - [Brandenburg (BB)](r.idsm.import.bb.html)
 - [Hamburg (HH)](r.idsm.import.hh.html)
+- [Mecklenburg-Vorpommern](r.idsm.import.mv.html)
 - [Nordrhein-Westfalen (NW)](r.idsm.import.nw.html)
 - [Schleswig-Holstein (SH)](r.idsm.import.sh.html)
 
@@ -23,4 +24,3 @@ Veronica Koess, [mundialis GmbH & Co. KG](https://www.mundialis.de/)
 Anika Weinmann, [mundialis GmbH & Co. KG](https://www.mundialis.de/)  
 Lina Krisztian, [mundialis GmbH & Co. KG](https://www.mundialis.de/)  
 Kim Kaiser, [mundialis GmbH & Co. KG](https://www.mundialis.de/)
-

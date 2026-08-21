@@ -79,7 +79,6 @@ OPEN_DATA_AVAILABILITY = {
             "BY",
             "HB",
             "HE",
-            "MV",
             "NI",
             "RP",
             "SL",
@@ -90,6 +89,7 @@ OPEN_DATA_AVAILABILITY = {
         "SUPPORTED": [
             "BB",
             "HH",
+            "MV",
             "NW",
             "SH",
         ],
