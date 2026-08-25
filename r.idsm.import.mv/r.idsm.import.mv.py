@@ -109,7 +109,7 @@ except Exception as imp_err:
 
 # set constant variables
 TINDEX = (
-    "https://github.com/mundialis/tile-indices/raw/main/iDSM/MV/"
+    "https://github.com/kimariak/tile-indices/raw/mv_idsm_tindex/iDSM/MV/"
     "mv_idsm_tindex_proj.gpkg.gz"
 )
 RESOLUTION = 0.2
@@ -213,12 +213,13 @@ def main():
         file_name = pathlib.Path(url).name
         idsm_name = (
             os.path.splitext(parse_qs(urlparse(url).query)["file"][0])[0]
-            + ".laz"
         )
+        # resolution *2 to ensure there are enough points per cell and no empty
+        # cells are created. Will be set back to desired resolution afterwards.
         r_in_pdal_kwargs = {
             "input": os.path.join(download_dir, file_name),
             "output": idsm_name,
-            "resolution": RESOLUTION,
+            "resolution": RESOLUTION*2,
             "type": "FCELL",
             "method": "percentile",
             "pth": 95,
@@ -260,39 +261,39 @@ def main():
     else:
         xyz_laz_clip_region_aoi(tmp_out, output, region=ORIG_REGION)
 
-    # resample / interpolate whole VRT (because interpolating single files leads
-    # to empty rows and columns)
-    # check resolution and resample / interpolate data if needed
-    if not native_res:
-        grass.message(_("Resampling / interpolating data..."))
-        if alignment_raster:
-            # set extent from imported data, and align with alignment raster
-            grass.run_command(
-                "g.region",
-                raster=output,
-                align=alignment_raster,
-            )
-            ns_res = float(
-                grass.parse_command("r.info", map=alignment_raster, flags="g")[
-                    "nsres"
-                ],
-            )
-        else:
-            # if no alignemnt raster is given,
-            # use extent of imported data and
-            # set and align with current region resolution
-            grass.run_command("g.region", raster=output)
-            grass.run_command("g.region", res=ns_res, flags="a")
-        grass.message(_("Resampling / interpolating data..."))
-        grass.run_command("g.rename", raster=f"{output},{output}_tmp")
-        adjust_raster_resolution(f"{output}_tmp", output, ns_res)
-        rm_rasters.append(f"{output}_tmp")
+    # # resample / interpolate whole VRT (because interpolating single files leads
+    # # to empty rows and columns)
+    # # check resolution and resample / interpolate data if needed
+    # if not native_res:
+    #     grass.message(_("Resampling / interpolating data..."))
+    #     if alignment_raster:
+    #         # set extent from imported data, and align with alignment raster
+    #         grass.run_command(
+    #             "g.region",
+    #             raster=output,
+    #             align=alignment_raster,
+    #         )
+    #         ns_res = float(
+    #             grass.parse_command("r.info", map=alignment_raster, flags="g")[
+    #                 "nsres"
+    #             ],
+    #         )
+    #     else:
+    #         # if no alignemnt raster is given,
+    #         # use extent of imported data and
+    #         # set and align with current region resolution
+    #         grass.run_command("g.region", raster=output)
+    #         grass.run_command("g.region", res=ns_res, flags="a")
+    #     grass.message(_("Resampling / interpolating data..."))
+    #     grass.run_command("g.rename", raster=f"{output},{output}_tmp")
+    #     adjust_raster_resolution(f"{output}_tmp", output, ns_res)
+    #     rm_rasters.append(f"{output}_tmp")
 
-    # get native data resolution
-    if native_res:
-        res = float(
-            grass.parse_command("r.info", map=output, flags="g")["nsres"],
-        )
+    # # get native data resolution
+    # if native_res:
+    #     res = float(
+    #         grass.parse_command("r.info", map=output, flags="g")["nsres"],
+    #     )
 
     # switch back to origin location
     switch_back_original_location(tgtgisrc)
@@ -301,14 +302,14 @@ def main():
     if alignment_raster:
         grass.run_command("g.region", vector=aoi, align=alignment_raster)
     else:
-        grass.run_command("g.region", vector=aoi, res=res, flags="a")
+        grass.run_command("g.region", vector=aoi, res=RESOLUTION, flags="a")
     grass.run_command(
         "r.proj",
         location=tmploc,
         mapset="PERMANENT",
         input=output,
         output=output,
-        method="bilinear",
+        method="bicubic",
         flags="n",
         quiet=True,
         memory=1000,
