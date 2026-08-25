@@ -94,7 +94,7 @@ from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
     download_data_using_threadpool,
 )
-from grass_gis_helpers.raster import create_vrt
+from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
 
 # import module library
 path = get_lib_path(modname="r.dem.import")
@@ -109,7 +109,7 @@ except Exception as imp_err:
 
 # set constant variables
 TINDEX = (
-    "https://github.com/kimariak/tile-indices/raw/mv_idsm_tindex/iDSM/MV/"
+    "https://github.com/mundialis/tile-indices/raw/main/iDSM/MV/"
     "mv_idsm_tindex_proj.gpkg.gz"
 )
 RESOLUTION = 0.2
@@ -127,6 +127,7 @@ gisdbase = None
 tgtgisrc = None
 tmploc = None
 srcgisrc = None
+
 
 def cleanup():
     """Cleaning up function."""
@@ -209,11 +210,13 @@ def main():
     grass.message(_("Importing iDSMs..."))
     all_idsms = []
     for url in url_tiles:
-        idsm_name = os.path.splitext(parse_qs(urlparse(url).query)["file"][0])[
-            0
-        ]
+        file_name = pathlib.Path(url).name
+        idsm_name = (
+            os.path.splitext(parse_qs(urlparse(url).query)["file"][0])[0]
+            + ".laz"
+        )
         r_in_pdal_kwargs = {
-            "input": os.path.join(download_dir, f"{idsm_name}.laz"),
+            "input": os.path.join(download_dir, file_name),
             "output": idsm_name,
             "resolution": RESOLUTION,
             "type": "FCELL",
