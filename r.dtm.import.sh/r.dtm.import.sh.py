@@ -91,7 +91,7 @@ if path is None:
     grass.fatal("Unable to find the dem library directory.")
 sys.path.append(path)
 try:
-    from r_dem_import_lib import xyz_laz_clip_region_aoi
+    from r_dem_import_lib import xyz_clip_region_aoi
 except Exception as imp_err:
     grass.fatal(f"r.dem.import library could not be imported: {imp_err}")
 
@@ -211,9 +211,9 @@ def main():
 
     # clip xyz-file to region /aoi
     if aoi:
-        xyz_laz_clip_region_aoi(tmp_out, output, aoi=aoi)
+        xyz_clip_region_aoi(tmp_out, output, aoi=aoi)
     else:
-        xyz_laz_clip_region_aoi(tmp_out, output, region=ORIG_REGION)
+        xyz_clip_region_aoi(tmp_out, output, region=ORIG_REGION)
 
     # resample/interpolate whole VRT (because interpolating single files leads
     # to empty rows and columns)
