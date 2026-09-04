@@ -22,4 +22,5 @@ r.idsm.import.hh aoi=aoi output=idsm -r
 
 Veronica Koess, [mundialis GmbH & Co. KG](https://www.mundialis.de/)  
 Anika Weinmann, [mundialis GmbH & Co. KG](https://www.mundialis.de/)  
-Leon Louwarts, [mundialis GmbH & Co. KG](https://www.mundialis.de/)
+Leon Louwarts, [mundialis GmbH & Co. KG](https://www.mundialis.de/)  
+Kim Kaiser, [mundialis GmbH & Co. KG](https://www.mundialis.de/)
