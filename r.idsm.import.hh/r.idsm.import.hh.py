@@ -155,7 +155,8 @@ def main():
         idsm_res = abs(idsm_src.GetGeoTransform()[1])
     for url in url_tiles:
         idsm_name = os.path.splitext(pathlib.Path(url).name)[0].replace(
-            "-", "",
+            "-",
+            "",
         )
         import_kwargs = {
             "input": url,
