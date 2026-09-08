@@ -3,7 +3,7 @@
 ############################################################################
 #
 # MODULE:      r.dtm.import.hh
-# AUTHOR(S):   Anika Weinmann
+# AUTHOR(S):   Anika Weinmann, Kim Kaiser
 # PURPOSE:     Downloads DTM for Hamburg and aoi
 # SPDX-FileCopyrightText: (c) 2024-2026 by mundialis GmbH & Co. KG and the
 #                             GRASS Development Team
@@ -69,41 +69,29 @@
 import atexit
 import os
 import pathlib
-import sys
 
 import grass.script as grass
-from grass.pygrass.utils import get_lib_path
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.data_import import (
     download_and_import_tindex,
     get_list_of_tindex_locations,
-    import_single_local_xyz_file,
 )
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
 )
-from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
-from remotezip import RemoteZip
-
-# import module library
-path = get_lib_path(modname="r.dem.import")
-if path is None:
-    grass.fatal("Unable to find the dem library directory.")
-sys.path.append(path)
-try:
-    from r_dem_import_lib import xyz_clip_region_aoi
-except Exception as imp_err:
-    grass.fatal(f"r.dem.import library could not be imported: {imp_err}")
+from grass_gis_helpers.raster import (
+    adjust_raster_resolution,
+    create_vrt,
+    vrt_to_raster,
+)
+from osgeo import gdal
 
 # set constant variables
 TINDEX = (
     "https://github.com/mundialis/tile-indices/raw/main/DTM/HH/"
     "hh_dgm1_tindex_proj.gpkg.gz"
 )
-DATA_ZIP_URL = (
-    "https://daten-hamburg.de/geographie_geologie_geobasisdaten/"
-    "Digitales_Hoehenmodell/DGM1/dgm1_2x2km_XYZ_hh_2021_04_01.zip"
-)
+
 CURRENT_WORKING_DIR = pathlib.Path.cwd()
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
@@ -155,56 +143,47 @@ def main():
     rm_vectors.append(tindex_vect)
     download_and_import_tindex(TINDEX, tindex_vect, download_dir)
 
-    # get data files which overlap with aoi
-    datafile_tiles = get_list_of_tindex_locations(tindex_vect, aoi)
+    # get download urls which overlap with aoi
+    url_tiles = get_list_of_tindex_locations(tindex_vect, aoi)
 
-    # extract XYZ DTM files
-    grass.message(_(f"Extracting {len(datafile_tiles)} DTM files..."))
-    os.chdir(download_dir)
-    with RemoteZip(DATA_ZIP_URL) as zip_file:
-        for datafile in datafile_tiles:
-            zip_file.extract(datafile)
-
-    # import XYZ DTM files
-    grass.message(_("Importing DTM..."))
+    # import Tif DTM files
+    grass.message(_("Importing DTMs..."))
+    grass.run_command("g.region", grow=1, quiet=True)
     all_dtms = []
-    for xyz_file in datafile_tiles:
-        if aoi:
-            grass.run_command("g.region", vector=aoi)
-        else:
-            grass.run_command("g.region", region=ORIG_REGION)
-        grass.run_command("g.region", res=1, grow=1, quiet=True)
-        dtm_name = os.path.splitext(pathlib.Path(xyz_file).name)[0].replace(
-            "-",
-            "",
-        )
-        xyz_file = os.path.join(download_dir, xyz_file)
-        import_single_local_xyz_file(xyz_file, dtm_name, use_cur_reg=True)
+    if native_res:
+        dtm_src = gdal.Open(url_tiles[0])
+        dtm_res = abs(dtm_src.GetGeoTransform()[1])
+    for url in url_tiles:
+        dtm_name = os.path.splitext(pathlib.Path(url).name)[0].replace("-", "")
+        import_kwargs = {
+            "input": url,
+            "output": dtm_name,
+            "extent": "region",
+            "overwrite": True,
+            "quiet": True,
+            "memory": 1000,
+        }
+        if native_res:
+            import_kwargs["resolution"] = "value"
+            import_kwargs["resolution_value"] = dtm_res
+        grass.run_command("r.import", **import_kwargs)
         all_dtms.append(dtm_name)
 
-    # create VRT
-    tmp_out = f"tmp_{output}_{ID}"
-    rm_rasters.append(tmp_out)
+    # Create VRT of tiles
+    # (dont copy raster maps -> create real raster in the next steps)
+    vrt = f"vrt_dtm_{output}_{ID}"
+    rm_rasters.append(vrt)
     rm_rasters.extend(all_dtms)
-    create_vrt(all_dtms, tmp_out, copy_raster_maps=False)
-
-    # clip xyz-file to region /aoi
-    if aoi:
-        xyz_clip_region_aoi(tmp_out, output, aoi=aoi)
-    else:
-        xyz_clip_region_aoi(tmp_out, output, region=ORIG_REGION)
+    create_vrt(all_dtms, vrt, copy_raster_maps=False)
 
     # resample / interpolate whole VRT (because interpolating single files leads
     # to empty rows and columns)
     # check resolution and resample / interpolate data if needed
     if not native_res:
+        grass.message(_("Resampling / interpolating data..."))
         if alignment_raster:
             # set extent from imported data, and align with alignment raster
-            grass.run_command(
-                "g.region",
-                raster=output,
-                align=alignment_raster,
-            )
+            grass.run_command("g.region", raster=vrt, align=alignment_raster)
             ns_res = float(
                 grass.parse_command("r.info", map=alignment_raster, flags="g")[
                     "nsres"
@@ -214,20 +193,21 @@ def main():
             # if no alignemnt raster is given,
             # use extent of imported data and
             # set and align with current region resolution
-            grass.run_command("g.region", raster=output)
+            grass.run_command("g.region", raster=vrt)
             grass.run_command("g.region", res=ns_res, flags="a")
-        grass.message(_("Resampling / interpolating data..."))
-        grass.run_command("g.rename", raster=f"{output},{output}_tmp")
-        adjust_raster_resolution(f"{output}_tmp", output, ns_res)
-        rm_rasters.append(f"{output}_tmp")
+        adjust_raster_resolution(vrt, output, ns_res)
+    else:
+        # Note: Want real raster/no VRT as output
+        vrt_to_raster(vrt, output)
 
     grass.message(_(f"DTM raster map <{output}> is created."))
 
-    if metadata_file and DATA_ZIP_URL:
+    if metadata_file and url_tiles:
         try:
             with pathlib.Path(metadata_file).open("w", encoding="utf-8") as f:
-                f.writelines(f"{url}\n" for url in DATA_ZIP_URL)
-            grass.debug("Wrote ZIP URL to tempfile")
+                for url in url_tiles:
+                    f.write(f"{url}\n")
+            grass.debug("Wrote tile URLs to tempfile")
         except Exception as e:
             grass.warning(f"Could not write tempfile metadata: {e}")
 

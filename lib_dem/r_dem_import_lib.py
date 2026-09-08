@@ -12,10 +12,12 @@
 ############################################################################
 
 import os
+from pathlib import Path
 from time import sleep
 
 import grass.script as grass
 from grass_gis_helpers.data_import import (
+    import_local_las_files,
     import_local_raster_data,
     import_local_xyz_files,
 )
@@ -328,7 +330,6 @@ def import_local_data(
     fs,
     all_dems,
     rm_rasters,
-    raster_type,
     native_res,
     ns_res,
     opendata_flag,
@@ -345,7 +346,6 @@ def import_local_data(
         all_dems (list): empty list where the imported DEM rasters
                          will be appended
         rm_rasters (list): List of rasters for cleanup, will be appended
-        raster_type (string): Raster files type. Either raster or xyz
         native_res (bool): Flag to keep native resolution of imported data
                            (True, if resolution kept)
         ns_res (float): Resolution to resample imported raster to
@@ -362,7 +362,12 @@ def import_local_data(
                 "(i.e. native resolution is not kept).",
             ),
         )
-    if raster_type == "raster":
+    local_data_dir_path = Path(os.path.join(local_data_dir, fs))
+    if (
+        any(local_data_dir_path.rglob("*.tif"))
+        or any(local_data_dir_path.rglob("*.jp2"))
+        or any(local_data_dir_path.rglob("*.vrt"))
+    ):
         imported_local_data = import_local_raster_data(
             aoi,
             f"{out}_{fs}",
@@ -371,8 +376,17 @@ def import_local_data(
             rm_rasters,
             band_dict=None,
         )
-    elif raster_type == "xyz":
+    elif any(local_data_dir_path.rglob("*.xyz")):
         imported_local_data = import_local_xyz_files(
+            aoi,
+            f"{out}_{fs}",
+            os.path.join(local_data_dir, fs),
+            all_dems,
+        )
+    elif any(local_data_dir_path.rglob("*.las")) or any(
+        local_data_dir_path.rglob("*.laz"),
+    ):
+        imported_local_data = import_local_las_files(
             aoi,
             f"{out}_{fs}",
             os.path.join(local_data_dir, fs),
@@ -381,8 +395,8 @@ def import_local_data(
     else:
         grass.fatal(
             _(
-                f"Invalid raster_type for local data import: '{raster_type}'."
-                "Valid ones are 'raster' or 'xyz'.",
+                "Invalid data type for local data import."
+                "(Supported types: tif, jp2, vrt, xyz, las, laz).",
             ),
         )
 

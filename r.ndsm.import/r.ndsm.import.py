@@ -307,12 +307,6 @@ def main():
                 ),
             )
         elif fs in local_ndsm_fs_list:
-            grass.message(
-                _(
-                    "NOTE: Local data nDSM import currently "
-                    "only supported for raster (e.g. tif) files",
-                ),
-            )
             ndsm_out = f"ndsm_{fs}_{ID}"
             ndsm_list_local = []
             imported_local_data = import_local_data(
@@ -322,7 +316,6 @@ def main():
                 fs,
                 ndsm_list_local,
                 rm_rasters,
-                "raster",
                 native_res,
                 ns_res,
                 flags["o"],

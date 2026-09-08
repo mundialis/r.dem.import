@@ -22,4 +22,5 @@ r.dtm.import.hh aoi=aoi output=dtm -r
 
 Veronica Koess, [mundialis GmbH & Co. KG](https://www.mundialis.de/)  
 Anika Weinmann, [mundialis GmbH & Co. KG](https://www.mundialis.de/)  
-Leon Louwarts, [mundialis GmbH & Co. KG](https://www.mundialis.de/)
+Leon Louwarts, [mundialis GmbH & Co. KG](https://www.mundialis.de/)  
+Kim Kaiser, [mundialis GmbH & Co. KG](https://www.mundialis.de/)

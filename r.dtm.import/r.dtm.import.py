@@ -207,12 +207,6 @@ def main():
                 ),
             )
         elif fs in local_fs_list:
-            grass.message(
-                _(
-                    "NOTE: Local data DTM import currently "
-                    "only supported for xyz files",
-                ),
-            )
             all_dtms_local = []
             out_fs = f"dtm_{fs}_{ID}"
             imported_local_data = import_local_data(
@@ -222,7 +216,6 @@ def main():
                 fs,
                 all_dtms_local,
                 rm_rasters,
-                "xyz",
                 native_res,
                 ns_res,
                 flags["o"],

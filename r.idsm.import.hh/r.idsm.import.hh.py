@@ -3,7 +3,7 @@
 ############################################################################
 #
 # MODULE:      r.idsm.import.hh
-# AUTHOR(S):   Veronica Koess, Anika Weinmann
+# AUTHOR(S):   Veronica Koess, Anika Weinmann, Kim Kaiser
 # PURPOSE:     Downloads iDSM for Hamburg and aoi
 # SPDX-FileCopyrightText: (c) 2024-2026 by mundialis GmbH & Co. KG and the
 #                             GRASS Development Team
@@ -69,52 +69,38 @@
 import atexit
 import os
 import pathlib
-import sys
 
 import grass.script as grass
-from grass.pygrass.utils import get_lib_path
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.data_import import (
     download_and_import_tindex,
     get_list_of_tindex_locations,
-    import_single_local_xyz_file,
 )
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
 )
-from grass_gis_helpers.raster import adjust_raster_resolution, create_vrt
-from remotezip import RemoteZip
-
-# import module library
-path = get_lib_path(modname="r.dem.import")
-if path is None:
-    grass.fatal("Unable to find the dem library directory.")
-sys.path.append(path)
-try:
-    from r_dem_import_lib import xyz_clip_region_aoi
-except Exception as imp_err:
-    grass.fatal(f"r.dem.import library could not be imported: {imp_err}")
-
+from grass_gis_helpers.raster import (
+    adjust_raster_resolution,
+    create_vrt,
+    vrt_to_raster,
+)
+from osgeo import gdal
 
 # set constant variables
 TINDEX = (
-    "https://github.com/mundialis/tile-indices/raw/main/iDSM/HH/"
-    "hh_dom_tindex_proj.gpkg.gz"
-)
-DATA_ZIP_URL = (
-    "https://daten-hamburg.de/geographie_geologie_geobasisdaten/"
-    "digitales_hoehenmodell_bdom/DOM1_XYZ_HH_2020_04_30.zip"
+    "https://github.com/kimariak/tile-indices/"
+    "raw/hh_idsm/iDSM/HH/hh_bdom_tindex_proj.gpkg.gz"
 )
 
 CURRENT_WORKING_DIR = pathlib.Path.cwd()
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
-
+grass.message({ORIG_REGION})
 # set global variables
 keep_data = False
 download_dir = None
-rm_vectors = []
 rm_rasters = []
+rm_vectors = []
 
 
 def cleanup():
@@ -125,8 +111,8 @@ def cleanup():
         rm_dirs.append(download_dir)
     general_cleanup(
         orig_region=ORIG_REGION,
-        rm_vectors=rm_vectors,
         rm_rasters=rm_rasters,
+        rm_vectors=rm_vectors,
         rm_dirs=rm_dirs,
         rm_mask=True,
     )
@@ -134,7 +120,7 @@ def cleanup():
 
 def main():
     """Main function of r.idsm.import.hh."""
-    global download_dir, keep_data
+    global keep_data, download_dir
 
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])
@@ -145,7 +131,7 @@ def main():
     native_res = flags["r"]
 
     # save original region
-    grass.run_command("g.region", save=ORIG_REGION, quiet=True)
+    grass.run_command("g.region", save=ORIG_REGION, quiet=False)
     ns_res = grass.region()["nsres"]
 
     # set region if aoi is given
@@ -153,60 +139,54 @@ def main():
         grass.run_command("g.region", vector=aoi, flags="a")
 
     # get tile index
-    tindex_vect = f"dsm_tindex_{ID}"
+    tindex_vect = f"idsm_tindex_{ID}"
     rm_vectors.append(tindex_vect)
     download_and_import_tindex(TINDEX, tindex_vect, download_dir)
 
-    # get data files which overlap with aoi
-    datafile_tiles = get_list_of_tindex_locations(tindex_vect, aoi)
+    # get download urls which overlap with aoi
+    url_tiles = get_list_of_tindex_locations(tindex_vect, aoi)
 
-    # extract XYZ iDSM files
-    grass.message(_("Extracting iDSM files..."))
-    os.chdir(download_dir)
-    with RemoteZip(DATA_ZIP_URL) as zip_file:
-        for datafile in datafile_tiles:
-            zip_file.extract(datafile)
+    # import Tif IDSM files
+    grass.message(_("Importing IDSMs..."))
+    grass.run_command("g.region", grow=1, quiet=True)
+    all_idsms = []
+    if native_res:
+        idsm_src = gdal.Open(url_tiles[0])
+        idsm_res = abs(idsm_src.GetGeoTransform()[1])
+    for url in url_tiles:
+        idsm_name = os.path.splitext(pathlib.Path(url).name)[0].replace(
+            "-",
+            "",
+        )
+        import_kwargs = {
+            "input": url,
+            "output": idsm_name,
+            "extent": "region",
+            "overwrite": True,
+            "quiet": True,
+            "memory": 1000,
+        }
+        if native_res:
+            import_kwargs["resolution"] = "value"
+            import_kwargs["resolution_value"] = idsm_res
+        grass.run_command("r.import", **import_kwargs)
+        all_idsms.append(idsm_name)
 
-    # import XYZ iDSM files
-    grass.message(_(f"Extracting {len(datafile_tiles)} iDSM files..."))
-    xyz_files = [pathlib.Path(file).name for file in datafile_tiles]
-    all_dsms = []
-    for xyz_file_name in xyz_files:
-        if aoi:
-            grass.run_command("g.region", vector=aoi)
-        else:
-            grass.run_command("g.region", region=ORIG_REGION)
-        grass.run_command("g.region", res=1, grow=1, quiet=True)
-        dsm_name = os.path.splitext(pathlib.Path(xyz_file_name).name)[
-            0
-        ].replace("-", "")
-        xyz_file = os.path.join(download_dir, xyz_file_name)
-        import_single_local_xyz_file(xyz_file, dsm_name, use_cur_reg=True)
-        all_dsms.append(dsm_name)
-
-    # create VRT
-    tmp_out = f"tmp_{output}_{ID}"
-    rm_rasters.append(tmp_out)
-    rm_rasters.extend(all_dsms)
-    create_vrt(all_dsms, tmp_out, copy_raster_maps=False)
-
-    # clip xyz-file to region /aoi
-    if aoi:
-        xyz_clip_region_aoi(tmp_out, output, aoi=aoi)
-    else:
-        xyz_clip_region_aoi(tmp_out, output, region=ORIG_REGION)
+    # Create VRT of tiles
+    # (dont copy raster maps -> create real raster in the next steps)
+    vrt = f"vrt_idsm_{output}_{ID}"
+    rm_rasters.append(vrt)
+    rm_rasters.extend(all_idsms)
+    create_vrt(all_idsms, vrt, copy_raster_maps=False)
 
     # resample / interpolate whole VRT (because interpolating single files leads
     # to empty rows and columns)
     # check resolution and resample / interpolate data if needed
     if not native_res:
+        grass.message(_("Resampling / interpolating data..."))
         if alignment_raster:
             # set extent from imported data, and align with alignment raster
-            grass.run_command(
-                "g.region",
-                raster=output,
-                align=alignment_raster,
-            )
+            grass.run_command("g.region", raster=vrt, align=alignment_raster)
             ns_res = float(
                 grass.parse_command("r.info", map=alignment_raster, flags="g")[
                     "nsres"
@@ -216,20 +196,21 @@ def main():
             # if no alignemnt raster is given,
             # use extent of imported data and
             # set and align with current region resolution
-            grass.run_command("g.region", raster=output)
+            grass.run_command("g.region", raster=vrt)
             grass.run_command("g.region", res=ns_res, flags="a")
-        grass.message(_("Resampling / interpolating data..."))
-        grass.run_command("g.rename", raster=f"{output},{output}_tmp")
-        adjust_raster_resolution(f"{output}_tmp", output, ns_res)
-        rm_rasters.append(f"{output}_tmp")
+        adjust_raster_resolution(vrt, output, ns_res)
+    else:
+        # Note: Want real raster/no VRT as output
+        vrt_to_raster(vrt, output)
 
-    grass.message(_(f"iDSM raster map <{output}> is created."))
+    grass.message(_(f"IDSM raster map <{output}> is created."))
 
-    if metadata_file and DATA_ZIP_URL:
+    if metadata_file and url_tiles:
         try:
             with pathlib.Path(metadata_file).open("w", encoding="utf-8") as f:
-                f.writelines(f"{url}\n" for url in DATA_ZIP_URL)
-            grass.debug("Wrote ZIP URL to tempfile")
+                for url in url_tiles:
+                    f.write(f"{url}\n")
+            grass.debug("Wrote tile URLs to tempfile")
         except Exception as e:
             grass.warning(f"Could not write tempfile metadata: {e}")
 
