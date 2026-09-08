@@ -81,7 +81,6 @@ OPEN_DATA_AVAILABILITY = {
             "BY",
             "HB",
             "HE",
-            "MV",
             "NI",
             "RP",
             "SL",
@@ -92,6 +91,7 @@ OPEN_DATA_AVAILABILITY = {
         "SUPPORTED": [
             "BB",
             "HH",
+            "MV",
             "NW",
             "SH",
         ],
@@ -296,13 +296,13 @@ def import_dem_from_wms(
             sleep(10)
 
 
-def xyz_laz_clip_region_aoi(xyz_raster, output, aoi=None, region=None):
-    """Clip imported xyz/laz-file to region/aoi.
+def xyz_clip_region_aoi(xyz_raster, output, aoi=None, region=None):
+    """Clip imported xyz-file to region/aoi.
 
-    r.in.pdal/r.in.xyz can not import only part of region/aoi.
+    r.in.xyz can not import only part of region/aoi.
     Thus clip in a follow up step
     Args:
-        xyz_raster (str): Imported xyz/laz-file
+        xyz_raster (str): Imported xyz-file
         output (str): Clipped output raster map
         aoi (str): AOI if given
         region (str): Region (if no AOI given)

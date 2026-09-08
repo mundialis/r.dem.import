@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD041 -->
 ## DESCRIPTION
 
-*r.dtm.import.mv* downloads and imports [digital terrain model (DTM, in German DGM)](https://www.metaver.de/trefferanzeige?docuuid=2351ABA6-019D-4155-853F-76EEFC26CA52&q=dgm-bremen) for Mecklenburg-Vorpommern (MV) and area of interest.  
+*r.dtm.import.mv* downloads and imports [digital terrain model (DTM, in German DGM)](https://laiv.geodaten-mv.de/afgvk/Geotopographie/Download?produkt=DGM1) for Mecklenburg-Vorpommern (MV) and area of interest.  
 The data can be used when referencing the source:  
 id: CC-BY 4.0,  
 name: Creative Commons Namensnennung 4.0 International,  

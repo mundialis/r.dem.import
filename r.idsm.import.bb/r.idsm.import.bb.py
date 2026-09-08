@@ -235,7 +235,7 @@ def main():
         mapset="PERMANENT",
         input=output,
         output=output,
-        method="bilinear",
+        method="bicubic",
         flags="n",
         quiet=True,
         memory=1000,
