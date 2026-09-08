@@ -202,48 +202,52 @@ def main():
         idsm_name = os.path.splitext(parse_qs(urlparse(url).query)["file"][0])[
             0
         ]
+        tmp_out = f"tmp_{output}_{ID}"
         las_file = os.path.join(download_dir, file_name)
-        import_single_local_las_file(las_file, idsm_name, RESOLUTION)
+        import_single_local_las_file(las_file, tmp_out, RESOLUTION)
+
+        # TODO: Interpolieren dauert lange/braucht viel Speicher.
+        # Deshalb Abfrage, ob NoData cells vorhanden sind, einbauen.
+        # Vlt noch Options anpassen/ Ideen zu Speicher?
+
+        # interpolate NoData cells using IDW
+        # region res should be set to RESOLUTION since interpolation
+        # will be in current region resolution
+        grass.message(_("Interpolating data..."))
+        grass.run_command("g.region", res=RESOLUTION, flags="a")
+        grass.run_command(
+            "r.fill.stats",
+            input=tmp_out,
+            output=idsm_name,
+            distance=3,
+            mode="wmean",
+            power=2.0,
+            cells=8,
+            flags="k",
+            quiet=True,
+        )
         all_idsms.append(idsm_name)
 
     # create VRT
-    vrt_out = f"tmp_{output}_{ID}"
+    vrt_out = f"vrt_{output}_{ID}"
     rm_rasters.append(vrt_out)
     rm_rasters.extend(all_idsms)
     create_vrt(all_idsms, vrt_out, copy_raster_maps=False)
-    tmp_out = f"{vrt_out}_IDW"
-
-    # TODO: Interpolieren dauert lange/braucht viel Speicher.
-    # Deshalb Abfrage, ob NoData cells vorhanden sind, einbauen.
-    # Vlt noch Options anpassen/ Ideen zu Speicher?
-
-    # interpolate NoData cells using IDW
-    # region res should be set to RESOLUTION since interpolation will be in
-    # current region resolution
-    grass.run_command(
-        "r.fill.stats",
-        input=vrt_out,
-        output=tmp_out,
-        distance=3,
-        mode="wmean",
-        power=2.0,
-        cells=8,
-        flags="k",
-    )
 
     # switch back to origin location
     switch_back_original_location(tgtgisrc)
+    res = RESOLUTION
     if not native_res:
-        grass.run_command("g.region", vector=aoi, res=ns_res)
+        res = ns_res
     if alignment_raster:
         grass.run_command("g.region", vector=aoi, align=alignment_raster)
     else:
-        grass.run_command("g.region", vector=aoi, res=RESOLUTION, flags="a")
+        grass.run_command("g.region", vector=aoi, res=res, flags="a")
     grass.run_command(
         "r.proj",
         location=tmploc,
         mapset="PERMANENT",
-        input=tmp_out,
+        input=vrt_out,
         output=output,
         method="bicubic",
         flags="n",
