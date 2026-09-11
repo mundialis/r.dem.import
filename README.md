@@ -46,7 +46,7 @@ Examples for the use of this toolset are provided in each module
 
 ## REQUIREMENTS
 
-[grass-gis-helpers>=4.0.0](https://pypi.org/project/grass-gis-helpers/)
+For python requirements see `requirements.txt`
 
 ## SEE ALSO
 
