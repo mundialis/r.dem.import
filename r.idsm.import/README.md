@@ -8,6 +8,7 @@ Implemented federal state options are:
 - [Hamburg (HH)](r.idsm.import.hh.html)
 - [Mecklenburg-Vorpommern](r.idsm.import.mv.html)
 - [Nordrhein-Westfalen (NW)](r.idsm.import.nw.html)
+- [Rheinland-Pfalz (RP)](r.idsm.import.rp)
 - [Schleswig-Holstein (SH)](r.idsm.import.sh.html)
 
 ## EXAMPLE
