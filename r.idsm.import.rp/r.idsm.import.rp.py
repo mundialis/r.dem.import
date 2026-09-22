@@ -72,7 +72,6 @@
 import atexit
 import os
 import pathlib
-from urllib.parse import parse_qs, urlparse
 
 import grass.script as grass
 from grass_gis_helpers.cleanup import general_cleanup
@@ -85,15 +84,15 @@ from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
     download_data_using_threadpool,
 )
-from grass_gis_helpers.raster import create_vrt
+from grass_gis_helpers.raster import (
+    create_vrt,
+    vrt_to_raster,
+)
 
 # set constant variables
 TINDEX = (
-    "https://github.com/kimariak/tile-indices/raw/rp_tindex/iDSM/RP/"
+    "https://github.com/mundialis/tile-indices/raw/main/iDSM/RP/"
     "rp_idsm_tindex_proj.gpkg.gz"
-
-    # "https://github.com/mundialis/tile-indices/raw/main/iDSM/RP/"
-    # "rp_idsm_tindex_proj.gpkg.gz"
 )
 RESOLUTION = 0.2
 ID = grass.tempname(12)
@@ -156,38 +155,39 @@ def main():
     grass.message(_("Importing iDSMs..."))
     all_idsms = []
     for url in url_tiles:
-        idsm_name = pathlib.Path(url).name[0]
+        idsm_name = os.path.splitext(pathlib.Path(url).name)[0].replace(
+            "-",
+            "",
+        )
         las_file = os.path.join(download_dir, f"{idsm_name}.laz")
         import_single_local_las_file(las_file, idsm_name, RESOLUTION)
-
-        # # TODO: Interpolieren dauert lange/braucht viel Speicher.
-        # # Deshalb Abfrage, ob NoData cells vorhanden sind, einbauen.
-        # # Vlt noch Options anpassen/ Ideen zu Speicher?
-
-        # # interpolate NoData cells using IDW
-        # # region res should be set to RESOLUTION since interpolation
-        # # will be in current region resolution
-        # grass.message(_("Interpolating data..."))
-        # grass.run_command("g.region", res=RESOLUTION, flags="a")
-        # grass.run_command(
-        #     "r.fill.stats",
-        #     input=tmp_out,
-        #     output=idsm_name,
-        #     distance=3,
-        #     mode="wmean",
-        #     power=2.0,
-        #     cells=8,
-        #     flags="k",
-        #     quiet=True,
-        # )
         all_idsms.append(idsm_name)
 
     # Create VRT of tiles
     # (dont copy raster maps -> create real raster in the next steps)
     vrt = f"vrt_idsm_{output}_{ID}"
+    tmp_vrt = f"tmp_vrt_idsm_{output}_{ID}"
     rm_rasters.append(vrt)
     rm_rasters.extend(all_idsms)
     create_vrt(all_idsms, vrt, copy_raster_maps=False)
+
+    # TODO: change to clip_raster from grass_gis_helpers (if available)
+    # Clip the raster (VRT) to a given aoi or region.
+    if aoi:
+        grass.run_command("g.region", vector=aoi, align=vrt)
+    elif region:
+        grass.run_command("g.region", region=region, align=vrt)
+    else:
+        grass.fatal(
+            "Neither 'region' nor 'aoi' is set, but one of them is required",
+        )
+
+    # renaming to output name.
+    grass.run_command(
+        "r.mapcalc",
+        expression=f"{tmp_vrt} = {vrt}",
+        quiet=True,
+    )
 
     # resample / interpolate whole VRT (because interpolating single files lead
     # to emplty rows and columns)
@@ -206,12 +206,12 @@ def main():
             # if no alignemnt raster is given,
             # use extent of imported data and
             # set and align with current region resolution
-            grass.run_command("g.region", raster=vrt)
+            grass.run_command("g.region", raster=tmp_vrt)
             grass.run_command("g.region", res=ns_res, flags="a")
-        adjust_raster_resolution(vrt, output, ns_res)
+        adjust_raster_resolution(tmp_vrt, output, ns_res)
     else:
         # Note: Want real raster/no VRT as output
-        vrt_to_raster(vrt, output)
+        vrt_to_raster(tmp_vrt, output)
 
     grass.message(_(f"iDSM raster map <{output}> is created."))
 
