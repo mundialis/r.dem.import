@@ -23,6 +23,3 @@ r.idsm.import.rp aoi=aoi output=idsm -r
 
 Kim Kaiser, [mundialis GmbH & Co. KG](https://www.mundialis.de/)  
 Lina Krisztian, [mundialis GmbH & Co. KG](https://www.mundialis.de/)
-
-
-- data can be used by citing "©GeoBasis-DE / LVermGeoRP", [Datenlizenz Deutschland Namensnennung 2.0](https://www.govdata.de/dl-de/by-2-0), [Geoportal RLP](www.lvermgeo.rlp.de)"
