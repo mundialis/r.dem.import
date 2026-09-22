@@ -182,8 +182,6 @@ def main():
         grass.fatal(
             "Neither 'region' nor 'aoi' is set, but one of them is required",
         )
-
-    # renaming to output name.
     grass.run_command(
         "r.mapcalc",
         expression=f"{tmp_vrt} = {vrt}",
