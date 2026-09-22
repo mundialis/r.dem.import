@@ -85,6 +85,7 @@ from grass_gis_helpers.open_geodata_germany.download_data import (
     download_data_using_threadpool,
 )
 from grass_gis_helpers.raster import (
+    adjust_raster_resolution,
     create_vrt,
     vrt_to_raster,
 )
@@ -175,8 +176,8 @@ def main():
     # Clip the raster (VRT) to a given aoi or region.
     if aoi:
         grass.run_command("g.region", vector=aoi, align=vrt)
-    elif region:
-        grass.run_command("g.region", region=region, align=vrt)
+    elif ORIG_REGION:
+        grass.run_command("g.region", region=ORIG_REGION, align=vrt)
     else:
         grass.fatal(
             "Neither 'region' nor 'aoi' is set, but one of them is required",

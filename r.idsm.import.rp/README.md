@@ -7,7 +7,7 @@ The data can be used when referencing the source:
 id: ©GeoBasis-DE / LVermGeoRP , dl-de/by-2-0,
 name: Datenlizenz Deutschland -Namensnennung- Version 2.0,  
 url: [https://www.govdata.de/dl-de/by-2-0](https://www.govdata.de/dl-de/by-2-0),
-source:  	Landesamt für Vermessung und Geobasisinformationen Rheinland-Pfalz ([LVermGeoRP](www.lvermgeo.rlp.de))
+source: Landesamt für Vermessung und Geobasisinformationen Rheinland-Pfalz ([LVermGeoRP](www.lvermgeo.rlp.de))
 
 ## EXAMPLE
 
