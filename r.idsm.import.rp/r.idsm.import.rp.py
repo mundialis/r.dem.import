@@ -171,7 +171,6 @@ def main():
     rm_rasters.append(vrt)
     rm_rasters.extend(all_idsms)
     create_vrt(all_idsms, vrt, copy_raster_maps=False)
-
  
     # Clip the raster (VRT) to a given aoi or region.
     if aoi:
