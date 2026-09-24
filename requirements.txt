@@ -1,5 +1,4 @@
 grass-gis-helpers>=4.1.0
-gdal
 remotezip
 wget
 psutil
