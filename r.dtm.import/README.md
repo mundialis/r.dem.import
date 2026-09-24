@@ -11,6 +11,7 @@
 - [Hessen (HE)](r.dtm.import.he.md)
 - [Mecklenburg-Vorpommern (MV)](r.dtm.import.mv.md)
 - [Nordrhein-Westfalen (NW)](r.dtm.import.nw.md)
+- [Rheinland-Pfalz (RP)](r.dtm.import.rp.md)
 - [Schleswig-Holstein](r.dtm.import.sh.md)
 - [Sachsen (SN)](r.dtm.import.sn.md)
 - [Thüringen (TH)](r.dtm.import.th.md)
