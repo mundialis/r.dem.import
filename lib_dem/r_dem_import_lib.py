@@ -238,26 +238,24 @@ def create_grid_and_tiles_list(
     return rm_vectors, number_tiles, tiles_list
 
 
-def import_dem_from_wms(
+def import_dem_from_wcs(
     tile_key,
     raster_name,
     tile_url,
     resolution_to_import,
     layer_name,
     native_res,
-    data_format="tiff",
     retries=10,
 ):
-    """Import DEMs from WMS.
+    """Import DEMs from WCS.
 
     Args:
         tile_key (str): Key of current tile
         raster_name (str): Name of resulting raster
-        tile_url (str): WMS URLs to get DEMs
+        tile_url (str): WCS URLs to get DEMs
         resolution_to_import (float): Resolution to resample imported raster to
-        layer_name (str): Name of WMS Layer
+        layer_name (str): Name of WCS coverage
         native_res (bool): Keep native DEM resolution
-        data_format (str): Format of data to import
         retries (int): Set how often function is retried.
     """
 
@@ -267,23 +265,22 @@ def import_dem_from_wms(
         grass.run_command("g.region", res=resolution_to_import, flags="a")
     tile_key = tile_key.split("@")[0]
 
-    # import wms data and retry download if wms fails
+    # import wcs data and retry download if wcs fails
     trydownload = True
     count = 0
     while trydownload:
         try:
             count += 1
             grass.run_command(
-                "r.in.wms",
+                "r.in.wcs",
                 url=tile_url,
                 output=raster_name,
-                layer=layer_name,
-                format=data_format,
+                coverage=layer_name,
                 overwrite=True,
             )
             trydownload = False
         except Exception:
-            # remove maps where wms download failed
+            # remove maps where wcs download failed
             grass.run_command(
                 "g.remove",
                 type="raster",
