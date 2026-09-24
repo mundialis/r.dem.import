@@ -2,9 +2,9 @@
 #
 ############################################################################
 #
-# MODULE:      r.idsm.import.rp
-# AUTHOR(S):   Kim Kaiser, Lina Krisztian
-# PURPOSE:     Downloads iDSM for Rheinland-Pfalz and aoi
+# MODULE:      r.dtm.import.rp
+# AUTHOR(S):   Kim Kaiser, Anika Weinmann
+# PURPOSE:     Downloads DTM for Rheinland-Pfalz and aoi
 # SPDX-FileCopyrightText: (c) 2026 by mundialis GmbH & Co. KG and the
 #                             GRASS Development Team
 # SPDX-License-Identifier: GPL-3.0-or-later.
@@ -12,11 +12,11 @@
 ############################################################################
 
 # %module
-# % description: Downloads iDSM for Rheinland-Pfalz and aoi.
+# % description: Downloads DTM for Rheinland-Pfalz and aoi.
 # % keyword: raster
 # % keyword: import
-# % keyword: bDOM
-# % keyword: iDSM
+# % keyword: DGM
+# % keyword: DTM
 # % keyword: open-geodata-germany
 # %end
 
@@ -78,11 +78,9 @@ from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.data_import import (
     download_and_import_tindex,
     get_list_of_tindex_locations,
-    import_single_local_las_file,
 )
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
-    download_data_using_threadpool,
 )
 from grass_gis_helpers.raster import (
     adjust_raster_resolution,
@@ -90,16 +88,15 @@ from grass_gis_helpers.raster import (
     vrt_to_raster,
 )
 
-# set constant variables
+# set variables
 TINDEX = (
-    "https://github.com/mundialis/tile-indices/raw/main/iDSM/RP/"
-    "rp_idsm_tindex_proj.gpkg.gz"
+    "https://github.com/mundialis/tile-indices/raw/main/DTM/RP/"
+    "rp_dtm_tindex_proj.gpkg.gz"
 )
-RESOLUTION = 0.2
+CURRENT_WORKING_DIR = pathlib.Path.cwd()
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
 
-# set global variables
 keep_data = False
 download_dir = None
 rm_rasters = []
@@ -108,6 +105,7 @@ rm_vectors = []
 
 def cleanup():
     """Cleaning up function."""
+    os.chdir(CURRENT_WORKING_DIR)
     rm_dirs = []
     if not keep_data and download_dir:
         rm_dirs.append(download_dir)
@@ -121,7 +119,7 @@ def cleanup():
 
 
 def main():
-    """Main function of r.idsm.import.rp."""
+    """Main function of r.dtm.import.rp."""
     global keep_data, download_dir
 
     aoi = options["aoi"]
@@ -141,55 +139,41 @@ def main():
         grass.run_command("g.region", vector=aoi, flags="a")
 
     # get tile index
-    tindex_vect = f"idsm_tindex_{ID}"
+    tindex_vect = f"dtm_tindex_{ID}"
     rm_vectors.append(tindex_vect)
     download_and_import_tindex(TINDEX, tindex_vect, download_dir)
 
     # get download urls which overlap with aoi
     url_tiles = get_list_of_tindex_locations(tindex_vect, aoi)
 
-    # Download iDSMS
-    grass.message(_("Downloading iDSMs..."))
-    download_data_using_threadpool(url_tiles, download_dir, 3)
-
-    # Import iDSMS
-    grass.message(_("Importing iDSMs..."))
-    all_idsms = []
+    # import DTM GeoTiff files
+    grass.message(_("Importing DTM..."))
+    all_dtm = []
     for url in url_tiles:
-        idsm_name = os.path.splitext(pathlib.Path(url).name)[0].replace(
+        dtm_name = os.path.splitext(pathlib.Path(url).name)[0].replace(
             "-",
             "",
         )
-        las_file = os.path.join(download_dir, f"{idsm_name}.laz")
-        import_single_local_las_file(las_file, idsm_name, RESOLUTION)
-        all_idsms.append(idsm_name)
+        grass.run_command(
+            "r.import",
+            input=url,
+            output=dtm_name,
+            extent="region",
+            overwrite=True,
+            quiet=True,
+            flags="o",
+        )
+        all_dtm.append(dtm_name)
 
     # Create VRT of tiles
     # (dont copy raster maps -> create real raster in the next steps)
-    vrt = f"vrt_idsm_{output}_{ID}"
-    tmp_vrt = f"tmp_vrt_idsm_{output}_{ID}"
+    vrt = f"vrt_dtm_{output}_{ID}"
     rm_rasters.append(vrt)
-    rm_rasters.extend(all_idsms)
-    create_vrt(all_idsms, vrt, copy_raster_maps=False)
+    rm_rasters.extend(all_dtm)
+    create_vrt(all_dtm, vrt, copy_raster_maps=False)
 
- 
-    # Clip the raster (VRT) to a given aoi or region.
-    if aoi:
-        grass.run_command("g.region", vector=aoi, align=vrt)
-    elif ORIG_REGION:
-        grass.run_command("g.region", region=ORIG_REGION, align=vrt)
-    else:
-        grass.fatal(
-            "Neither 'region' nor 'aoi' is set, but one of them is required",
-        )
-    grass.run_command(
-        "r.mapcalc",
-        expression=f"{tmp_vrt} = {vrt}",
-        quiet=True,
-    )
-
-    # resample / interpolate whole VRT (because interpolating single files lead
-    # to emplty rows and columns)
+    # resample / interpolate whole VRT (because interpolating single files leads
+    # to empty rows and columns)
     # check resolution and resample / interpolate data if needed
     if not native_res:
         grass.message(_("Resampling / interpolating data..."))
@@ -205,14 +189,15 @@ def main():
             # if no alignemnt raster is given,
             # use extent of imported data and
             # set and align with current region resolution
-            grass.run_command("g.region", raster=tmp_vrt)
+            grass.run_command("g.region", raster=vrt)
             grass.run_command("g.region", res=ns_res, flags="a")
-        adjust_raster_resolution(tmp_vrt, output, ns_res)
+        adjust_raster_resolution(vrt, output, ns_res)
     else:
         # Note: Want real raster/no VRT as output
-        vrt_to_raster(tmp_vrt, output)
+        vrt_to_raster(vrt, output)
+        rm_rasters.append(f"{output}_tmp")
 
-    grass.message(_(f"iDSM raster map <{output}> is created."))
+    grass.message(_(f"DTM raster map <{output}> is created."))
 
     if metadata_file and url_tiles:
         try:

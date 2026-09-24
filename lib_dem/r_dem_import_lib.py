@@ -33,7 +33,6 @@ OPEN_DATA_AVAILABILITY = {
         "NO_OPEN_DATA": ["BW", "BY"],
         "NOT_YET_SUPPORTED": [
             # available data
-            "RP",
             "ST",
             # no data available
             "SL",
@@ -47,6 +46,7 @@ OPEN_DATA_AVAILABILITY = {
             "MV",
             "NI",
             "NW",
+            "RP",
             "SH",
             "SN",
             "TH",
