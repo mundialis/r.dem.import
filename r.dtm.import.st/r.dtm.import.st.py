@@ -88,10 +88,6 @@ import grass.script as grass
 from grass.pygrass.modules import Module, ParallelModuleQueue
 from grass.pygrass.utils import get_lib_path
 from grass_gis_helpers.cleanup import general_cleanup
-from grass_gis_helpers.data_import import (
-    download_and_import_tindex,
-    get_list_of_tindex_locations,
-)
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
 )
@@ -116,7 +112,7 @@ except Exception as imp_err:
 
 # set variables
 WCS_URL = ("https://www.geodatenportal.sachsen-anhalt.de/ows_WCS_ST_DGM1")
-LAYER = ("Coverage1")
+LAYER = ("1")
 NATIVE_DTM_RES = 1
 
 CURRENT_WORKING_DIR = pathlib.Path.cwd()
@@ -132,7 +128,6 @@ rm_dirs = []
 def cleanup():
     """Cleaning up function."""
     os.chdir(CURRENT_WORKING_DIR)
-    rm_dirs = []
     if not keep_data and download_dir:
         rm_dirs.append(download_dir)
     general_cleanup(
@@ -207,7 +202,7 @@ def main():
     grass.message(_("Creating DTM tiles for ST..."))
 
     # set tile size in map units (meter)
-    tile_size = 1000
+    tile_size = 500
 
     # set grid name
     grid = f"tmp_grid_ST_{ID}"
@@ -233,7 +228,7 @@ def main():
     gisenv = grass.gisenv()
     gisdbase = gisenv["GISDBASE"]
     location = gisenv["LOCATION_NAME"]
-
+    
     # set queue and variables for worker addon
     create_vrt_list = []
     try:
@@ -264,7 +259,7 @@ def main():
                 param["resolution_to_import"] = NATIVE_DTM_RES
             else:
                 param["resolution_to_import"] = ns_res
-            import pdb; pdb.set_trace()
+
             # run worker addon in parallel
             r_dem_wcs_worker = Module(
                 "r.dem.wcs.worker",
@@ -286,13 +281,15 @@ def main():
                 grass.fatal(
                     _(f"\nERROR by processing <{proc.get_bash()}>: {errmsg}"),
                 )
+    if metadata_file:
+        with pathlib.Path(metadata_file).open("w", encoding="utf-8") as f:
+            f.write(f"WCS:{WCS_URL}|COVERAGE:{LAYER}\n")
 
-    # Create VRT of tiles
-    # (dont copy raster maps -> create real raster in the next steps)
-    vrt = f"vrt_dtm_{output}_{ID}"
+    # Create vrt 
+    vrt = f"vrt_{output}_{ID}"
     rm_rasters.append(vrt)
-    rm_rasters.extend(create_vrt_list)
-    create_vrt(create_vrt_list, vrt, copy_raster_maps=False)
+    rm_rasters.extend([r.split("@")[0] for r in create_vrt_list])
+    create_vrt(create_vrt_list, vrt)
 
     # resample / interpolate whole VRT (because interpolating single files leads
     # to empty rows and columns)
@@ -319,7 +316,9 @@ def main():
         vrt_to_raster(vrt, output)
         rm_rasters.append(f"{output}_tmp")
 
-    grass.message(_(f"DTM raster map <{output}> is created."))
+    # grass.message(_(f"DTM raster map <{output}> is created."))
+
+    grass.message(_(f"Generated following raster maps: {output}"))
 
     if metadata_file and url_tiles:
         try:
@@ -329,33 +328,6 @@ def main():
             grass.debug("Wrote tile URLs to tempfile")
         except Exception as e:
             grass.warning(f"Could not write tempfile metadata: {e}")
-
-
-
-    create_vrt(create_vrt_list, output)
-    if not flags["r"]:
-        if alignment_raster:
-            # set extent from imported data, and align with alignment raster
-            grass.run_command(
-                "g.region", raster=output, align=alignment_raster
-            )
-            ns_res = float(
-                grass.parse_command("r.info", map=alignment_raster, flags="g")[
-                    "nsres"
-                ],
-            )
-        else:
-            # if no alignemnt raster is given,
-            # use extent of imported data and
-            # set and align with current region resolution
-            grass.run_command("g.region", raster=output)
-            grass.run_command("g.region", res=ns_res, flags="a")
-        grass.message(_("Resampling / interpolating data..."))
-        grass.run_command("g.rename", raster=f"{output},{output}_tmp")
-        adjust_raster_resolution(f"{output}_tmp", output, ns_res)
-        rm_rasters.append(f"{output}_tmp")
-
-    grass.message(_(f"Generated following raster map: {output}"))
 
 
 if __name__ == "__main__":

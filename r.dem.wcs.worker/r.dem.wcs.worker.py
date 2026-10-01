@@ -77,6 +77,15 @@
 # % description: Name of raster output
 # %end
 
+# %option G_OPT_MEMORYMB
+# % description: Memory which is used by all processes (it is divided by nprocs for each single parallel process)
+# %end
+
+# %flag
+# % key: k
+# % label: Keep downloaded data in the download directory
+# %end
+
 # %flag
 # % key: r
 # % description: Use native DEM resolution
@@ -88,7 +97,9 @@ import sys
 
 import grass.script as grass
 from grass.pygrass.utils import get_lib_path
-from grass_gis_helpers.cleanup import general_cleanup
+
+from grass_gis_helpers.cleanup import general_cleanup, cleaning_tmp_location
+from grass_gis_helpers.general import test_memory
 from grass_gis_helpers.location import switch_back_original_location
 from grass_gis_helpers.mapset import switch_to_new_mapset
 
@@ -103,8 +114,9 @@ except Exception as imp_err:
     grass.fatal(f"r.dem.import library could not be imported: {imp_err}")
 
 rm_rast = []
-rm_group = []
-
+gisdbase = None
+TMP_LOC = None
+TMP_GISRC = None
 # pylint: disable=C0103
 original_nprocs = None
 
@@ -114,9 +126,14 @@ WAITING_TIME = 10
 
 def cleanup():
     """Remove all not needed files at the end."""
+    cleaning_tmp_location(
+        None,
+        tmp_loc=TMP_LOC,
+        tmp_gisrc=TMP_GISRC,
+        gisdbase=gisdbase,
+    )
     general_cleanup(
         rm_rasters=rm_rast,
-        rm_groups=rm_group,
     )
     """Reset nprocs"""
     if original_nprocs:
@@ -127,7 +144,7 @@ def cleanup():
 
 def main():
     """Main function of r.dem.wcs.worker."""
-    global original_nprocs
+    global gisdbase, TMP_LOC, TMP_GISRC, original_nprocs
     # parser options
     tile_key = options["tile_key"]
     tile_url = options["tile_url"]
@@ -138,6 +155,7 @@ def main():
         resolution_to_import = float(options["resolution_to_import"])
     orig_region = options["orig_region"]
     new_mapset = options["new_mapset"]
+    download_dir = options["download_dir"]
 
     layer_names_list = layer_names_string.split(",")
 
@@ -146,6 +164,9 @@ def main():
     if "NPROCS" in gisenv:
         original_nprocs = int(gisenv["NPROCS"])
     grass.run_command("g.gisenv", set="NPROCS=1")
+
+    # set memory to input if possible
+    options["memory"] = test_memory(options["memory"])
 
     # output resolution
     if not flags["r"] and not options["resolution_to_import"]:
@@ -182,7 +203,7 @@ def main():
             resolution_to_import,
             layer_name,
             flags["r"],
-            "tiff",
+            retries=5,
         )
         raster_name_info = grass.raster_info(output_raster)
 
