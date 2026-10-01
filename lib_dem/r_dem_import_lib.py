@@ -32,8 +32,6 @@ OPEN_DATA_AVAILABILITY = {
     "DTM": {
         "NO_OPEN_DATA": ["BW", "BY"],
         "NOT_YET_SUPPORTED": [
-            # available data
-            "ST",
             # no data available
             "SL",
         ],
@@ -49,6 +47,7 @@ OPEN_DATA_AVAILABILITY = {
             "RP",
             "SH",
             "SN",
+            "ST",
             "TH",
         ],
     },
@@ -288,7 +287,7 @@ def import_dem_from_wcs(
                 flags="f",
             )
             grass.message(_("Retry download..."))
-            if count > (retries/2):
+            if count > (retries / 2):
                 grass.fatal(f"Download of {tile_url} not working.")
             sleep(10)
 

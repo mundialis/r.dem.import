@@ -98,7 +98,7 @@ import sys
 import grass.script as grass
 from grass.pygrass.utils import get_lib_path
 
-from grass_gis_helpers.cleanup import general_cleanup, cleaning_tmp_location
+from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.general import test_memory
 from grass_gis_helpers.location import switch_back_original_location
 from grass_gis_helpers.mapset import switch_to_new_mapset
@@ -114,9 +114,6 @@ except Exception as imp_err:
     grass.fatal(f"r.dem.import library could not be imported: {imp_err}")
 
 rm_rast = []
-gisdbase = None
-TMP_LOC = None
-TMP_GISRC = None
 # pylint: disable=C0103
 original_nprocs = None
 
@@ -126,12 +123,6 @@ WAITING_TIME = 10
 
 def cleanup():
     """Remove all not needed files at the end."""
-    cleaning_tmp_location(
-        None,
-        tmp_loc=TMP_LOC,
-        tmp_gisrc=TMP_GISRC,
-        gisdbase=gisdbase,
-    )
     general_cleanup(
         rm_rasters=rm_rast,
     )
@@ -144,7 +135,7 @@ def cleanup():
 
 def main():
     """Main function of r.dem.wcs.worker."""
-    global gisdbase, TMP_LOC, TMP_GISRC, original_nprocs
+    global original_nprocs
     # parser options
     tile_key = options["tile_key"]
     tile_url = options["tile_url"]
@@ -155,7 +146,6 @@ def main():
         resolution_to_import = float(options["resolution_to_import"])
     orig_region = options["orig_region"]
     new_mapset = options["new_mapset"]
-    download_dir = options["download_dir"]
 
     layer_names_list = layer_names_string.split(",")
 

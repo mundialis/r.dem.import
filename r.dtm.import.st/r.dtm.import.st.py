@@ -111,8 +111,8 @@ except Exception as imp_err:
     grass.fatal(f"r.dem.import library could not be imported: {imp_err}")
 
 # set variables
-WCS_URL = ("https://www.geodatenportal.sachsen-anhalt.de/ows_WCS_ST_DGM1")
-LAYER = ("1")
+WCS_URL = "https://www.geodatenportal.sachsen-anhalt.de/ows_WCS_ST_DGM1"
+LAYER = "1"
 NATIVE_DTM_RES = 1
 
 CURRENT_WORKING_DIR = pathlib.Path.cwd()
@@ -124,6 +124,7 @@ download_dir = None
 rm_vectors = []
 rm_rasters = []
 rm_dirs = []
+
 
 def cleanup():
     """Cleaning up function."""
@@ -141,10 +142,10 @@ def cleanup():
 
 def main():
     """Main function of r.dtm.import.st"""
-    global keep_data, download_dir, rm_rasters, rm_vectors, rm_dirs
+    global keep_data, download_dir, rm_vectors
 
     aoi = options["aoi"]
-    download_dir = check_download_dir(options["download_dir"]) 
+    download_dir = check_download_dir(options["download_dir"])
     alignment_raster = options["alignment_raster"]
     metadata_file = options["metadata_file"]
     nprocs = int(options["nprocs"])
@@ -228,7 +229,7 @@ def main():
     gisenv = grass.gisenv()
     gisdbase = gisenv["GISDBASE"]
     location = gisenv["LOCATION_NAME"]
-    
+
     # set queue and variables for worker addon
     create_vrt_list = []
     try:
@@ -285,7 +286,7 @@ def main():
         with pathlib.Path(metadata_file).open("w", encoding="utf-8") as f:
             f.write(f"WCS:{WCS_URL}|COVERAGE:{LAYER}\n")
 
-    # Create vrt 
+    # Create vrt
     vrt = f"vrt_{output}_{ID}"
     rm_rasters.append(vrt)
     rm_rasters.extend([r.split("@")[0] for r in create_vrt_list])
