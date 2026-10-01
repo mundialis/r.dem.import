@@ -7,7 +7,7 @@
 
 per-file-ignores =
     ./lib_dem/r_dem_import_lib.py: E501,F821
-    ./r.dem.wms.worker/r.dem.wms.worker.py:E501,F821
+    ./r.dem.wcs.worker/r.dem.wcs.worker.py:E501,F821
     ./r.dsm.import.bb/r.dsm.import.bb.py:E501,F821
     ./r.dsm.import.be/r.dsm.import.be.py:E501,F821
     ./r.dsm.import.hb/r.dsm.import.hb.py:E501,F821
@@ -34,6 +34,7 @@ per-file-ignores =
     ./r.dtm.import.rp/r.dtm.import.rp.py:E501,F821
     ./r.dtm.import.sh/r.dtm.import.sh.py:E501,F821
     ./r.dtm.import.sn/r.dtm.import.sn.py:E501,F821
+    ./r.dtm.import.st/r.dtm.import.st.py:E501,F821
     ./r.dtm.import.th/r.dtm.import.th.py:E501,F821
     ./r.dtm.import/r.dtm.import.py:E501,F821
     ./r.dtm.import/r.dtm.import.py:E501,F821

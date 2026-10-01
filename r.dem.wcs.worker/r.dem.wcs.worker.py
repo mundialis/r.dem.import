@@ -2,9 +2,9 @@
 #
 ############################################################################
 #
-# MODULE:      r.dem.wms.worker
+# MODULE:      r.dem.wcs.worker
 # AUTHOR(S):   Johannes Halbauer, Kim Kaiser, Lina Krisztian, Leon Louwarts
-# PURPOSE:     Imports Digital Elevation Models (DEMs) within a specified area via WMS
+# PURPOSE:     Imports Digital Elevation Models (DEMs) within a specified area via WCS
 # SPDX-FileCopyrightText: (c) 2026 by mundialis GmbH & Co. KG and the
 #                             GRASS Development Team
 # SPDX-License-Identifier: GPL-3.0-or-later.
@@ -12,7 +12,7 @@
 #############################################################################
 
 # %Module
-# % description: Imports single Digital Elevation Models (DEMs) via WMS
+# % description: Imports single Digital Elevation Models (DEMs) via WCS
 # % keyword: imagery
 # % keyword: download
 # % keyword: DEM
@@ -41,7 +41,7 @@
 # %option
 # % key: tile_url
 # % required: yes
-# % description: WMS URL of tile-DEM to import
+# % description: WCS URL of tile-DEM to import
 # %end
 
 # %option
@@ -77,6 +77,15 @@
 # % description: Name of raster output
 # %end
 
+# %option G_OPT_MEMORYMB
+# % description: Memory which is used by all processes (it is divided by nprocs for each single parallel process)
+# %end
+
+# %flag
+# % key: k
+# % label: Keep downloaded data in the download directory
+# %end
+
 # %flag
 # % key: r
 # % description: Use native DEM resolution
@@ -88,7 +97,9 @@ import sys
 
 import grass.script as grass
 from grass.pygrass.utils import get_lib_path
+
 from grass_gis_helpers.cleanup import general_cleanup
+from grass_gis_helpers.general import test_memory
 from grass_gis_helpers.location import switch_back_original_location
 from grass_gis_helpers.mapset import switch_to_new_mapset
 
@@ -98,13 +109,11 @@ if path is None:
     grass.fatal("Unable to find the dem library directory.")
 sys.path.append(path)
 try:
-    from r_dem_import_lib import import_dem_from_wms
+    from r_dem_import_lib import import_dem_from_wcs
 except Exception as imp_err:
     grass.fatal(f"r.dem.import library could not be imported: {imp_err}")
 
 rm_rast = []
-rm_group = []
-
 # pylint: disable=C0103
 original_nprocs = None
 
@@ -116,7 +125,6 @@ def cleanup():
     """Remove all not needed files at the end."""
     general_cleanup(
         rm_rasters=rm_rast,
-        rm_groups=rm_group,
     )
     """Reset nprocs"""
     if original_nprocs:
@@ -126,7 +134,7 @@ def cleanup():
 
 
 def main():
-    """Main function of r.dem.wms.worker."""
+    """Main function of r.dem.wcs.worker."""
     global original_nprocs
     # parser options
     tile_key = options["tile_key"]
@@ -146,6 +154,9 @@ def main():
     if "NPROCS" in gisenv:
         original_nprocs = int(gisenv["NPROCS"])
     grass.run_command("g.gisenv", set="NPROCS=1")
+
+    # set memory to input if possible
+    options["memory"] = test_memory(options["memory"])
 
     # output resolution
     if not flags["r"] and not options["resolution_to_import"]:
@@ -174,15 +185,15 @@ def main():
     for layer_name in layer_names_list:
         output_raster = f"{raster_name}_{layer_name}"
 
-        # import DEMs from WMS
-        import_dem_from_wms(
+        # import DEMs from WCS
+        import_dem_from_wcs(
             f"{tile_key}@{old_mapset}",
             output_raster,
             tile_url,
             resolution_to_import,
             layer_name,
             flags["r"],
-            "tiff",
+            retries=5,
         )
         raster_name_info = grass.raster_info(output_raster)
 
