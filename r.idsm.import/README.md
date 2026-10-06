@@ -6,7 +6,7 @@ Implemented federal state options are:
 
 - [Brandenburg (BB)](r.idsm.import.bb.md)
 - [Hamburg (HH)](r.idsm.import.hh.md)
-- [Mecklenburg-Vorpommern](r.idsm.import.mv.md)
+- [Mecklenburg-Vorpommern (MV)](r.idsm.import.mv.md)
 - [Nordrhein-Westfalen (NW)](r.idsm.import.nw.md)
 - [Rheinland-Pfalz (RP)](r.idsm.import.rp.md)
 - [Schleswig-Holstein (SH)](r.idsm.import.sh.md)

@@ -31,7 +31,7 @@
 # % type: string
 # % multiple: yes
 # % required: no
-# % options: Brandenburg,BB,Hamburg,HH,Mecklenburg-Vorpommern,MV,Nordrhein-Westfalen,NW,Rheinland-Pfalz,RP,Schleswig-Holstein,SH
+# % options: Brandenburg,BB,Berlin,BE,Hamburg,HH,Mecklenburg-Vorpommern,MV,Nordrhein-Westfalen,NW,Rheinland-Pfalz,RP,Schleswig-Holstein,SH
 # % description: Federal state(s) related to the area of interest e.g.:"Nordrhein-Westfalen"
 # %end
 
@@ -39,6 +39,12 @@
 # % key: federal_state_file
 # % description: Path to text file containing the federal state(s) related to the area of interest
 # % required: no
+# %end
+
+# %option G_OPT_M_DIR
+# % key: local_data_dir
+# % required: no
+# % description: Directory with raster map of iDSMs to import
 # %end
 
 # %option
@@ -85,9 +91,15 @@
 # % label: Use native data resolution
 # %end
 
+# %flag
+# % key: o
+# % description: For local data import: if no matching local data found, try to access via open data portal
+# %end
+
 # %rules
 # % requires_all: -k,download_dir
 # % excludes: -r,alignment_raster
+# % requires: -o, local_data_dir
 # %end
 
 import atexit
@@ -115,7 +127,12 @@ if path is None:
     grass.fatal("Unable to find the dem library directory.")
 sys.path.append(path)
 try:
-    from r_dem_import_lib import OPEN_DATA_AVAILABILITY
+    from r_dem_import_lib import (
+        OPEN_DATA_AVAILABILITY,
+        get_local_file_names,
+        get_local_fs_list,
+        import_local_fs_data,
+    )
     from r_dem_import_metadata_lib import get_download_urls_and_names
 except Exception as imp_err:
     grass.fatal(f"r.dem.import library could not be imported: {imp_err}")
@@ -149,6 +166,7 @@ def main():
         options["federal_state"],
         options["federal_state_file"],
     )
+    local_data_dir = options["local_data_dir"]
     download_dir = check_download_dir(options["download_dir"])
     alignment_raster = options["alignment_raster"]
     metadata_path = options["metadata"]
@@ -158,6 +176,10 @@ def main():
 
     # save original region
     grass.run_command("g.region", save=ORIG_REGION, quiet=True)
+    ns_res = grass.region()["nsres"]
+
+    # local iDSM files
+    local_fs_list = get_local_fs_list(local_data_dir)
 
     # loop over federal states and import data
     all_idsms = []
@@ -167,69 +189,92 @@ def main():
         dem_names = []
         dem_urls = []
 
-        if fs in NOT_YET_SUPPORTED:
-            grass.fatal(
-                _(
-                    "The import of the open data is not yet supported "
-                    "or the data are not available as Opendata."
-                    f"{fs}.",
-                ),
-            )
-
-        # implement data download and import from open data
-        r_idsm_import_fs_flags = ""
-        if keep_data:
-            r_idsm_import_fs_flags += "k"
-        if native_res:
-            r_idsm_import_fs_flags += "r"
+        # check if local data for federal state given and import them
         out_fs = f"idsm_{fs}_{ID}"
-        addon = f"r.idsm.import.{fs.lower()}"
-        params = {
-            "aoi": aoi,
-            "download_dir": download_dir,
-            "alignment_raster": alignment_raster,
-            "output": out_fs,
-            "flags": r_idsm_import_fs_flags,
-            "overwrite": True,
-        }
-        # Only create a tempfile for URL/metadata exchange with the
-        # state-specific addon if a metadata file was actually
-        # requested by the user
-        metadata_tmpfile = options.get("metadata_file") or None
-        if not metadata_tmpfile and metadata_path:
-            metadata_tmpfile = grass.tempfile()
-        if metadata_tmpfile:
-            params["metadata_file"] = metadata_tmpfile
+        imported_local_data = import_local_fs_data(
+            aoi,
+            out_fs,
+            local_data_dir,
+            local_fs_list,
+            fs,
+            rm_rasters,
+            native_res,
+            ns_res,
+            flags["o"],
+            alignment_raster,
+        )
+        if imported_local_data:
+            all_idsms.append(out_fs)
+            fs_dem_list = [f"{output}_{fs}"]
+            dem_names = get_local_file_names(local_data_dir, fs)
 
-        grass.run_command(addon, **params)
-        all_idsms.append(out_fs)
-        fs_dem_list = [out_fs]
+        # import data when local import was not used
+        if not imported_local_data:
+            if fs in NOT_YET_SUPPORTED:
+                grass.fatal(
+                    _(
+                        "The import of the open data is not yet supported "
+                        "or the data are not available as Opendata: "
+                        f"{fs}. Please use local data <local_data_dir>.",
+                    ),
+                )
 
-        if metadata_tmpfile:
-            # Reads URLs from the tempfile written by the addon, with
-            # fallbacks to the download directory and raster count
-            # if no URLs could be determined (see
-            # r_dem_import_metadata_lib.py)
-            dem_urls, dem_names = get_download_urls_and_names(
-                metadata_tmpfile=metadata_tmpfile,
-                keep_data=keep_data,
-                download_dir=download_dir,
-                out_fs=out_fs,
-            )
+            # implement data download and import from open data
+            r_idsm_import_fs_flags = ""
+            if keep_data:
+                r_idsm_import_fs_flags += "k"
+            if native_res:
+                r_idsm_import_fs_flags += "r"
+            out_fs = f"idsm_{fs}_{ID}"
+            addon = f"r.idsm.import.{fs.lower()}"
+            params = {
+                "aoi": aoi,
+                "download_dir": download_dir,
+                "alignment_raster": alignment_raster,
+                "output": out_fs,
+                "flags": r_idsm_import_fs_flags,
+                "overwrite": True,
+            }
+            # Only create a tempfile for URL/metadata exchange with the
+            # state-specific addon if a metadata file was actually
+            # requested by the user
+            metadata_tmpfile = options.get("metadata_file") or None
+            if not metadata_tmpfile and metadata_path:
+                metadata_tmpfile = grass.tempfile()
+            if metadata_tmpfile:
+                params["metadata_file"] = metadata_tmpfile
 
-            # Collect metadata for this federal state (license/source info comes from
-            # the addon's HTML documentation, file/URL info from above)
-            addon_name = get_addon_name(fs)
-            license_info, base_url = get_license_and_url_from_addon(addon_name)
-            fs_metadata = collect_metadata(
-                fs=fs,
-                raster_list=fs_dem_list,
-                license_info=license_info,
-                base_url=base_url,
-                original_names=dem_names,
-                download_urls=dem_urls,
-            )
-            metadata_list.append(fs_metadata)
+            grass.run_command(addon, **params)
+            all_idsms.append(out_fs)
+            fs_dem_list = [out_fs]
+
+            if metadata_tmpfile:
+                # Reads URLs from the tempfile written by the addon, with
+                # fallbacks to the download directory and raster count
+                # if no URLs could be determined (see
+                # r_dem_import_metadata_lib.py)
+                dem_urls, dem_names = get_download_urls_and_names(
+                    metadata_tmpfile=metadata_tmpfile,
+                    keep_data=keep_data,
+                    download_dir=download_dir,
+                    out_fs=out_fs,
+                )
+
+                # Collect metadata for this federal state (license/source info comes from
+                # the addon's HTML documentation, file/URL info from above)
+                addon_name = get_addon_name(fs)
+                license_info, base_url = get_license_and_url_from_addon(
+                    addon_name,
+                )
+                fs_metadata = collect_metadata(
+                    fs=fs,
+                    raster_list=fs_dem_list,
+                    license_info=license_info,
+                    base_url=base_url,
+                    original_names=dem_names,
+                    download_urls=dem_urls,
+                )
+                metadata_list.append(fs_metadata)
 
     # Patch iDSMs of different federal states
     # (keep as VRT. Federal states iDSMs itself are no VRTs)

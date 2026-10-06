@@ -151,7 +151,8 @@ sys.path.append(path)
 try:
     from r_dem_import_lib import (
         OPEN_DATA_AVAILABILITY,
-        import_local_data,
+        get_local_fs_list,
+        import_local_fs_data,
     )
     from r_dem_import_metadata_lib import get_download_urls_and_names
 except Exception as imp_err:
@@ -261,27 +262,22 @@ def main():
     ns_res = grass.region()["nsres"]
 
     # local nDSM files
-    local_ndsm_fs_list = []
-    if local_data_dir_ndsm and local_data_dir_ndsm != "":
-        local_ndsm_fs_list = os.listdir(local_data_dir_ndsm)
+    local_ndsm_fs_list = get_local_fs_list(local_data_dir_ndsm)
 
     # local iDSM files
-    local_idsm_fs_list = []
     if local_data_dir_idsm and local_data_dir_idsm != "":
         grass.fatal(_("Local iDSM data dir for nDSM is not yet supported."))
-        local_idsm_fs_list = os.listdir(local_data_dir_idsm)
+    local_idsm_fs_list = get_local_fs_list(local_data_dir_idsm)
 
     # local DSM files
-    local_dsm_fs_list = []
     if local_data_dir_dsm and local_data_dir_dsm != "":
         grass.fatal(_("Local DSM data dir for nDSM is not yet supported."))
-        local_dsm_fs_list = os.listdir(local_data_dir_dsm)
+    local_dsm_fs_list = get_local_fs_list(local_data_dir_dsm)
 
     # local DTM files
-    local_dtm_fs_list = []
     if local_data_dir_dtm and local_data_dir_dtm != "":
         grass.fatal(_("Local DTM data dir for nDSM is not yet supported."))
-        local_dtm_fs_list = os.listdir(local_data_dir_dtm)
+    local_dtm_fs_list = get_local_fs_list(local_data_dir_dtm)
 
     ndsm_list = []
     metadata_list = []
@@ -291,40 +287,25 @@ def main():
         dtm_out = None
         idsm_out = None
         dsm_out = None
-        # check if local data for federal state given
-        imported_local_data = False
-        if (
-            local_data_dir_ndsm
-            and local_data_dir_ndsm != ""
-            and fs not in local_ndsm_fs_list
-            and not flags["o"]
-        ):
-            grass.fatal(
-                _(
-                    f"Missing federal state folder '{fs}' "
-                    f"within local_data_dir_ndsm: '{local_data_dir_ndsm}'. "
-                    "Check local_data_dir_ndsm or consider using o-flag.",
-                ),
-            )
-        elif fs in local_ndsm_fs_list:
-            ndsm_out = f"ndsm_{fs}_{ID}"
-            ndsm_list_local = []
-            imported_local_data = import_local_data(
-                aoi,
-                ndsm_out,
-                local_data_dir_ndsm,
-                fs,
-                ndsm_list_local,
-                rm_rasters,
-                native_res,
-                ns_res,
-                flags["o"],
-                alignment_raster,
-            )
-            # If local data import, was not succesfull,
-            # set back ndsm_out variable
-            if not imported_local_data:
-                ndsm_out = None
+        # check if local data for federal state given and import them
+        ndsm_out = f"ndsm_{fs}_{ID}"
+        imported_local_data = import_local_fs_data(
+            aoi,
+            ndsm_out,
+            local_data_dir_ndsm,
+            local_ndsm_fs_list,
+            fs,
+            rm_rasters,
+            native_res,
+            ns_res,
+            flags["o"],
+            alignment_raster,
+            option_name="local_data_dir_ndsm",
+        )
+        # If local data import was not succesfull,
+        # set back ndsm_out variable
+        if not imported_local_data:
+            ndsm_out = None
         # TODO import nDSM via local iDSM/DSM and DTM
         # elif fs in OPEN_DATA_AVAILABILITY["nDSM"]["NO_OPEN_DATA"]:
         #     grass.fatal(
