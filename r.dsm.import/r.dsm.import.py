@@ -218,8 +218,8 @@ def main():
             native_res,
             ns_res,
             flags["o"],
-            alignment_raster,
             flags["n"],
+            alignment_raster,
         )
         if imported_local_data:
             all_dsms.append(out_fs)

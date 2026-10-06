@@ -314,6 +314,7 @@ def main():
             native_res,
             ns_res,
             flags["o"],
+            flags["n"],
             alignment_raster,
             option_name="local_data_dir_ndsm",
         )

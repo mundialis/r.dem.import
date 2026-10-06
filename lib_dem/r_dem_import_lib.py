@@ -350,9 +350,9 @@ def import_local_fs_data(
     native_res,
     ns_res,
     opendata_flag,
+    no_fs_folder_flag,
     alignment_raster=None,
     option_name="local_data_dir",
-    no_fs_folder_flag=False,
 ):
     """Check local data of a federal state and import them if given.
 
@@ -370,12 +370,12 @@ def import_local_fs_data(
         ns_res (float): Resolution to resample imported raster to
         opendata_flag (bool): Flag to indicate if data should be downloaded
                               from Open Data portal if local data dont match
+        no_fs_folder_flag (bool): Flag to indicate if the federal state folder
+                                  is missing in the local data directory
         alignment_raster (str): If data should be resampled,
                                 raster to align imported data to
         option_name (str): Name of the module option of the local data
                            directory (used for error messages)
-        no_fs_folder_flag (bool): Flag to indicate if the federal state folder
-                                  is missing in the local data directory
 
     Returns:
         (bool): True if local data were imported, otherwise False
