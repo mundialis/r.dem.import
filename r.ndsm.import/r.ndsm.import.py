@@ -114,10 +114,16 @@
 # % description: For local data import: if no matching local data found, try to access via open data portal
 # %end
 
+# %flag
+# % key: n
+# % description: For local data import: no federal state folder in local_data_dir needed (works only if not for another federal state data should be downloaded)
+# %end
+
 # %rules
 # % requires_all: -k,download_dir
 # % excludes: -r,alignment_raster
 # % requires: -o, local_data_dir_ndsm, local_data_dir_idsm, local_data_dir_dsm, local_data_dir_dtm
+# % requires: -n, local_data_dir_ndsm, local_data_dir_idsm, local_data_dir_dsm, local_data_dir_dtm
 # %end
 
 import atexit
@@ -279,6 +285,15 @@ def main():
         grass.fatal(_("Local DTM data dir for nDSM is not yet supported."))
     local_dtm_fs_list = get_local_fs_list(local_data_dir_dtm)
 
+    # remove federal states when local data dir and n-flag is set
+    if (
+        local_data_dir_ndsm
+        and local_data_dir_ndsm != ""
+        and flags["n"]
+        and len(federal_states) > 1
+    ):
+        federal_states = ["all"]
+
     ndsm_list = []
     metadata_list = []
     for fs in federal_states:
@@ -318,6 +333,8 @@ def main():
             import_flags += "r"
         if keep_data:
             import_flags += "k"
+        if flags["n"]:
+            import_flags += "n"
 
         # import not local nDSM data
         if (

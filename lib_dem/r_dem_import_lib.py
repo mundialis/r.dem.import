@@ -352,6 +352,7 @@ def import_local_fs_data(
     opendata_flag,
     alignment_raster=None,
     option_name="local_data_dir",
+    no_fs_folder_flag=False,
 ):
     """Check local data of a federal state and import them if given.
 
@@ -373,6 +374,8 @@ def import_local_fs_data(
                                 raster to align imported data to
         option_name (str): Name of the module option of the local data
                            directory (used for error messages)
+        no_fs_folder_flag (bool): Flag to indicate if the federal state folder
+                                  is missing in the local data directory
 
     Returns:
         (bool): True if local data were imported, otherwise False
@@ -381,14 +384,14 @@ def import_local_fs_data(
     if (
         local_data_dir
         and local_data_dir != ""
-        and fs not in local_fs_list
+        and (fs not in local_fs_list and not no_fs_folder_flag)
         and not opendata_flag
     ):
         grass.fatal(
             _(
                 f"Missing federal state folder '{fs}' "
                 f"within {option_name}: '{local_data_dir}'. "
-                f"Check {option_name} or consider using o-flag.",
+                f"Check {option_name} or consider using o-flag or n-flag.",
             ),
         )
     if fs not in local_fs_list:
@@ -397,7 +400,7 @@ def import_local_fs_data(
         aoi,
         out,
         local_data_dir,
-        fs,
+        fs if not no_fs_folder_flag else "",
         [],
         rm_rasters,
         native_res,

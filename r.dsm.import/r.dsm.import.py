@@ -97,10 +97,16 @@
 # % description: For local data import: if no matching local data found, try to access via open data portal
 # %end
 
+# %flag
+# % key: n
+# % description: For local data import: no federal state folder in local_data_dir needed (works only if not for another federal state data should be downloaded)
+# %end
+
 # %rules
 # % requires_all: -k,download_dir
 # % excludes: -r,alignment_raster
 # % requires: -o, local_data_dir
+# % requires: -n, local_data_dir
 # %end
 
 import atexit
@@ -183,6 +189,15 @@ def main():
     # local DSM files
     local_fs_list = get_local_fs_list(local_data_dir)
 
+    # remove federal states when local data dir and n-flag is set
+    if (
+        local_data_dir
+        and local_data_dir != ""
+        and flags["n"]
+        and len(federal_states) > 1
+    ):
+        federal_states = ["all"]
+
     # loop over federal states and import data
     all_dsms = []
     metadata_list = []
@@ -204,6 +219,7 @@ def main():
             ns_res,
             flags["o"],
             alignment_raster,
+            flags["n"],
         )
         if imported_local_data:
             all_dsms.append(out_fs)
