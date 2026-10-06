@@ -323,6 +323,90 @@ def xyz_clip_region_aoi(xyz_raster, output, aoi=None, region=None):
     )
 
 
+def get_local_fs_list(local_data_dir):
+    """Get list of federal state subfolders within local data directory.
+
+    Args:
+        local_data_dir (str): Path to local data directory with federal state
+                              subfolders
+
+    Returns:
+        (list): Names of the federal state subfolders, empty list if no
+                local data directory is given
+
+    """
+    if local_data_dir and local_data_dir != "":
+        return os.listdir(local_data_dir)
+    return []
+
+
+def import_local_fs_data(
+    aoi,
+    out,
+    local_data_dir,
+    local_fs_list,
+    fs,
+    rm_rasters,
+    native_res,
+    ns_res,
+    opendata_flag,
+    alignment_raster=None,
+    option_name="local_data_dir",
+):
+    """Check local data of a federal state and import them if given.
+
+    Args:
+        aoi (str): Vector map with area of interest
+        out (str): Name of the output raster map
+        local_data_dir (str): Path to local data directory with federal state
+                              subfolders
+        local_fs_list (list): Names of the federal state subfolders
+                              (see get_local_fs_list)
+        fs (str): the abbrivation of the federal state
+        rm_rasters (list): List of rasters for cleanup, will be appended
+        native_res (bool): Flag to keep native resolution of imported data
+                           (True, if resolution kept)
+        ns_res (float): Resolution to resample imported raster to
+        opendata_flag (bool): Flag to indicate if data should be downloaded
+                              from Open Data portal if local data dont match
+        alignment_raster (str): If data should be resampled,
+                                raster to align imported data to
+        option_name (str): Name of the module option of the local data
+                           directory (used for error messages)
+
+    Returns:
+        (bool): True if local data were imported, otherwise False
+
+    """
+    if (
+        local_data_dir
+        and local_data_dir != ""
+        and fs not in local_fs_list
+        and not opendata_flag
+    ):
+        grass.fatal(
+            _(
+                f"Missing federal state folder '{fs}' "
+                f"within {option_name}: '{local_data_dir}'. "
+                f"Check {option_name} or consider using o-flag.",
+            ),
+        )
+    if fs not in local_fs_list:
+        return False
+    return import_local_data(
+        aoi,
+        out,
+        local_data_dir,
+        fs,
+        [],
+        rm_rasters,
+        native_res,
+        ns_res,
+        opendata_flag,
+        alignment_raster,
+    )
+
+
 def import_local_data(
     aoi,
     out,
@@ -455,3 +539,27 @@ def import_local_data(
             vrt_to_raster(vrt, out)
 
     return imported_local_data
+
+
+def get_local_file_names(local_data_dir, fs):
+    """Get names of local raster files of a federal state.
+
+    Args:
+        local_data_dir (str): Path to local data directory with federal state
+                              subfolders
+        fs (str): the abbrivation of the federal state
+
+    Returns:
+        (list): Names of the raster files within the federal state subfolder
+
+    """
+    file_names = []
+    local_fs_dir = os.path.join(local_data_dir, fs)
+    if Path(local_fs_dir).exists():
+        for _root, _dirs, files in os.walk(local_fs_dir):
+            file_names.extend(
+                file
+                for file in files
+                if file.lower().endswith((".tif", ".tiff", ".jp2", ".jpeg"))
+            )
+    return file_names
