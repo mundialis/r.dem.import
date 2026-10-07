@@ -211,13 +211,13 @@ def main():
             out_fs,
             local_data_dir,
             local_fs_list,
-            fs,
+            fs if not flags["n"] else "",
             rm_rasters,
             native_res,
             ns_res,
             flags["o"],
-            alignment_raster,
             flags["n"],
+            alignment_raster,
         )
         if imported_local_data:
             all_idsms.append(out_fs)

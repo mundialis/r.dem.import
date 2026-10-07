@@ -124,6 +124,8 @@
 # % excludes: -r,alignment_raster
 # % requires: -o, local_data_dir_ndsm, local_data_dir_idsm, local_data_dir_dsm, local_data_dir_dtm
 # % requires: -n, local_data_dir_ndsm, local_data_dir_idsm, local_data_dir_dsm, local_data_dir_dtm
+# % excludes: local_data_dir_ndsm, local_data_dir_idsm, local_data_dir_dsm, local_data_dir_dtm
+# % exclusive: local_data_dir_idsm, local_data_dir_dsm
 # %end
 
 import atexit
@@ -267,32 +269,25 @@ def main():
     grass.run_command("g.region", save=ORIG_REGION, quiet=True)
     ns_res = grass.region()["nsres"]
 
-    # local nDSM files
+    # local nDSM, iDSM, DSM, DTM files
     local_ndsm_fs_list = get_local_fs_list(local_data_dir_ndsm)
 
-    # local iDSM files
-    if local_data_dir_idsm and local_data_dir_idsm != "":
-        grass.fatal(_("Local iDSM data dir for nDSM is not yet supported."))
-    local_idsm_fs_list = get_local_fs_list(local_data_dir_idsm)
-
-    # local DSM files
-    if local_data_dir_dsm and local_data_dir_dsm != "":
-        grass.fatal(_("Local DSM data dir for nDSM is not yet supported."))
-    local_dsm_fs_list = get_local_fs_list(local_data_dir_dsm)
-
-    # local DTM files
-    if local_data_dir_dtm and local_data_dir_dtm != "":
-        grass.fatal(_("Local DTM data dir for nDSM is not yet supported."))
-    local_dtm_fs_list = get_local_fs_list(local_data_dir_dtm)
-
     # remove federal states when local data dir and n-flag is set
-    if (
-        local_data_dir_ndsm
-        and local_data_dir_ndsm != ""
-        and flags["n"]
-        and len(federal_states) > 1
-    ):
-        federal_states = ["all"]
+    fs_orig = None
+    for local_data_dir in [
+        local_data_dir_ndsm,
+        local_data_dir_idsm,
+        local_data_dir_dsm,
+        local_data_dir_dtm,
+    ]:
+        if (
+            local_data_dir
+            and local_data_dir != ""
+            and flags["n"]
+            and len(federal_states) > 1
+        ):
+            fs_orig = federal_states[0]
+            federal_states = ["all"]
 
     ndsm_list = []
     metadata_list = []
@@ -302,9 +297,9 @@ def main():
         dtm_out = None
         idsm_out = None
         dsm_out = None
-        # check if local data for federal state given and import them
+        # check if local nDSM data for federal state given and import them
         ndsm_out = f"ndsm_{fs}_{ID}"
-        imported_local_data = import_local_fs_data(
+        imported_local_ndsm_data = import_local_fs_data(
             aoi,
             ndsm_out,
             local_data_dir_ndsm,
@@ -320,13 +315,13 @@ def main():
         )
         # If local data import was not succesfull,
         # set back ndsm_out variable
-        if not imported_local_data:
+        if not imported_local_ndsm_data:
             ndsm_out = None
-        # TODO import nDSM via local iDSM/DSM and DTM
-        # elif fs in OPEN_DATA_AVAILABILITY["nDSM"]["NO_OPEN_DATA"]:
-        #     grass.fatal(
-        #         _(f"No local data for {fs} available. Is the path correct?")
-        #     )
+        else:
+            # if nDSM was imported, no further processing needed for this
+            # federal state
+            ndsm_list.append(ndsm_out)
+            continue
 
         # set flags for nDSM, iDSM, DSM and DTM
         import_flags = ""
@@ -337,9 +332,106 @@ def main():
         if flags["n"]:
             import_flags += "n"
 
-        # import not local nDSM data
+        # import local iDSM data
+        imported_local_idsm_data = False
         if (
-            imported_local_data is False
+            ndsm_out is None
+            and local_data_dir_idsm
+            and local_data_dir_idsm != ""
+        ):
+            idsm_out = f"idsm_{fs}_{ID}"
+            idsm_metadata_tmpfile = None
+            if metadata_path:
+                idsm_metadata_tmpfile = grass.tempfile()
+            grass.run_command(
+                "r.idsm.import",
+                aoi=aoi,
+                federal_state=fs_orig or fs,
+                local_data_dir=local_data_dir_idsm,
+                alignment_raster=alignment_raster,
+                output=idsm_out,
+                flags=import_flags,
+                metadata_file=idsm_metadata_tmpfile,
+                quiet=True,
+                overwrite=True,
+            )
+            if not grass.find_file(idsm_out, element="cell")["file"]:
+                idsm_out = None
+            else:
+                imported_local_idsm_data = True
+        # import local DSM data if iDSM data not available
+        imported_local_dsm_data = False
+        if (
+            ndsm_out is None
+            and idsm_out is None
+            and local_data_dir_dsm
+            and local_data_dir_dsm != ""
+        ):
+            dsm_out = f"dsm_{fs}_{ID}"
+            dsm_metadata_tmpfile = None
+            if metadata_path:
+                dsm_metadata_tmpfile = grass.tempfile()
+            grass.run_command(
+                "r.dsm.import",
+                aoi=aoi,
+                federal_state=fs_orig or fs,
+                local_data_dir=local_data_dir_dsm,
+                alignment_raster=alignment_raster,
+                output=dsm_out,
+                flags=import_flags,
+                metadata_file=dsm_metadata_tmpfile,
+                quiet=True,
+                overwrite=True,
+            )
+            if not grass.find_file(dsm_out, element="cell")["file"]:
+                dsm_out = None
+            else:
+                imported_local_dsm_data = True
+        # import local DTM data
+        imported_local_dtm_data = False
+        if (
+            ndsm_out is None
+            and local_data_dir_dtm
+            and local_data_dir_dtm != ""
+        ):
+            dtm_out = f"dtm_{fs}_{ID}"
+            dtm_metadata_tmpfile = None
+            if metadata_path:
+                dtm_metadata_tmpfile = grass.tempfile()
+            grass.run_command(
+                "r.dtm.import",
+                aoi=aoi,
+                federal_state=fs_orig or fs,
+                local_data_dir=local_data_dir_dtm,
+                alignment_raster=alignment_raster,
+                output=dtm_out,
+                flags=import_flags,
+                metadata_file=dtm_metadata_tmpfile,
+                quiet=True,
+                overwrite=True,
+            )
+            if not grass.find_file(dtm_out, element="cell")["file"]:
+                dtm_out = None
+            else:
+                imported_local_dtm_data = True
+
+        # check if nDSM should be imported or computed
+        if (
+            imported_local_ndsm_data is False
+            and imported_local_dtm_data is True
+            and (
+                imported_local_idsm_data is True
+                or imported_local_dsm_data is True
+            )
+        ):
+            grass.message(
+                _(
+                    f"nDSM for {fs} will be computed from imported DTM and "
+                    "DSM/iDSM data.",
+                ),
+            )
+        elif (
+            imported_local_ndsm_data is False
             and fs in OPEN_DATA_AVAILABILITY["nDSM"]["SUPPORTED"]
         ):
             grass.message(_(f"Importing nDSM data for {fs}..."))
@@ -379,14 +471,16 @@ def main():
                         download_urls=ndsm_urls,
                     ),
                 )
+            ndsm_list.append(ndsm_out)
+            # if nDSM was imported, no further processing needed for this
+            # federal state
+            continue
 
-        # import iDSM data
+        # import iDSM data if no local iDSM or DSM data available
         if (
-            imported_local_data is False
-            and (
-                fs in local_idsm_fs_list
-                or fs in OPEN_DATA_AVAILABILITY["iDSM"]["SUPPORTED"]
-            )
+            imported_local_idsm_data is False
+            and imported_local_dsm_data is False
+            and fs in OPEN_DATA_AVAILABILITY["iDSM"]["SUPPORTED"]
         ) and ndsm_out is None:
             grass.message(_(f"Importing iDSM data for {fs}..."))
             idsm_out = f"idsm_{fs}_{ID}"
@@ -440,11 +534,9 @@ def main():
                 rm_rasters.extend(idsm_rasters)
         # import DSM data
         elif (
-            imported_local_data is False
-            and (
-                fs in local_dsm_fs_list
-                or fs in OPEN_DATA_AVAILABILITY["DSM"]["SUPPORTED"]
-            )
+            imported_local_idsm_data is False
+            and imported_local_dsm_data is False
+            and fs in OPEN_DATA_AVAILABILITY["DSM"]["SUPPORTED"]
         ) and ndsm_out is None:
             grass.message(_(f"Importing DSM data for {fs}..."))
             dsm_out = f"dsm_{fs}_{ID}"
@@ -502,11 +594,8 @@ def main():
 
         # import DTM data
         if (
-            imported_local_data is False
-            and (
-                fs in local_dtm_fs_list
-                or fs in OPEN_DATA_AVAILABILITY["DTM"]["SUPPORTED"]
-            )
+            imported_local_dtm_data is False
+            and fs in OPEN_DATA_AVAILABILITY["DTM"]["SUPPORTED"]
         ) and ndsm_out is None:
             grass.message(_(f"Importing DTM data for {fs}..."))
             dtm_out = f"dtm_{fs}_{ID}"

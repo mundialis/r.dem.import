@@ -381,6 +381,8 @@ def import_local_fs_data(
         (bool): True if local data were imported, otherwise False
 
     """
+    if not local_data_dir or local_data_dir == "":
+        return False
     if (
         local_data_dir
         and local_data_dir != ""
@@ -394,7 +396,7 @@ def import_local_fs_data(
                 f"Check {option_name} or consider using o-flag or n-flag.",
             ),
         )
-    if fs not in local_fs_list:
+    if fs not in local_fs_list and not no_fs_folder_flag:
         return False
     return import_local_data(
         aoi,
