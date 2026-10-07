@@ -166,15 +166,21 @@ def main():
         filename = parse_qs(urlparse(url).query)["file"][0]
         filepath = os.path.join(download_dir, filename)
 
-        pathlib.Path(filepath).write_bytes(
-            requests.get(url, timeout=10).content,
-        )
+        resp = requests.get(url, timeout=10, verify=False)
+        if resp.status_code != 200:
+            grass.fatal(
+                _(
+                    f"Could not download DTM file from {url}. HTTP status "
+                    f"code: {resp.status_code}"
+                ),
+            )
+        pathlib.Path(filepath).write_bytes(resp.content)
 
         # clean xyz file
         # SHs download endpoint appends HTML code after xyz file
         # workaround removes non-numeric lines before importing with r.in.xyz
         cleanfile = filepath + ".clean"
-        with pathlib.Path(filepath).open("wb") as fin, pathlib.Path(
+        with pathlib.Path(filepath).open("r") as fin, pathlib.Path(
             cleanfile,
         ).open("w", encoding="utf-8") as fout:
             for line in fin:
