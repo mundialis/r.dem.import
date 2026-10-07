@@ -394,7 +394,7 @@ def import_local_fs_data(
                 f"Check {option_name} or consider using o-flag or n-flag.",
             ),
         )
-    if fs not in local_fs_list:
+    if fs not in local_fs_list and not no_fs_folder_flag:
         return False
     return import_local_data(
         aoi,
