@@ -124,6 +124,8 @@
 # % excludes: -r,alignment_raster
 # % requires: -o, local_data_dir_ndsm, local_data_dir_idsm, local_data_dir_dsm, local_data_dir_dtm
 # % requires: -n, local_data_dir_ndsm, local_data_dir_idsm, local_data_dir_dsm, local_data_dir_dtm
+# % excludes: local_data_dir_ndsm, local_data_dir_idsm, local_data_dir_dsm, local_data_dir_dtm
+# % excludes: local_data_dir_idsm, local_data_dir_dsm
 # %end
 
 import atexit
