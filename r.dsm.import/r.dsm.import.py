@@ -97,15 +97,19 @@
 # % description: For local data import: if no matching local data found, try to access via open data portal
 # %end
 
+# %flag
+# % key: n
+# % description: For local data import: no federal state folder in local_data_dir needed (works only if not for another federal state data should be downloaded)
+# %end
+
 # %rules
 # % requires_all: -k,download_dir
 # % excludes: -r,alignment_raster
 # % requires: -o, local_data_dir
+# % requires: -n, local_data_dir
 # %end
 
 import atexit
-import os
-import pathlib
 import sys
 
 import grass.script as grass
@@ -132,7 +136,9 @@ sys.path.append(path)
 try:
     from r_dem_import_lib import (
         OPEN_DATA_AVAILABILITY,
-        import_local_data,
+        get_local_file_names,
+        get_local_fs_list,
+        import_local_fs_data,
     )
     from r_dem_import_metadata_lib import get_download_urls_and_names
 except Exception as imp_err:
@@ -181,9 +187,16 @@ def main():
     ns_res = grass.region()["nsres"]
 
     # local DSM files
-    local_fs_list = []
-    if local_data_dir and local_data_dir != "":
-        local_fs_list = os.listdir(local_data_dir)
+    local_fs_list = get_local_fs_list(local_data_dir)
+
+    # remove federal states when local data dir and n-flag is set
+    if (
+        local_data_dir
+        and local_data_dir != ""
+        and flags["n"]
+        and len(federal_states) > 1
+    ):
+        federal_states = ["all"]
 
     # loop over federal states and import data
     all_dsms = []
@@ -193,50 +206,26 @@ def main():
         dem_names = []
         dem_urls = []
 
-        # check if local data for federal state given
-        imported_local_data = False
-        if (
-            local_data_dir
-            and local_data_dir != ""
-            and fs not in local_fs_list
-            and not flags["o"]
-        ):
-            grass.fatal(
-                _(
-                    f"Missing federal state folder '{fs}' "
-                    f"within local_data_dir: '{local_data_dir}'. "
-                    "Check local_data_dir or consider using o-flag.",
-                ),
-            )
-        elif fs in local_fs_list:
-            all_dsms_local = []
-            out_fs = f"dsm_{fs}_{ID}"
-            imported_local_data = import_local_data(
-                aoi,
-                out_fs,
-                local_data_dir,
-                fs,
-                all_dsms_local,
-                rm_rasters,
-                native_res,
-                ns_res,
-                flags["o"],
-                alignment_raster,
-            )
-            if imported_local_data:
-                all_dsms.append(out_fs)
-                fs_dem_list = [f"{output}_{fs}"]
-                local_fs_dir = os.path.join(local_data_dir, fs)
-                if pathlib.Path(local_fs_dir).exists():
-                    for _root, _dirs, files in os.walk(local_fs_dir):
-                        dem_names.extend(
-                            file
-                            for file in files
-                            if file.lower().endswith(
-                                (".tif", ".tiff", ".jp2", ".jpeg"),
-                            )
-                        )
-        elif fs in NO_OPEN_DATA:
+        # check if local data for federal state given and import them
+        out_fs = f"dsm_{fs}_{ID}"
+        imported_local_data = import_local_fs_data(
+            aoi,
+            out_fs,
+            local_data_dir,
+            local_fs_list,
+            fs if not flags["n"] else "",
+            rm_rasters,
+            native_res,
+            ns_res,
+            flags["o"],
+            flags["n"],
+            alignment_raster,
+        )
+        if imported_local_data:
+            all_dsms.append(out_fs)
+            fs_dem_list = [f"{output}_{fs}"]
+            dem_names = get_local_file_names(local_data_dir, fs)
+        elif fs not in local_fs_list and fs in NO_OPEN_DATA:
             grass.fatal(
                 _(
                     f"No local data for {fs} available. For the federal state "
