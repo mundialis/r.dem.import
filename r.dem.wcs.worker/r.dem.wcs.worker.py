@@ -97,7 +97,6 @@ import sys
 
 import grass.script as grass
 from grass.pygrass.utils import get_lib_path
-
 from grass_gis_helpers.cleanup import general_cleanup
 from grass_gis_helpers.general import test_memory
 from grass_gis_helpers.location import switch_back_original_location

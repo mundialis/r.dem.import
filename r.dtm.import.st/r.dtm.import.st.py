@@ -81,8 +81,8 @@
 
 import atexit
 import os
-import sys
 import pathlib
+import sys
 
 import grass.script as grass
 from grass.pygrass.modules import Module, ParallelModuleQueue
@@ -105,8 +105,8 @@ if path is None:
 sys.path.append(path)
 try:
     from r_dem_import_lib import (
-        setup_parallel_processing,
         create_grid_and_tiles_list,
+        setup_parallel_processing,
     )
 except Exception as imp_err:
     grass.fatal(f"r.dem.import library could not be imported: {imp_err}")
@@ -142,7 +142,7 @@ def cleanup():
 
 
 def main():
-    """Main function of r.dtm.import.st"""
+    """Main function of r.dtm.import.st."""
     global keep_data, download_dir, rm_vectors
 
     aoi = options["aoi"]
@@ -227,8 +227,7 @@ def main():
     )
 
     # set number of parallel processes to number of tiles
-    if number_tiles < nprocs:
-        nprocs = number_tiles
+    nprocs = min(nprocs, number_tiles)
     queue = ParallelModuleQueue(nprocs=nprocs)
 
     # get GISDBASE and Location
@@ -289,8 +288,9 @@ def main():
                     _(f"\nERROR by processing <{proc.get_bash()}>: {errmsg}"),
                 )
     if metadata_file:
-        with pathlib.Path(metadata_file).open("w", encoding="utf-8") as f:
-            f.write(f"WCS:{WCS_URL}|COVERAGE:{LAYER}\n")
+        pathlib.Path(metadata_file).write_text(
+            f"WCS:{WCS_URL}|COVERAGE:{LAYER}\n", encoding="utf-8"
+        )
 
     # Create vrt and clip to aoi
     tmp_vrt = f"tmp_vrt_{output}_{ID}"
@@ -327,15 +327,6 @@ def main():
         rm_rasters.append(f"{output}_tmp")
 
     grass.message(_(f"DTM raster map <{output}> is created."))
-
-    if metadata_file and url_tiles:
-        try:
-            with pathlib.Path(metadata_file).open("w", encoding="utf-8") as f:
-                for url in url_tiles:
-                    f.write(f"{url}\n")
-            grass.debug("Wrote tile URLs to tempfile")
-        except Exception as e:
-            grass.warning(f"Could not write tempfile metadata: {e}")
 
 
 if __name__ == "__main__":
