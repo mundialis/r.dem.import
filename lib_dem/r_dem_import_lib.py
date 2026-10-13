@@ -143,8 +143,8 @@ def setup_parallel_processing(nprocs):
 
 
 def create_grid_and_tiles_list(
-    ns_res,
-    ew_res,
+    ns_size,
+    ew_size,
     tile_size,
     grid,
     rm_vectors,
@@ -156,8 +156,8 @@ def create_grid_and_tiles_list(
     Also create a list containing tiles which overlap with the aoi.
 
     Args:
-        ns_res (float): Vertical resolution
-        ew_res (float): Horizontal resolution
+        ns_size (float): Vertical extent of aoi
+        ew_size (float): Horizontal extent of aoi
         tile_size (int): Size of grid tiles to create
         grid (str): Name of grid to create
         rm_vectors (list): List of vectors to remove in cleanup
@@ -171,26 +171,26 @@ def create_grid_and_tiles_list(
         tiles_list (list): List of tile names overlapping with aoi
 
     """
-    # check if aoi is smaller than tile size
-    if ns_res <= float(tile_size) and ew_res <= float(tile_size):
+
+    # check if aoi is smaller than tile size and add table / make grid
+    if ns_size <= float(tile_size) and ew_size <= float(tile_size):
         grass.run_command("v.in.region", output=grid, quiet=True)
-        rm_vectors.append(grid)
         grass.run_command(
             "v.db.addtable",
             map=grid,
             columns="cat int",
             quiet=True,
         )
+        rm_vectors.append(grid)
     else:
         grass.run_command("g.region", res=tile_size, flags="a", quiet=True)
-
-        # create grid
         grass.run_command(
             "v.mkgrid",
             map=grid,
             box=f"{tile_size},{tile_size}",
             quiet=True,
         )
+        rm_vectors.append(grid)
         # reset region
         grass.run_command("g.region", vector=aoi)
 
@@ -276,6 +276,7 @@ def import_dem_from_wcs(
                 output=raster_name,
                 coverage=layer_name,
                 overwrite=True,
+                quiet=True,
             )
             trydownload = False
         except Exception:

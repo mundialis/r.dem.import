@@ -93,6 +93,7 @@ from grass_gis_helpers.open_geodata_germany.download_data import (
 )
 from grass_gis_helpers.raster import (
     adjust_raster_resolution,
+    clip_raster,
     create_vrt,
     vrt_to_raster,
 )
@@ -199,19 +200,24 @@ def main():
             quiet=True,
         )
 
+    # get size of aoi from region extent
+    aoi_ext = grass.region()
+    ns_size = aoi_ext["n"] - aoi_ext["s"]
+    ew_size = aoi_ext["e"] - aoi_ext["w"]
+
     # create grid for downloading
     grass.message(_("Creating DTM tiles for ST..."))
 
     # set tile size in map units (meter)
-    tile_size = 500
+    tile_size = 1000
 
     # set grid name
     grid = f"tmp_grid_ST_{ID}"
 
     # create grid with lib function
     rm_vectors, number_tiles, tiles_list = create_grid_and_tiles_list(
-        ns_res,
-        ns_res,
+        ns_size,
+        ew_size,
         tile_size,
         grid,
         rm_vectors,
@@ -286,11 +292,14 @@ def main():
         with pathlib.Path(metadata_file).open("w", encoding="utf-8") as f:
             f.write(f"WCS:{WCS_URL}|COVERAGE:{LAYER}\n")
 
-    # Create vrt
+    # Create vrt and clip to aoi
+    tmp_vrt = f"tmp_vrt_{output}_{ID}"
     vrt = f"vrt_{output}_{ID}"
     rm_rasters.append(vrt)
+    rm_rasters.append(tmp_vrt)
     rm_rasters.extend([r.split("@")[0] for r in create_vrt_list])
-    create_vrt(create_vrt_list, vrt)
+    create_vrt(create_vrt_list, tmp_vrt)
+    clip_raster(tmp_vrt, vrt, aoi=aoi, region=None)
 
     # resample / interpolate whole VRT (because interpolating single files leads
     # to empty rows and columns)
@@ -317,9 +326,7 @@ def main():
         vrt_to_raster(vrt, output)
         rm_rasters.append(f"{output}_tmp")
 
-    # grass.message(_(f"DTM raster map <{output}> is created."))
-
-    grass.message(_(f"Generated following raster maps: {output}"))
+    grass.message(_(f"DTM raster map <{output}> is created."))
 
     if metadata_file and url_tiles:
         try:
