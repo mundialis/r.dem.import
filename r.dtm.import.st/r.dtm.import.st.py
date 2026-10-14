@@ -289,7 +289,8 @@ def main():
                 )
     if metadata_file:
         pathlib.Path(metadata_file).write_text(
-            f"WCS:{WCS_URL}|COVERAGE:{LAYER}\n", encoding="utf-8",
+            f"WCS:{WCS_URL}|COVERAGE:{LAYER}\n",
+            encoding="utf-8",
         )
 
     # Create vrt and clip to aoi
