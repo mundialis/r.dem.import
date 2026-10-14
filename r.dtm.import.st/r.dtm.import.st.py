@@ -312,7 +312,7 @@ def main():
             quiet=True,
         )
         grass.message(
-            _(f"DTM raster <{output}> is created and saved to {download_dir}")
+            _(f"DTM raster <{output}> is created and saved to {download_dir}"),
         )
     else:
         grass.message(_(f"DTM raster map <{output}> is created."))
