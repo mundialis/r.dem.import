@@ -171,7 +171,7 @@ def main():
             resp.raise_for_status()
         except requests.RequestException as e:
             grass.fatal(
-                _("Could not download DTM file from {}: {}").format(url, e)
+                _("Could not download DTM file from {}: {}").format(url, e),
             )
 
         pathlib.Path(filepath).write_bytes(resp.content)
@@ -181,8 +181,8 @@ def main():
         # workaround removes non-numeric lines before importing with r.in.xyz
         cleanfile = filepath + ".clean"
         with pathlib.Path(filepath).open(
-            "r", encoding="utf-8"
-        ) as fin, pathlib.Path(cleanfile,).open("w", encoding="utf-8") as fout:
+            "r", encoding="utf-8",
+        ) as fin, pathlib.Path(cleanfile).open("w", encoding="utf-8") as fout:
             for line in fin:
                 if line.startswith("<!DOCTYPE"):
                     break
