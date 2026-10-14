@@ -32,8 +32,6 @@ OPEN_DATA_AVAILABILITY = {
     "DTM": {
         "NO_OPEN_DATA": ["BW", "BY"],
         "NOT_YET_SUPPORTED": [
-            # available data
-            "ST",
             # no data available
             "SL",
         ],
@@ -49,6 +47,7 @@ OPEN_DATA_AVAILABILITY = {
             "RP",
             "SH",
             "SN",
+            "ST",
             "TH",
         ],
     },
@@ -144,8 +143,8 @@ def setup_parallel_processing(nprocs):
 
 
 def create_grid_and_tiles_list(
-    ns_res,
-    ew_res,
+    ns_size,
+    ew_size,
     tile_size,
     grid,
     rm_vectors,
@@ -157,8 +156,8 @@ def create_grid_and_tiles_list(
     Also create a list containing tiles which overlap with the aoi.
 
     Args:
-        ns_res (float): Vertical resolution
-        ew_res (float): Horizontal resolution
+        ns_size (float): Vertical extent of aoi
+        ew_size (float): Horizontal extent of aoi
         tile_size (int): Size of grid tiles to create
         grid (str): Name of grid to create
         rm_vectors (list): List of vectors to remove in cleanup
@@ -172,26 +171,26 @@ def create_grid_and_tiles_list(
         tiles_list (list): List of tile names overlapping with aoi
 
     """
-    # check if aoi is smaller than tile size
-    if ns_res <= float(tile_size) and ew_res <= float(tile_size):
+
+    # check if aoi is smaller than tile size and add table / make grid
+    if ns_size <= float(tile_size) and ew_size <= float(tile_size):
         grass.run_command("v.in.region", output=grid, quiet=True)
-        rm_vectors.append(grid)
         grass.run_command(
             "v.db.addtable",
             map=grid,
             columns="cat int",
             quiet=True,
         )
+        rm_vectors.append(grid)
     else:
         grass.run_command("g.region", res=tile_size, flags="a", quiet=True)
-
-        # create grid
         grass.run_command(
             "v.mkgrid",
             map=grid,
             box=f"{tile_size},{tile_size}",
             quiet=True,
         )
+        rm_vectors.append(grid)
         # reset region
         grass.run_command("g.region", vector=aoi)
 
@@ -238,26 +237,24 @@ def create_grid_and_tiles_list(
     return rm_vectors, number_tiles, tiles_list
 
 
-def import_dem_from_wms(
+def import_dem_from_wcs(
     tile_key,
     raster_name,
     tile_url,
     resolution_to_import,
     layer_name,
     native_res,
-    data_format="tiff",
     retries=10,
 ):
-    """Import DEMs from WMS.
+    """Import DEMs from WCS.
 
     Args:
         tile_key (str): Key of current tile
         raster_name (str): Name of resulting raster
-        tile_url (str): WMS URLs to get DEMs
+        tile_url (str): WCS URLs to get DEMs
         resolution_to_import (float): Resolution to resample imported raster to
-        layer_name (str): Name of WMS Layer
+        layer_name (str): Name of WCS coverage
         native_res (bool): Keep native DEM resolution
-        data_format (str): Format of data to import
         retries (int): Set how often function is retried.
     """
 
@@ -267,23 +264,23 @@ def import_dem_from_wms(
         grass.run_command("g.region", res=resolution_to_import, flags="a")
     tile_key = tile_key.split("@")[0]
 
-    # import wms data and retry download if wms fails
+    # import wcs data and retry download if wcs fails
     trydownload = True
     count = 0
     while trydownload:
         try:
             count += 1
             grass.run_command(
-                "r.in.wms",
+                "r.in.wcs",
                 url=tile_url,
                 output=raster_name,
-                layer=layer_name,
-                format=data_format,
+                coverage=layer_name,
                 overwrite=True,
+                quiet=True,
             )
             trydownload = False
         except Exception:
-            # remove maps where wms download failed
+            # remove maps where wcs download failed
             grass.run_command(
                 "g.remove",
                 type="raster",
@@ -291,7 +288,7 @@ def import_dem_from_wms(
                 flags="f",
             )
             grass.message(_("Retry download..."))
-            if count > retries:
+            if count > (retries / 2):
                 grass.fatal(f"Download of {tile_url} not working.")
             sleep(10)
 
