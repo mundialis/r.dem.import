@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD041 -->
 ## DESCRIPTION
 
-*r.dem.wcs.worker* is used within *r.dem.import* to import the DEMs in parallel.
+*r.dem.wcs.worker* is used within *r.dem.import* to import DEMs from WCS in parallel.
 
 ## SEE ALSO
 

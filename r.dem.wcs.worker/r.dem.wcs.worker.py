@@ -77,15 +77,6 @@
 # % description: Name of raster output
 # %end
 
-# %option G_OPT_MEMORYMB
-# % description: Memory which is used by all processes (it is divided by nprocs for each single parallel process)
-# %end
-
-# %flag
-# % key: k
-# % label: Keep downloaded data in the download directory
-# %end
-
 # %flag
 # % key: r
 # % description: Use native DEM resolution
@@ -98,7 +89,6 @@ import sys
 import grass.script as grass
 from grass.pygrass.utils import get_lib_path
 from grass_gis_helpers.cleanup import general_cleanup
-from grass_gis_helpers.general import test_memory
 from grass_gis_helpers.location import switch_back_original_location
 from grass_gis_helpers.mapset import switch_to_new_mapset
 
@@ -153,9 +143,6 @@ def main():
     if "NPROCS" in gisenv:
         original_nprocs = int(gisenv["NPROCS"])
     grass.run_command("g.gisenv", set="NPROCS=1")
-
-    # set memory to input if possible
-    options["memory"] = test_memory(options["memory"])
 
     # output resolution
     if not flags["r"] and not options["resolution_to_import"]:

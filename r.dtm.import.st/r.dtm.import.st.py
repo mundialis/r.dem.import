@@ -3,7 +3,7 @@
 ############################################################################
 #
 # MODULE:      r.dtm.import.st
-# AUTHOR(S):   Kim Kaiser, Veronica Koess, Anika Weinmann
+# AUTHOR(S):   Kim Kaiser, Veronica Koess, Anika Weinmann, Leon Louwarts
 # PURPOSE:     Downloads DTM for Sachsen-Anhalt
 # SPDX-FileCopyrightText: (c) 2026 by mundialis GmbH & Co. KG and the
 #                             GRASS Development Team
@@ -59,9 +59,6 @@
 # % type: string
 # % required: no
 # % description: Temporary file for metadata URLs
-# %end
-
-# %option G_OPT_MEMORYMB
 # %end
 
 # %flag
@@ -120,7 +117,6 @@ CURRENT_WORKING_DIR = pathlib.Path.cwd()
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
 
-keep_data = False
 download_dir = None
 rm_vectors = []
 rm_rasters = []
@@ -130,7 +126,7 @@ rm_dirs = []
 def cleanup():
     """Cleaning up function."""
     os.chdir(CURRENT_WORKING_DIR)
-    if not keep_data and download_dir:
+    if not download_dir:
         rm_dirs.append(download_dir)
     general_cleanup(
         orig_region=ORIG_REGION,
@@ -143,7 +139,7 @@ def cleanup():
 
 def main():
     """Main function of r.dtm.import.st."""
-    global keep_data, download_dir, rm_vectors
+    global download_dir, rm_vectors
 
     aoi = options["aoi"]
     download_dir = check_download_dir(options["download_dir"])
@@ -153,29 +149,7 @@ def main():
     nprocs = setup_parallel_processing(nprocs)
     output = options["output"]
     fs = "ST"
-    keep_data = flags["k"]
     native_res = flags["r"]
-
-    # print warning that memory will be ignored
-    # (no memory parameter in worker module)
-    if options["memory"]:
-        grass.warning(
-            _(
-                "<memory> parameter will be ignored, because the worker "
-                "module for DEMs does not accept a <memory> parameter.",
-            ),
-        )
-
-    # if -k flag is set print warning that it will be ignored because
-    # the data will be directly imported into GRASS from WCS
-    if flags["k"]:
-        grass.warning(
-            _(
-                "-k flag will be ignored, beacuse ST DEMs will be imported "
-                "directly from WCS into GRASS. Use r.out.gdal module to "
-                "export DTMs into download directory!",
-            ),
-        )
 
     # save original region
     grass.run_command("g.region", save=ORIG_REGION, quiet=True)
@@ -327,7 +301,21 @@ def main():
         vrt_to_raster(vrt, output)
         rm_rasters.append(f"{output}_tmp")
 
-    grass.message(_(f"DTM raster map <{output}> is created."))
+    # save raster as GeoTiff to download_dir
+    if flags["k"]:
+        os.chdir(download_dir)
+        grass.run_command(
+            "r.out.gdal",
+            input=output,
+            output=(f"{output}.tif"),
+            format="GTiff",
+            quiet=True,
+        )
+        grass.message(
+            _(f"DTM raster <{output}> is created and saved to {download_dir}")
+        )
+    else:
+        grass.message(_(f"DTM raster map <{output}> is created."))
 
 
 if __name__ == "__main__":
