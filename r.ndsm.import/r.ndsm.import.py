@@ -149,7 +149,7 @@ from grass_gis_helpers.open_geodata_germany.metadata import (
     get_license_and_url_from_addon,
     write_metadata_markdown,
 )
-from grass_gis_helpers.raster import create_vrt
+from grass_gis_helpers.raster import clip_raster, create_vrt
 
 # import module library
 path = get_lib_path(modname="r.dem.import")
@@ -233,13 +233,19 @@ def check_completeness_of_ndsm(aoi, ndsm):
         map=check_output,
         flags="g",
     )
-    if "nan" in check_output_univar["mean"]:
+    check_output_univar_mask = grass.parse_command(
+        "r.univar",
+        map="MASK",
+        flags="g",
+    )
+    if int(check_output_univar["sum"]) != int(check_output_univar_mask["sum"]):
         grass.fatal(
             _(
                 "Null cells contained within ndsm. Check if ndsm is imported "
                 "for complete aoi/region.",
             ),
         )
+    grass.run_command("r.mask", flags="r", quiet=True)
 
 
 def get_addon_name(fs):
@@ -656,7 +662,14 @@ def main():
     # Patch nDSMs of different federal states
     # (keep as VRT. Federal states nDSMs itself are no VRTs)
     if len(ndsm_list) > 0:
-        create_vrt(ndsm_list, output)
+        vrt = f"ndsm_vrt_{ID}"
+        rm_rasters.append(vrt)
+        create_vrt(ndsm_list, vrt)
+        # clipping to aoi if given, otherwise to original region
+        if aoi:
+            clip_raster(vrt, output, aoi=aoi)
+        else:
+            clip_raster(vrt, output, region=ORIG_REGION)
         # check result for completeness
         check_completeness_of_ndsm(aoi, output)
     else:

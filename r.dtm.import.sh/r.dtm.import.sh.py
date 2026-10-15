@@ -171,7 +171,7 @@ def main():
             grass.fatal(
                 _(
                     f"Could not download DTM file from {url}. HTTP status "
-                    f"code: {resp.status_code}"
+                    f"code: {resp.status_code}",
                 ),
             )
         pathlib.Path(filepath).write_bytes(resp.content)
@@ -180,7 +180,7 @@ def main():
         # SHs download endpoint appends HTML code after xyz file
         # workaround removes non-numeric lines before importing with r.in.xyz
         cleanfile = filepath + ".clean"
-        with pathlib.Path(filepath).open("r") as fin, pathlib.Path(
+        with pathlib.Path(filepath).open("r", encoding="utf-8") as fin, pathlib.Path(
             cleanfile,
         ).open("w", encoding="utf-8") as fout:
             for line in fin:
