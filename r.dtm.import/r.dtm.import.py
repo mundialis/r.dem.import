@@ -305,7 +305,6 @@ def main():
                 metadata_list.append(fs_metadata)
 
     # Patch DTMs of different federal states
-    # (keep as VRT. Federal states DTMs itself are no VRTs)
     vrt = f"dtm_vrt_{ID}"
     rm_rasters.append(vrt)
     create_vrt(all_dtms, vrt)
@@ -314,6 +313,7 @@ def main():
         clip_raster(vrt, output, aoi=aoi)
     else:
         clip_raster(vrt, output, region=ORIG_REGION)
+    rm_rasters.extend(all_dtms)
     grass.message(_(f"DTM raster map <{output}> is created."))
 
     # Write metadata file if metadata_path was set

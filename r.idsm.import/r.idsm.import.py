@@ -293,7 +293,6 @@ def main():
                 metadata_list.append(fs_metadata)
 
     # Patch iDSMs of different federal states
-    # (keep as VRT. Federal states iDSMs itself are no VRTs)
     vrt = f"idsm_vrt_{ID}"
     rm_rasters.append(vrt)
     create_vrt(all_idsms, vrt)
@@ -302,6 +301,7 @@ def main():
         clip_raster(vrt, output, aoi=aoi)
     else:
         clip_raster(vrt, output, region=ORIG_REGION)
+    rm_rasters.extend(all_idsms)
     grass.message(_(f"iDSM raster map <{output}> is created."))
 
     # Write metadata file if metadata_path was set

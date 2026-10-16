@@ -660,7 +660,6 @@ def main():
         ndsm_list.append(ndsm_out)
 
     # Patch nDSMs of different federal states
-    # (keep as VRT. Federal states nDSMs itself are no VRTs)
     if len(ndsm_list) > 0:
         vrt = f"ndsm_vrt_{ID}"
         rm_rasters.append(vrt)
@@ -670,6 +669,7 @@ def main():
             clip_raster(vrt, output, aoi=aoi)
         else:
             clip_raster(vrt, output, region=ORIG_REGION)
+        rm_rasters.extend(ndsm_list)
         # check result for completeness
         check_completeness_of_ndsm(aoi, output)
     else:
