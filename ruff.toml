@@ -45,6 +45,7 @@ lint.ignore = [
     "PTH208",   # Use `pathlib.Path.iterdir()` instead
     "RUF012",   # mutable-class-default
     "S112",     # `try`-`except`-`continue` detected, consider logging the exception
+    "S501",     # request-with-no-cert-validation
 ]
 
 [lint.per-file-ignores]

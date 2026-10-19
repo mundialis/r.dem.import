@@ -171,7 +171,10 @@ def main():
             resp.raise_for_status()
         except requests.RequestException as e:
             grass.fatal(
-                _("Could not download DTM file from {}: {}").format(url, e),
+                _(
+                    f"Could not download DTM file from {url}. HTTP status "
+                    f"code: {resp.status_code}",
+                ),
             )
 
         pathlib.Path(filepath).write_bytes(resp.content)
