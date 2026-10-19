@@ -15,4 +15,3 @@ $(PGM).html: $(PGM).md
 	pandoc -f markdown+hard_line_breaks -t html $(PGM).md -o $(PGM).html
 	sed -i 's+<br />+<br>+g' $(PGM).html
 	sed -i 's+"image-alt" />+"image-alt">+g' $(PGM).html
-
