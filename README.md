@@ -40,7 +40,7 @@ Examples for the use of this toolset are provided in each module
 | Rheinland-Pfalz | RP | ☑ | n.a. | ☑ | via iDSM & DTM | DTM <br> iDSM | DTM: 1m <br> iDSM: 0.2m | [Geoportal](https://www.geoportal.rlp.de/) |
 | Saarland | SL | | | n.a. | | | | [Geoportal](https://geoportal.saarland.de/) |
 | Sachsen | SN | ☑ | ☑ | n.a. | via DSM & DTM | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Open Geodata](https://www.geodaten.sachsen.de/downloadbereich-digitale-hoehenmodelle-4851.html) |
-| Sachsen-Anhalt | ST | | | | | | | [Geoportal](https://www.lvermgeo.sachsen-anhalt.de/de/gdp-open-data.html) <br> [iDSM](https://www.lvermgeo.sachsen-anhalt.de/de/gdp-bdom20.html) |
+| Sachsen-Anhalt | ST | ☑ | | | | via WCS | DTM: 1m | [Geoportal](https://www.lvermgeo.sachsen-anhalt.de/de/gdp-open-data.html) <br> [iDSM](https://www.lvermgeo.sachsen-anhalt.de/de/gdp-bdom20.html) |
 | Schleswig-Holstein | SH | ☑ | n.a. | ☑ | via iDSM & DTM | DTM <br> iDSM | DTM: 1m <br> iDSM: 0.2m | [Geoportal](https://geodaten.schleswig-holstein.de/gaialight-sh/_apps/dladownload/) |
 | Thüringen | TH | ☑ | ☑ | n.a. | via DSM & DTM | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Geoportal](https://geoportal.thueringen.de/gdi-th/download-offene-geodaten/download-hoehendaten) |
 

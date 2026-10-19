@@ -14,6 +14,7 @@
 - [Rheinland-Pfalz (RP)](r.dtm.import.rp.md)
 - [Schleswig-Holstein](r.dtm.import.sh.md)
 - [Sachsen (SN)](r.dtm.import.sn.md)
+- [Sachsen-Anhalt (ST)](r.dtm.import.st.md)
 - [Thüringen (TH)](r.dtm.import.th.md)
 
 For local data import the parameter **local_data_dir** has to be given and the folder structure has to be as follows:
