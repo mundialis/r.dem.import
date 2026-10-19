@@ -126,7 +126,7 @@ from grass_gis_helpers.open_geodata_germany.metadata import (
     get_license_and_url_from_addon,
     write_metadata_markdown,
 )
-from grass_gis_helpers.raster import create_vrt
+from grass_gis_helpers.raster import clip_raster, create_vrt
 
 # import module library
 path = get_lib_path(modname="r.dem.import")
@@ -308,8 +308,15 @@ def main():
                 metadata_list.append(fs_metadata)
 
     # Patch DSMs of different federal states
-    # (keep as VRT. Federal states DSMs itself are no VRTs)
-    create_vrt(all_dsms, output)
+    vrt = f"dsm_vrt_{ID}"
+    rm_rasters.append(vrt)
+    create_vrt(all_dsms, vrt)
+    # clipping to aoi if given, otherwise to original region
+    if aoi:
+        clip_raster(vrt, output, aoi=aoi)
+    else:
+        clip_raster(vrt, output, region=ORIG_REGION)
+    rm_rasters.extend(all_dsms)
     grass.message(_(f"DSM raster map <{output}> is created."))
 
     # Write metadata file if metadata_path was set
