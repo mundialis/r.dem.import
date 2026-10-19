@@ -151,6 +151,17 @@ def main():
     fs = "ST"
     native_res = flags["r"]
 
+    # if -k flag is set print warning that the raster will be exported
+    # afterwards, since the data ist directly imported from WCS.
+    if flags["k"]:
+        grass.warning(
+            _(
+                "With -k flag set, data will be exported into download"
+                "directory using r.out.gdal. ST DTMs will be imported directly"
+                "from WCS into GRASS.",
+            ),
+        )
+
     # save original region
     grass.run_command("g.region", save=ORIG_REGION, quiet=True)
 
@@ -301,7 +312,8 @@ def main():
         vrt_to_raster(vrt, output)
         rm_rasters.append(f"{output}_tmp")
 
-    # save raster as GeoTiff to download_dir
+    # if -k klag ist set, save raster as GeoTiff to download_dir.
+    # directory will be changed back in cleanup.
     if flags["k"]:
         os.chdir(download_dir)
         grass.run_command(
@@ -312,7 +324,7 @@ def main():
             quiet=True,
         )
         grass.message(
-            _(f"DTM raster <{output}> is created and saved to {download_dir}")
+            _(f"DTM raster <{output}> is created and saved to {download_dir}"),
         )
     else:
         grass.message(_(f"DTM raster map <{output}> is created."))
