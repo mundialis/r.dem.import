@@ -1,1 +1,6 @@
 **/test_keyvalue_result.txt
+
+.pylintrc
+.pylintrc_allowed_to_fail
+ruff-github-workflows.toml
+ruff-merged.toml
