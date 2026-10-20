@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD041 -->
 ## DESCRIPTION
 
-*r.dsm.import.st* downloads and imports [digital terrain model (DSM, in German DOM)](https://www.lvermgeo.sachsen-anhalt.de/de/gdp-dom-bdom-lsa.html) for Sachsen-Anhalt (ST) and area of interest.  
+*r.dsm.import.st* downloads and imports [digital surface model (DSM, in German DOM)](https://www.lvermgeo.sachsen-anhalt.de/de/gdp-dom-bdom-lsa.html) for Sachsen-Anhalt (ST) and area of interest.  
 The data can be used when referencing the source:  
 id: dl-by-de/2.0,  
 name: Datenlizenz Deutschland Namensnennung 2.0,  
