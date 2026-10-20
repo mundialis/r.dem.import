@@ -14,6 +14,7 @@ per-file-ignores =
     ./r.dsm.import.he/r.dsm.import.he.py:E501,F821
     ./r.dsm.import.ni/r.dsm.import.ni.py:E501,F821
     ./r.dsm.import.sn/r.dsm.import.sn.py:E501,F821
+    ./r.dsm.import.st/r.dsm.import.st.py:E501,F821
     ./r.dsm.import.th/r.dsm.import.th.py:E501,F821
     ./r.dsm.import/r.dsm.import.py:E501,F821
     ./r.idsm.import/r.idsm.import.py:E501,F821
