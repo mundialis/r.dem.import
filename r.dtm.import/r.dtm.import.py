@@ -66,6 +66,16 @@
 # %end
 
 # %option
+# % key: nprocs
+# % type: integer
+# % required: no
+# % multiple: no
+# % label: Number of parallel processes
+# % description: Number of cores for multiprocessing, -2 is the number of available cores - 1
+# % answer: -2
+# %end
+
+# %option
 # % key: metadata
 # % type: string
 # % required: no
@@ -184,14 +194,12 @@ def main():
     nprocs = setup_parallel_processing(nprocs)
 
     # nprocs are only used for parallel processing WCS data import.
-    custom_nprocs = any(arg.startswith("nprocs=") for arg in sys.argv)
-    if custom_nprocs:
-        grass.warning(
-            _(
-                "The option 'nprocs' is only available for addons using the "
-                "r.dem.import.worker. Currently available for: ST",
-            ),
-        )
+    grass.warning(
+        _(
+            "The option 'nprocs' is only used for addons using the "
+            "r.dem.wcs.worker.",
+        ),
+    )
 
     # save original region
     grass.run_command("g.region", save=ORIG_REGION, quiet=True)
