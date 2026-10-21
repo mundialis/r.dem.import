@@ -12,6 +12,7 @@ Alternatively, local data can be imported. Implemented federal state options are
 - [Hamburg (HH)](r.dsm.import.hh.md)
 - [Hessen (HE)](r.dsm.import.he.md)
 - [Sachsen (SN)](r.dsm.import.sn.md)
+- [Sachsen-Anhalt (ST)](r.dsm.import.st.md)
 - [Thüringen (TH)](r.dsm.import.th.md)
 
 For local data import the parameter **local_data_dir** has to be given and the folder structure has to be as follows:

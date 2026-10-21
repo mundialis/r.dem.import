@@ -32,7 +32,7 @@
 # % type: string
 # % multiple: yes
 # % required: no
-# % options: Berlin,BE,Baden-Württemberg,BW,Bayern,BY,Brandenburg,BB,Hamburg,HB,Bremen,HH,Hessen,HE,NI,Niedersachsen,Sachsen,SN,Thüringen,TH
+# % options: Berlin,BE,Baden-Württemberg,BW,Bayern,BY,Brandenburg,BB,Hamburg,HB,Bremen,HH,Hessen,HE,NI,Niedersachsen,Sachsen-Anhalt,ST,Sachsen,SN,Thüringen,TH
 # % description: Federal state(s) related to the area of interest e.g.:"Nordrhein-Westfalen"
 # %end
 
@@ -64,6 +64,16 @@
 
 # %option G_OPT_R_OUTPUT
 # % description: Name for output raster map
+# %end
+
+# %option
+# % key: nprocs
+# % type: integer
+# % required: no
+# % multiple: no
+# % label: Number of parallel processes
+# % description: Number of cores for multiprocessing, -2 is the number of available cores - 1
+# % answer: -2
 # %end
 
 # %option
@@ -139,6 +149,7 @@ try:
         get_local_file_names,
         get_local_fs_list,
         import_local_fs_data,
+        setup_parallel_processing,
     )
     from r_dem_import_metadata_lib import get_download_urls_and_names
 except Exception as imp_err:
@@ -181,6 +192,16 @@ def main():
     metadata_path = options["metadata"]
     keep_data = flags["k"]
     native_res = flags["r"]
+    nprocs = int(options["nprocs"])
+    nprocs = setup_parallel_processing(nprocs)
+
+    # nprocs are only used for parallel processing WCS data import.
+    grass.warning(
+        _(
+            "The option 'nprocs' is only used for addons using the "
+            "r.dem.wcs.worker.",
+        ),
+    )
 
     # save original region
     grass.run_command("g.region", save=ORIG_REGION, quiet=True)

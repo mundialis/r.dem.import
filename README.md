@@ -34,13 +34,13 @@ Examples for the use of this toolset are provided in each module
 | Bremen | HB | ☑ | ☑ | n.a. | via DSM & DTM | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Geoportal](https://geoportal.bremen.de/geoportal/#) |
 | Hamburg | HH | ☑ | n.a. | ☑ | via iDSM & DTM | DTM <br> iDSM | DTM: 1m <br> iDSM: 1m | [Geoportal](https://geoportal-hamburg.de/) |
 | Hessen | HE | Bug | Bug | | | | | [Geoportal](/https://www.geoportal.hessen.de/search/) |
-| Mecklenburg-Vorpommern | MV | ☑ | | ☑ | | DTM <br> iDSM | DTM: 1m <br> iDSM: 0.2m | [Geoportal](https://laiv.geodaten-mv.de/afgvk/) <br> [iDSM](https://laiv.geodaten-mv.de/afgvk/Geotopographie/Download?produkt=BDOM20) |
+| Mecklenburg-Vorpommern | MV | ☑ | | ☑ | via iDSM & DTM | DTM <br> iDSM | DTM: 1m <br> iDSM: 0.2m | [Geoportal](https://laiv.geodaten-mv.de/afgvk/) <br> [iDSM](https://laiv.geodaten-mv.de/afgvk/Geotopographie/Download?produkt=BDOM20) |
 | Niedersachsen | NI | ☑ | ☑ | | via DSM & DTM | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Open GeoData](https://ni-lgln-opengeodata.hub.arcgis.com/) <br> [iDSM](https://ni-lgln-opengeodata.hub.arcgis.com/apps/lgln-opengeodata::bildbasiertes-digitales-oberfl%C3%A4chenmodell-bdom20/about) |
 | Nordrhein-Westfalen | NW | ☑ | n.a. | ☑ | ☑ | DTM <br> nDSM <br> iDSM | DTM: 1m <br> nDSM: 0.5m <br> iDSM: 0.5m | [Open GeoData](https://www.opengeodata.nrw.de/produkte/geobasis/hm/) |
 | Rheinland-Pfalz | RP | ☑ | n.a. | ☑ | via iDSM & DTM | DTM <br> iDSM | DTM: 1m <br> iDSM: 0.2m | [Geoportal](https://www.geoportal.rlp.de/) |
 | Saarland | SL | | | n.a. | | | | [Geoportal](https://geoportal.saarland.de/) |
 | Sachsen | SN | ☑ | ☑ | n.a. | via DSM & DTM | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Open Geodata](https://www.geodaten.sachsen.de/downloadbereich-digitale-hoehenmodelle-4851.html) |
-| Sachsen-Anhalt | ST | ☑ | | | | via WCS | DTM: 1m | [Geoportal](https://www.lvermgeo.sachsen-anhalt.de/de/gdp-open-data.html) <br> [iDSM](https://www.lvermgeo.sachsen-anhalt.de/de/gdp-bdom20.html) |
+| Sachsen-Anhalt | ST | ☑ | ☑ | | via DSM & DTM | via WCS | DTM: 1m <br> DSM: 1m | [Geoportal](https://www.lvermgeo.sachsen-anhalt.de/de/gdp-open-data.html) <br> [iDSM](https://www.lvermgeo.sachsen-anhalt.de/de/gdp-bdom20.html) |
 | Schleswig-Holstein | SH | ☑ | n.a. | ☑ | via iDSM & DTM | DTM <br> iDSM | DTM: 1m <br> iDSM: 0.2m | [Geoportal](https://geodaten.schleswig-holstein.de/gaialight-sh/_apps/dladownload/) |
 | Thüringen | TH | ☑ | ☑ | n.a. | via DSM & DTM | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Geoportal](https://geoportal.thueringen.de/gdi-th/download-offene-geodaten/download-hoehendaten) |
 
