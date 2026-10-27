@@ -153,6 +153,10 @@ def main():
     fs = "BW"
     native_res = flags["r"]
 
+    # During import, the WCS metadata fails to hand over the CRS correctly,
+    # which can be corrected by setting the GTIFF_SRS_SOURCE configuration
+    # option to EPSG to use official parameters (overriding the ones from
+    # GeoTIFF keys)
     os.environ["GTIFF_SRS_SOURCE"] = "EPSG"
 
     # if -k flag is set print warning that the raster will be exported
