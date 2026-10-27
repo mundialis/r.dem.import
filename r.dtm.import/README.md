@@ -3,10 +3,10 @@
 
 *r.dtm.import* downloads and imports digital terrain models (DTM, in German DGM) for specified federal state and area of interest. Alternatively, local data can be imported. Implemented federal state options are:  
 
-- Baden-Württemberg (BW): only local data import
 - Bayern (BY): only local data import
 - [Brandenburg (BB)](r.dtm.import.bb.md)
 - [Berlin (BE)](r.dtm.import.be.md)
+- [Baden-Württemberg (BW)](r.dtm.import.bw.md)
 - [Hamburg (HH)](r.dtm.import.hh.md)
 - [Hessen (HE)](r.dtm.import.he.md)
 - [Mecklenburg-Vorpommern (MV)](r.dtm.import.mv.md)

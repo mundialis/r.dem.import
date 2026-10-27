@@ -27,7 +27,7 @@ Examples for the use of this toolset are provided in each module
 
 | Federal state | fs | DTM | DSM | iDSM | nDSM | Tile-Index | Resolution | Data Source |
 | - | - | - | - | - | - | - | - | - |
-| Baden-Württemberg | BW | | | n.a. | | | | [Open GeoData](https://opengeodata.lgl-bw.de/#/) |
+| Baden-Württemberg | BW | ☑ | | n.a. | | via WCS | DTM: 1m | [Open GeoData](https://opengeodata.lgl-bw.de/#/) |
 | Bayern | BY | | n.a. | | | | | [Open GeoData](https://geodaten.bayern.de/opengeodata/) <br> [iDSM](https://geodaten.bayern.de/opengeodata/OpenDataDetail.html?pn=dom20) |
 | Berlin | BE | ☑ | ☑ | | via DSM & DTM | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Geoportal](https://gdi.berlin.de/) <br> [iDSM](https://gdi.berlin.de/geonetwork/srv/ger/catalog.search#/metadata/967420e0-3ac3-3caf-8421-bf0a2ecc544d) |
 | Brandenburg | BB | ☑ | | ☑ | via iDSM & DTM | DTM <br> iDSM | DTM: 1m <br> iDSM: 0.2m | [Geobasis](https://data.geobasis-bb.de/geobasis/daten/) |
