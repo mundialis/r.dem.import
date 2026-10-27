@@ -1,7 +1,10 @@
 <!-- markdownlint-disable MD041 -->
 ## DESCRIPTION
 
-*r.dem.wcs.worker* is used within *r.dem.import* to import DEMs from WCS in parallel.
+*r.dem.wcs.worker* is used within *r.dem.import* to import DEMs from WCS in parallel.  
+The Worker is currently used in:  
+Baden-Württemberg (BW) [DTM](r.dtm.import.bw.md)  
+Sachsen-Anhalt (ST) [DTM](r.dtm.import.st.md) and [DSM](r.dsm.import.st.md)
 
 ## SEE ALSO
 

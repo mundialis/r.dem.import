@@ -24,6 +24,7 @@ per-file-ignores =
     ./r.idsm.import.rp/r.idsm.import.rp.py:E501,F821
     ./r.idsm.import.sh/r.idsm.import.sh.py:E501,F821
     ./r.dtm.import.bb/r.dtm.import.bb.py:E501,F821
+    ./r.dtm.import.bw/r.dtm.import.bw.py:E501,F821
     ./r.dtm.import.be/r.dtm.import.be.py:E501,F821
     ./r.dtm.import.he/r.dtm.import.he.py:E501,F821
     ./r.dtm.import.hh/r.dtm.import.hh.py:E501,F821
