@@ -10,6 +10,7 @@ per-file-ignores =
     ./r.dem.wcs.worker/r.dem.wcs.worker.py:E501,F821
     ./r.dsm.import.bb/r.dsm.import.bb.py:E501,F821
     ./r.dsm.import.be/r.dsm.import.be.py:E501,F821
+    ./r.dsm.import.bw/r.dsm.import.bw.py:E501,F821
     ./r.dsm.import.hb/r.dsm.import.hb.py:E501,F821
     ./r.dsm.import.he/r.dsm.import.he.py:E501,F821
     ./r.dsm.import.ni/r.dsm.import.ni.py:E501,F821
