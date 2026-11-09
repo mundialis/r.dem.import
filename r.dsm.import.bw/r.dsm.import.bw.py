@@ -208,15 +208,20 @@ def main():
                 grass.run_command("g.region", region=ORIG_REGION)
             grass.run_command("g.region", res=1, grow=1, quiet=True)
             if skip_extra_tiles(tiff_path, tiff_filename):
+                tiff_tmp = f"tmp_{tiff_filename}"
+                # reproject to project EPSG
+                gdal.Warp(
+                    srcDSOrSrcDSTab=str(tiff_path),
+                    destNameOrDestDS=tiff_tmp,
+                    dstSRS="EPSG:25832",
+                )
                 grass.run_command(
                     "r.import",
-                    input=str(tiff_path),
+                    input=tiff_tmp,
                     output=tiff_filename,
                     extent="region",
                     overwrite=True,
                     quiet=True,
-                    # Data CRS is Compound CRS, but we only need horizontal EPSG
-                    flags="o",
                 )
                 all_dsms.append(tiff_filename)
 
