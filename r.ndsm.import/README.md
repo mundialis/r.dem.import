@@ -9,9 +9,12 @@ Implemented federal state options are:
 - Bremen
 - Hamburg
 - Hessen
+- Mecklenburg-Vorpommern
 - Niedersachsen
 - [Nordrhein-Westfalen (NW)](r.ndsm.import.nw.md)
+- Rheinland-Pfalz
 - Sachsen
+- Sachsen-Anhalt
 - Schleswig-Holstein
 - Thüringen
 
