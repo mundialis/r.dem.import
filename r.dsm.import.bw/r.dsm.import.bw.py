@@ -209,7 +209,10 @@ def main():
             grass.run_command("g.region", res=1, grow=1, quiet=True)
             if skip_extra_tiles(tiff_path, tiff_filename):
                 tiff_tmp = f"tmp_{tiff_filename}"
-                # reproject to project EPSG
+                # Currently DSM tifs are given with COMPOUNDCRS
+                # with PROJCRS: 25832 and VERTCRS: 7837 (for vertical data)
+                # r.import check of CRS yields error, even in 25832 projection.
+                # Therefore gdal.Warp is used for reprojection.
                 gdal.Warp(
                     srcDSOrSrcDSTab=str(tiff_path),
                     destNameOrDestDS=tiff_tmp,
@@ -223,6 +226,7 @@ def main():
                     overwrite=True,
                     quiet=True,
                 )
+                rm_rasters.append(tiff_tmp)
                 all_dsms.append(tiff_filename)
 
     # Create VRT of tiles

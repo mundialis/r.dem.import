@@ -188,14 +188,15 @@ def main():
         dsm_name = os.path.splitext(pathlib.Path(url).name)[0].replace("-", "")
         if "/vsicurl/" not in url:
             url = f"/vsicurl/{url}"
-        # Currently bDOM tifs are given with COMPOUNDCRS
-        # with PROJCRS: 25833 and VERTCRS: 7837 (for vertical data)
-        # r.import check of CRS yields error, even in 25833 projection.
-        # Thus for now ignore projection check and expect 25833
-        # TODO/NOTE: remove -o flag when handled from r.import or
-        # CRS of original bDOM data change
-        grass.warning(
-            _("Importing data with -o flag, because of COMPOUNDCRS."),
+        # Currently DSM tifs are given with COMPOUNDCRS
+        # with PROJCRS: 25832 and VERTCRS: 7837 (for vertical data)
+        # r.import check of CRS yields error, even in 25832 projection.
+        # Therefore gdal.Warp is used for reprojection.
+        tiff_tmp = f"tmp_{url}"
+        gdal.Warp(
+            srcDSOrSrcDSTab=str(tiff_tmp),
+            destNameOrDestDS=url,
+            dstSRS="EPSG:25832",
         )
         import_kwargs = {
             "input": url,
@@ -210,6 +211,7 @@ def main():
             import_kwargs["resolution"] = "value"
             import_kwargs["resolution_value"] = dsm_res
         grass.run_command("r.import", **import_kwargs)
+        rm_rasters.append(tiff_tmp)
         all_dsms.append(dsm_name)
 
     # create VRT
