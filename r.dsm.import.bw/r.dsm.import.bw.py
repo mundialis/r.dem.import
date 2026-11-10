@@ -102,12 +102,13 @@ rm_vectors = []
 
 
 def skip_extra_tiles(filepath, filename):
-    """One ZIP folder is downloaded per Tindex tile. These folders contain
-    multiple smaller tiles. Tiles not matching the AOI will be skipped.
+    """Every Tindex tile contains the download URL to one ZIP folder.
+    These folders contain multiple smaller tiles. The import for tiles not
+    matching the AOI will be skipped.
 
     Args:
-        filepath (str): Absolute path to files in extracted folder
-        filename(str): Name of tested raster
+        filepath (str): gdal path to TIFF file
+        filename(str): Name of tested TIFF file without extension
 
     """
 

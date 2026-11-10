@@ -193,7 +193,7 @@ def main():
         # with PROJCRS: 25833 and VERTCRS: 7837 (for vertical data)
         # r.import check of CRS yields error, even in 25833 projection.
         # Therefore gdal.Warp is used for reprojection.
-        tiff_tmp = "tmp_idsm"
+        tiff_tmp = f"tmp_idsm_{ID}"
         gdal.Warp(
             srcDSOrSrcDSTab=url,
             destNameOrDestDS=tiff_tmp,
