@@ -78,8 +78,6 @@ from grass_gis_helpers.data_import import (
 )
 from grass_gis_helpers.open_geodata_germany.download_data import (
     check_download_dir,
-    download_data_using_threadpool,
-    extract_compressed_files,
 )
 from grass_gis_helpers.raster import (
     adjust_raster_resolution,
@@ -189,27 +187,34 @@ def main():
     # get download urls which overlap with aoi
     url_tiles = get_list_of_tindex_locations(tindex_vect, aoi)
 
-    # download TIFF DSM files
-    grass.message(_("Downloading DSMs..."))
-    download_data_using_threadpool(url_tiles, download_dir, 3)
+    # import DSMs directly
+    grass.message(_(f"Importing {len(url_tiles)} DSMs..."))
     all_dsms = []
     for url in url_tiles:
-        # extract TIFF files
-        grass.message(_("Extracting TIFF files from zip files..."))
-        zip_filenames = [pathlib.Path(url).name for url in url_tiles]
-        extracted_files = extract_compressed_files(zip_filenames, download_dir)
-        tiff_files = [item for item in extracted_files if ".tif" in item]
+        zip_url = f"/vsizip//vsicurl/{url}"
+
+        # get ZIP directory
+        zip_dirs = gdal.ReadDir(zip_url)
+        for zip_dir in zip_dirs:
+            subdir = f"{zip_url}/{zip_dir}"
+
+        # get TIFF files
+        files = gdal.ReadDir(subdir)
+        tiff_files = [item for item in files if ".tif" in item]
         for tiff_file in tiff_files:
-            tiff_path = pathlib.Path(download_dir) / tiff_file
+            tiff_path = f"{subdir}/{tiff_file}"
             tiff_filename = pathlib.Path(tiff_file).stem
             if aoi:
                 grass.run_command("g.region", vector=aoi)
             else:
                 grass.run_command("g.region", region=ORIG_REGION)
             grass.run_command("g.region", res=1, grow=1, quiet=True)
+
+            # skip files not matching aoi
             if skip_extra_tiles(tiff_path, tiff_filename):
                 tiff_tmp = f"tmp_{tiff_filename}"
-                # Currently DSM tifs are given with COMPOUNDCRS
+
+                # currently DSM tifs are given with COMPOUNDCRS
                 # with PROJCRS: 25832 and VERTCRS: 7837 (for vertical data)
                 # r.import check of CRS yields error, even in 25832 projection.
                 # Therefore gdal.Warp is used for reprojection.
@@ -218,6 +223,8 @@ def main():
                     destNameOrDestDS=tiff_tmp,
                     dstSRS="EPSG:25832",
                 )
+
+                # import TIFF files
                 grass.run_command(
                     "r.import",
                     input=tiff_tmp,
@@ -229,7 +236,7 @@ def main():
                 rm_rasters.append(tiff_tmp)
                 all_dsms.append(tiff_filename)
 
-    # Create VRT of tiles
+    # create VRT of tiles
     # (dont copy raster maps -> create real raster in the next steps)
     vrt = f"vrt_dsm_{output}_{ID}"
     rm_rasters.append(vrt)

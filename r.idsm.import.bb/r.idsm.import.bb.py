@@ -188,24 +188,24 @@ def main():
         dsm_name = os.path.splitext(pathlib.Path(url).name)[0].replace("-", "")
         if "/vsicurl/" not in url:
             url = f"/vsicurl/{url}"
-        # Currently DSM tifs are given with COMPOUNDCRS
-        # with PROJCRS: 25832 and VERTCRS: 7837 (for vertical data)
-        # r.import check of CRS yields error, even in 25832 projection.
+
+        # currently iDSM tifs are given with COMPOUNDCRS
+        # with PROJCRS: 25833 and VERTCRS: 7837 (for vertical data)
+        # r.import check of CRS yields error, even in 25833 projection.
         # Therefore gdal.Warp is used for reprojection.
-        tiff_tmp = f"tmp_{url}"
+        tiff_tmp = "tmp_idsm"
         gdal.Warp(
-            srcDSOrSrcDSTab=str(tiff_tmp),
-            destNameOrDestDS=url,
-            dstSRS="EPSG:25832",
+            srcDSOrSrcDSTab=url,
+            destNameOrDestDS=tiff_tmp,
+            dstSRS="EPSG:25833",
         )
         import_kwargs = {
-            "input": url,
+            "input": tiff_tmp,
             "output": dsm_name,
             "extent": "region",
             "overwrite": True,
             "quiet": True,
             "memory": 1000,
-            "flags": "o",
         }
         if native_res:
             import_kwargs["resolution"] = "value"
