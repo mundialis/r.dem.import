@@ -53,7 +53,7 @@ OPEN_DATA_AVAILABILITY = {
         ],
     },
     "DSM": {
-        "NO_OPEN_DATA": ["BY"],
+        "NO_OPEN_DATA": ["HH"],
         "NOT_YET_SUPPORTED": [
             # available data
             "NW",
@@ -66,6 +66,7 @@ OPEN_DATA_AVAILABILITY = {
         "SUPPORTED": [
             "BE",
             "BW",
+            "BY",
             "HB",
             "HE",
             "NI",
