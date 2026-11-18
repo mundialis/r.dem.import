@@ -9,6 +9,7 @@ Alternatively, local data can be imported. Implemented federal state options are
 - [Brandenburg (BB)](r.dsm.import.bb.md)
 - [Berlin (BE)](r.dsm.import.be.md)
 - [Baden-Württemberg (BW)](r.dsm.import.bw.md)
+- [Bayern (BY)](r.dm.import.by.md)
 - [Bremen (HB)](r.dsm.import.hb.md)
 - [Hamburg (HH)](r.dsm.import.hh.md)
 - [Hessen (HE)](r.dsm.import.he.md)
