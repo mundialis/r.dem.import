@@ -28,7 +28,7 @@ Examples for the use of this toolset are provided in each module
 | Federal state | fs | DTM | DSM | iDSM | nDSM | Tile-Index | Resolution | Data Source |
 | - | - | - | - | - | - | - | - | - |
 | Baden-Württemberg | BW | ☑ | ☑ | n.a. | | DTM via WCS <br> DSM | DTM: 1m <br> DSM: 1m | [Open GeoData](https://opengeodata.lgl-bw.de/#/) <br> [DTM025](https://opengeodata.lgl-bw.de/#/(sidenav:product/dgm025)) |
-| Bayern | BY | | ☑ | | | DSM via WMS | DSM: 0.2m | [Open GeoData](https://geodaten.bayern.de/opengeodata/) |
+| Bayern | BY | ☑ | ☑ | | via DSM & DTM | external Tindex (via WMS) | DTM: 1m <br> DSM: 0.2m | [Open GeoData](https://geodaten.bayern.de/opengeodata/) |
 | Berlin | BE | ☑ | ☑ | | via DSM & DTM | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Geoportal](https://gdi.berlin.de/) <br> [iDSM](https://gdi.berlin.de/geonetwork/srv/ger/catalog.search#/metadata/967420e0-3ac3-3caf-8421-bf0a2ecc544d) |
 | Brandenburg | BB | ☑ | | ☑ | via iDSM & DTM | DTM <br> iDSM | DTM: 1m <br> iDSM: 0.2m | [Geobasis](https://data.geobasis-bb.de/geobasis/daten/) |
 | Bremen | HB | ☑ | ☑ | n.a. | via DSM & DTM | DTM <br> DSM | DTM: 1m <br> DSM: 1m | [Geoportal](https://geoportal.bremen.de/geoportal/#) |

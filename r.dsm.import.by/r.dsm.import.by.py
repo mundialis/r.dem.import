@@ -97,6 +97,8 @@ except Exception as imp_err:
 
 # set variables
 URL = "https://services.atlas.bayern.de/getFeature/url"
+# WMS with tile url information used as external tindex
+TINDEX_WMS = "https://geoservices.bayern.de/od/wms/grid/v1/opendatagrid||dom20_DOM||Opendata_Auswahl_DOM20"
 NATIVE_DSM_RES = 0.2
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
@@ -201,7 +203,7 @@ def main():
     url_list = []
     for x, y in query_points:
         payload = {
-            "urlOrId": "https://geoservices.bayern.de/od/wms/grid/v1/opendatagrid||dom20_DOM||Opendata_Auswahl_DOM20",
+            "urlOrId": TINDEX_WMS,
             "easting": x,
             "northing": y,
             "srid": 25832,

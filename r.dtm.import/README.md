@@ -7,6 +7,7 @@
 - [Brandenburg (BB)](r.dtm.import.bb.md)
 - [Berlin (BE)](r.dtm.import.be.md)
 - [Baden-Württemberg (BW)](r.dtm.import.bw.md)
+- [Bayern (BY)](r.dtm.import.by.md)
 - [Hamburg (HH)](r.dtm.import.hh.md)
 - [Hessen (HE)](r.dtm.import.he.md)
 - [Mecklenburg-Vorpommern (MV)](r.dtm.import.mv.md)
