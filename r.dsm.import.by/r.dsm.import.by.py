@@ -197,7 +197,7 @@ def main():
         x, y = map(float, coords.strip().split(",")[:2])
         query_points.append((x, y))
 
-    # get download URLs from WMS
+    # get download URLs from WMS (external Tileindex)
     url_list = []
     for x, y in query_points:
         payload = {
