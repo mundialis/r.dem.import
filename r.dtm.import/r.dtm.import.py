@@ -157,7 +157,6 @@ except Exception as imp_err:
 # set constant variables
 ID = grass.tempname(12)
 ORIG_REGION = f"original_region_{ID}"
-NO_OPEN_DATA = OPEN_DATA_AVAILABILITY["DTM"]["NO_OPEN_DATA"]
 NOT_YET_SUPPORTED = OPEN_DATA_AVAILABILITY["DTM"]["NOT_YET_SUPPORTED"]
 # set global variables
 rm_rasters = []
@@ -244,13 +243,6 @@ def main():
             all_dtms.append(out_fs)
             fs_dem_list = [f"{output}_{fs}"]
             dem_names = get_local_file_names(local_data_dir, fs)
-        elif fs not in local_fs_list and fs in NO_OPEN_DATA:
-            grass.fatal(
-                _(
-                    f"No local data for {fs} available. For the federal state "
-                    "there are no open data available. Is the path correct?",
-                ),
-            )
 
         # import data when local import was not used
         if not imported_local_data:
@@ -261,13 +253,7 @@ def main():
                         f"{fs}.",
                     ),
                 )
-            elif fs in NO_OPEN_DATA:
-                grass.fatal(
-                    _(
-                        f"For the federal state {fs} there are no open data "
-                        "available. Please use local data <local_data_dir>.",
-                    ),
-                )
+
             # implement data download and import from open data
             r_dtm_import_fs_flags = ""
             if keep_data:
