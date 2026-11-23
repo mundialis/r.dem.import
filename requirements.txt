@@ -1,4 +1,6 @@
 grass-gis-helpers>=4.3.2
+parsel
 psutil
 remotezip
+requests
 wget
