@@ -30,10 +30,7 @@ from grass_gis_helpers.raster import (
 
 OPEN_DATA_AVAILABILITY = {
     "DTM": {
-        "NOT_YET_SUPPORTED": [
-            # no data available
-            "SL",
-        ],
+        "NOT_YET_SUPPORTED": [],
         "SUPPORTED": [
             "BB",
             "BE",
@@ -47,6 +44,7 @@ OPEN_DATA_AVAILABILITY = {
             "NW",
             "RP",
             "SH",
+            "SL",
             "SN",
             "ST",
             "TH",
