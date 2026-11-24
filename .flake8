@@ -38,6 +38,7 @@ per-file-ignores =
     ./r.dtm.import.ni/r.dtm.import.ni.py:E501,F821
     ./r.dtm.import.rp/r.dtm.import.rp.py:E501,F821
     ./r.dtm.import.sh/r.dtm.import.sh.py:E501,F821
+    ./r.dtm.import.sl/r.dtm.import.sl.py:E501,F821
     ./r.dtm.import.sn/r.dtm.import.sn.py:E501,F821
     ./r.dtm.import.st/r.dtm.import.st.py:E501,F821
     ./r.dtm.import.th/r.dtm.import.th.py:E501,F821
